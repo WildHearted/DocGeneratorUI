@@ -63,6 +63,16 @@ namespace DocGeneratorUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap ClickLink {
+            get {
+                object obj = ResourceManager.GetObject("ClickLink", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DocGenerator {
             get {
                 object obj = ResourceManager.GetObject("DocGenerator", resourceCulture);

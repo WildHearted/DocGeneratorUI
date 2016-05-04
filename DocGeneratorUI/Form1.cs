@@ -26,14 +26,15 @@ namespace DocGeneratorUI
 			{
 			Cursor.Current = Cursors.WaitCursor;
 
-			MessageBox.Show("Here we go, ready to run a cycle of the DocGeneratorCore Controller as soon as you click Ok!", 
-				"Ready to run the DocGenerator... message.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-
 			// Declare the main controller object
 			MainController objMainController = new MainController();
 			objMainController.MainProcess();
 
 			Cursor.Current = Cursors.Default;
+			MessageBox.Show("Successfully completed a cycle run of the DocGeneratorCore controller and processed all unprocessed "
+				+ " Document Collections" + " \nClick it again to run another cycle.",
+				"Run successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
 			}
 		}
 	}

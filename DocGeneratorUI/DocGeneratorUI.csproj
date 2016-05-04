@@ -57,8 +57,9 @@
     <ApplicationIcon>DocGenerator32.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DocGeneratorCore">
-      <HintPath>..\..\..\Experiments\DocGenerator\DogGenUI\bin\x64\Debug\DocGeneratorCore.dll</HintPath>
+    <Reference Include="DocGeneratorCore, Version=1.0.0.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\DocGeneratorCore\DogGenUI\bin\x64\Debug\DocGeneratorCore.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Data.OData, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Data.Services, Version=5.6.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
@@ -121,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DocGenerator32.ico" />
+    <None Include="Resources\ClickLink[1].png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6">
