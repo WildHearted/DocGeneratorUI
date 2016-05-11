@@ -32,7 +32,12 @@
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this.button1 = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
+			this.groupBoxSpecific = new System.Windows.Forms.GroupBox();
+			this.button2 = new System.Windows.Forms.Button();
+			this.label2 = new System.Windows.Forms.Label();
+			this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+			this.groupBoxSpecific.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// pictureBox1
@@ -55,7 +60,7 @@
 			this.button1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(105)))), ((int)(((byte)(190)))), ((int)(((byte)(42)))));
 			this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
 			this.button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.button1.Location = new System.Drawing.Point(100, 133);
+			this.button1.Location = new System.Drawing.Point(100, 54);
 			this.button1.Name = "button1";
 			this.button1.Size = new System.Drawing.Size(361, 39);
 			this.button1.TabIndex = 0;
@@ -78,11 +83,63 @@
 			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			this.label1.UseCompatibleTextRendering = true;
 			// 
+			// groupBoxSpecific
+			// 
+			this.groupBoxSpecific.Controls.Add(this.maskedTextBox1);
+			this.groupBoxSpecific.Controls.Add(this.button2);
+			this.groupBoxSpecific.Controls.Add(this.label2);
+			this.groupBoxSpecific.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.groupBoxSpecific.Location = new System.Drawing.Point(12, 142);
+			this.groupBoxSpecific.Name = "groupBoxSpecific";
+			this.groupBoxSpecific.Size = new System.Drawing.Size(449, 77);
+			this.groupBoxSpecific.TabIndex = 3;
+			this.groupBoxSpecific.TabStop = false;
+			this.groupBoxSpecific.Text = "Generate specific Document Collection";
+			// 
+			// button2
+			// 
+			this.button2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+			this.button2.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+			this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.button2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(105)))), ((int)(((byte)(190)))), ((int)(((byte)(42)))));
+			this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
+			this.button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.button2.Location = new System.Drawing.Point(258, 19);
+			this.button2.Name = "button2";
+			this.button2.Size = new System.Drawing.Size(169, 39);
+			this.button2.TabIndex = 4;
+			this.button2.Text = "Generate";
+			this.button2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.button2.UseVisualStyleBackColor = true;
+			this.button2.Click += new System.EventHandler(this.button2_Click);
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.label2.Location = new System.Drawing.Point(7, 33);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(122, 13);
+			this.label2.TabIndex = 0;
+			this.label2.Text = "Document Collection ID:";
+			// 
+			// maskedTextBox1
+			// 
+			this.maskedTextBox1.AsciiOnly = true;
+			this.maskedTextBox1.BeepOnError = true;
+			this.maskedTextBox1.Location = new System.Drawing.Point(135, 30);
+			this.maskedTextBox1.Mask = "0000000";
+			this.maskedTextBox1.Name = "maskedTextBox1";
+			this.maskedTextBox1.Size = new System.Drawing.Size(58, 20);
+			this.maskedTextBox1.TabIndex = 5;
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(470, 184);
+			this.ClientSize = new System.Drawing.Size(470, 227);
+			this.Controls.Add(this.groupBoxSpecific);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.pictureBox1);
 			this.Controls.Add(this.button1);
@@ -91,6 +148,8 @@
 			this.Text = "DocGenerator User Interface";
 			this.Load += new System.EventHandler(this.Form1_Load);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+			this.groupBoxSpecific.ResumeLayout(false);
+			this.groupBoxSpecific.PerformLayout();
 			this.ResumeLayout(false);
 
 			}
@@ -100,6 +159,10 @@
 		private System.Windows.Forms.Button button1;
 		private System.Windows.Forms.PictureBox pictureBox1;
 		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.GroupBox groupBoxSpecific;
+		private System.Windows.Forms.Button button2;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.MaskedTextBox maskedTextBox1;
 		}
 	}
 

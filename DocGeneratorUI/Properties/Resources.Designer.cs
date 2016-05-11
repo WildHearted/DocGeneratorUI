@@ -81,6 +81,33 @@ namespace DocGeneratorUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 1#life#LIVE#it.
+        /// </summary>
+        internal static string DocGenerator_Account_Password {
+            get {
+                return ResourceManager.GetString("DocGenerator_Account_Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AFRICA.
+        /// </summary>
+        internal static string DocGenerator_AccountDomain {
+            get {
+                return ResourceManager.GetString("DocGenerator_AccountDomain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to SDDP.DocGenerator.
+        /// </summary>
+        internal static string DocGenerator_AccountName {
+            get {
+                return ResourceManager.GetString("DocGenerator_AccountName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap DocGenerator32 {
@@ -91,12 +118,39 @@ namespace DocGeneratorUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to ben.vandenberg@za.didata.com.
+        /// </summary>
+        internal static string EmailAddress_TechnicalSupport {
+            get {
+                return ResourceManager.GetString("EmailAddress_TechnicalSupport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap SharePoint {
             get {
                 object obj = ResourceManager.GetObject("SharePoint", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /_vti_bin/listdata.svc.
+        /// </summary>
+        internal static string SharePointRESTuri {
+            get {
+                return ResourceManager.GetString("SharePointRESTuri", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://teams.dimensiondata.com/sites/servicecatalogue.
+        /// </summary>
+        internal static string SharePointSiteURL {
+            get {
+                return ResourceManager.GetString("SharePointSiteURL", resourceCulture);
             }
         }
     }

@@ -130,4 +130,22 @@
   <data name="ClickLink" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ClickLink[1].png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="DocGenerator_AccountDomain" xml:space="preserve">
+    <value>AFRICA</value>
+  </data>
+  <data name="DocGenerator_AccountName" xml:space="preserve">
+    <value>SDDP.DocGenerator</value>
+  </data>
+  <data name="DocGenerator_Account_Password" xml:space="preserve">
+    <value>1#life#LIVE#it</value>
+  </data>
+  <data name="EmailAddress_TechnicalSupport" xml:space="preserve">
+    <value>ben.vandenberg@za.didata.com</value>
+  </data>
+  <data name="SharePointRESTuri" xml:space="preserve">
+    <value>/_vti_bin/listdata.svc</value>
+  </data>
+  <data name="SharePointSiteURL" xml:space="preserve">
+    <value>https://teams.dimensiondata.com/sites/servicecatalogue</value>
+  </data>
 </root>
