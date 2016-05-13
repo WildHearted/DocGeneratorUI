@@ -6,52 +6,87 @@ using System.Data.Services.Client;
 using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using DocGeneratorCore;
-using DocGeneratorUI.SDDPServiceReference;
 
 namespace DocGeneratorUI
 	{
 	public partial class Form1:Form
 		{
+		private CompleteDataSet completeDataSet;
+		private DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext sddpDataContext;
+
 		public Form1()
 			{
+			Thread.CurrentThread.Name = "MainGUI";
 			InitializeComponent();
 			}
 
 		private void Form1_Load(object sender, EventArgs e)
 			{
+			progressBar1.Visible = false;
+			//- Initiate the SharePoint Datacontext...
+			this.completeDataSet = new CompleteDataSet();
+
+			this.completeDataSet.SDDPdatacontext = new DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext(
+					new Uri(Properties.Resources.SharePointSiteURL + Properties.Resources.SharePointRESTuri));
+
+			this.completeDataSet.SDDPdatacontext.Credentials = new NetworkCredential(
+				userName: Properties.Resources.DocGenerator_AccountName,
+				password: Properties.Resources.DocGenerator_Account_Password,
+				domain: Properties.Resources.DocGenerator_AccountDomain);
+			this.completeDataSet.SDDPdatacontext.MergeOption = MergeOption.NoTracking;
+
+			this.completeDataSet.LastRefreshedOn = new DateTime(2000, 1, 1, 0, 0, 0);
+			this.completeDataSet.RefreshingDateTimeStamp = DateTime.UtcNow;
+			this.completeDataSet.IsDataSetComplete = false;
+
+			//- --------------------------------------------------------------------------------------------------------------
+			// Launch the **6 Threads** to build the Complete DataSet while waiting for user input.
+			//- --------------------------------------------------------------------------------------------------------------
+			Thread tThread1 = new Thread(() => completeDataSet.PopulateBaseObjects());
+			Thread tThread2 = new Thread(() => completeDataSet.PopulateBaseObjects());
+			Thread tThread3 = new Thread(() => completeDataSet.PopulateBaseObjects());
+			Thread tThread4 = new Thread(() => completeDataSet.PopulateBaseObjects());
+			Thread tThread5 = new Thread(() => completeDataSet.PopulateBaseObjects());
+			Thread tThread6 = new Thread(() => completeDataSet.PopulateBaseObjects());
+			//- Pass the Thread Number to execute as the parameter to the method.
+			tThread1.Name = "Data1";
+			tThread1.Start();
+			tThread2.Name = "Data2";
+			tThread2.Start();
+			tThread3.Name = "Data3";
+			tThread3.Start();
+			tThread4.Name = "Data4";
+			tThread4.Start();
+			tThread5.Name = "Data5";
+			tThread5.Start();
+			tThread6.Name = "Data6";
+			tThread6.Start();
 
 			}
 
 		private void button1_Click(object sender, EventArgs e)
 			{
 			Cursor.Current = Cursors.WaitCursor;
+			progressBar1.Visible = true;
+
 			String strExceptionMessage = String.Empty;
 			// Initialise the listDocumentCollections object if it is null.
 			List<DocumentCollection> listDocumentCollections = new List<DocumentCollection>();
 
 			try
 				{
-				//Construct the SharePoint Client Context
-				DesignAndDeliveryPortfolioDataContext objSDDPdatacontext = new DesignAndDeliveryPortfolioDataContext(
-					new Uri(Properties.Resources.SharePointSiteURL + Properties.Resources.SharePointRESTuri));
 
-				objSDDPdatacontext.Credentials = new NetworkCredential(
-					userName: Properties.Resources.DocGenerator_AccountName,
-					password: Properties.Resources.DocGenerator_Account_Password,
-					domain: Properties.Resources.DocGenerator_AccountDomain);
-
-				objSDDPdatacontext.MergeOption = MergeOption.NoTracking;
-
-				var dsDocCollections = from dsDocumentCollection in objSDDPdatacontext.DocumentCollectionLibrary
-									where dsDocumentCollection.GenerateActionValue != null
-									&& dsDocumentCollection.GenerateActionValue != "Save but don't generate the documents yet"
-									&& (dsDocumentCollection.GenerationStatus == enumGenerationStatus.Pending.ToString()
-									|| dsDocumentCollection.GenerationStatus == null)
-									orderby dsDocumentCollection.Modified
-									select dsDocumentCollection;
+				var dsDocCollections = 
+					from dsDocumentCollection in this.completeDataSet.SDDPdatacontext.DocumentCollectionLibrary
+					where dsDocumentCollection.GenerateActionValue != null
+					&& dsDocumentCollection.GenerateActionValue != "Save but don't generate the documents yet"
+					&& (dsDocumentCollection.GenerationStatus == enumGenerationStatus.Pending.ToString()
+					|| dsDocumentCollection.GenerationStatus == null)
+					orderby dsDocumentCollection.Modified
+					select dsDocumentCollection;
 
 				foreach(var recDocCollectionToGenerate in dsDocCollections)
 					{
@@ -74,9 +109,13 @@ namespace DocGeneratorUI
 						{// Invoke the DocGeneratorCore's MainController object MainProcess method
 						MainController objMainController = new MainController();
 						objMainController.DocumentCollectionsToGenerate = listDocumentCollections;
-						objMainController.MainProcess();
+						objMainController.MainProcess(parDataSet: ref this.completeDataSet);
 						}
 					}
+
+				MessageBox.Show("Successfully completed a cycle run of the DocGeneratorCore controller and processed all unprocessed "
+				+ " Document Collections" + " \nClick it again to run another cycle.",
+				"Run successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
 				}
 			catch(DataServiceClientException exc)
 				{
@@ -200,18 +239,17 @@ namespace DocGeneratorUI
 					//	parSendBcc: false);
 					};
 				}
-			Cursor.Current = Cursors.Default;
-			MessageBox.Show("Successfully completed a cycle run of the DocGeneratorCore controller and processed all unprocessed "
-				+ " Document Collections" + " \nClick it again to run another cycle.",
-				"Run successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+			finally
+				{
+				progressBar1.Visible = false;
+				Cursor.Current = Cursors.Default;
+				}
+			
 			}
 
 		private void button2_Click(object sender, EventArgs e)
 			{
-			// Initialise the listDocumentCollections object if it is null.
-			List<DocumentCollection> listDocumentCollections = new List<DocumentCollection>();
-
+			// Validate the input
 			if(maskedTextBox1.Text == null)
 				{
 				MessageBox.Show("Please enter a numeric value, before clicking the Generate button",
@@ -226,39 +264,36 @@ namespace DocGeneratorUI
 						"Invalid value entered.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 				}
-
+			// -----------------------------------
 			Cursor.Current = Cursors.WaitCursor;
+			progressBar1.Visible = true;
+			Application.DoEvents();
 
 			string strExceptionMessage = String.Empty;
+			// Initialise the listDocumentCollections object if it is null.
+			List<DocumentCollection> listDocumentCollections = new List<DocumentCollection>();
 
-			//Construct the SharePoint Client Context
-			DesignAndDeliveryPortfolioDataContext objSDDPdatacontext = new DesignAndDeliveryPortfolioDataContext(
-				new Uri(Properties.Resources.SharePointSiteURL + Properties.Resources.SharePointRESTuri));
-
-			objSDDPdatacontext.Credentials = new NetworkCredential(
-				userName: Properties.Resources.DocGenerator_AccountName,
-				password: Properties.Resources.DocGenerator_Account_Password,
-				domain: Properties.Resources.DocGenerator_AccountDomain);
-
-			objSDDPdatacontext.MergeOption = MergeOption.NoTracking;
 			try
 				{
-				var dsDocumentCollections = from dsDC in objSDDPdatacontext.DocumentCollectionLibrary
-									   where dsDC.Id == intDocumentCollectionID
-									   select dsDC;
+				var dsDocumentCollections = 
+					from dsDC in this.completeDataSet.SDDPdatacontext.DocumentCollectionLibrary
+					where dsDC.Id == intDocumentCollectionID
+					select dsDC;
 
 				var objDocCollection = dsDocumentCollections.FirstOrDefault();
 
 				if(objDocCollection == null)
 					{
+					progressBar1.Visible = false;
 					Cursor.Current = Cursors.Default;
-					MessageBox.Show("The Document Collection ID that you entered does not exist.",
-						"ID doesn't exist.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+					MessageBox.Show("The Document Collection ID that you entered doesn't exist. Please enter a valid ID.",
+						"Document Collection ID, doesn't exist.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 					return;
 					}
 				else
 					{
 					// Create a DocumentCollection instance and populate the basic attributes.
+					Application.DoEvents();
 					DocumentCollection objDocumentCollection = new DocumentCollection();
 					objDocumentCollection.ID = objDocCollection.Id;
 					if(objDocCollection.Title == null)
@@ -270,14 +305,17 @@ namespace DocGeneratorUI
 					// Add the DocumentCollection object to the listDocumentCollection
 					listDocumentCollections.Add(objDocumentCollection);
 					}
+				Application.DoEvents();
 
+				
+				
 				// Check if there are any Document Collections to generate
 				if(listDocumentCollections.Count > 0)
 					{
 					// Invoke the DocGeneratorCore's MainController object MainProcess method and send all the entries for processing
 					MainController objMainController = new MainController();
 					objMainController.DocumentCollectionsToGenerate = listDocumentCollections;
-					objMainController.MainProcess();
+					objMainController.MainProcess(parDataSet: ref this.completeDataSet);
 					}
 				}
 			catch(DataServiceClientException exc)
@@ -286,6 +324,8 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult + "\nStatusCode: " + exc.StatusCode
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
+				progressBar1.Visible = false;
+				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
 				MessageBox.Show(strExceptionMessage,
 					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -303,6 +343,8 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
+				progressBar1.Visible = false;
+				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
 				MessageBox.Show(strExceptionMessage,
 					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -320,6 +362,8 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
+				progressBar1.Visible = false;
+				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
 				MessageBox.Show(strExceptionMessage,
 					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -337,6 +381,8 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
+				progressBar1.Visible = false;
+				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
 				MessageBox.Show(strExceptionMessage,
 					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -356,6 +402,8 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
+					progressBar1.Visible = false;
+					Application.DoEvents();
 					Cursor.Current = Cursors.Default;
 					MessageBox.Show(strExceptionMessage,
 						"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -373,6 +421,8 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
+					progressBar1.Visible = false;
+					Application.DoEvents();
 					Cursor.Current = Cursors.Default;
 					MessageBox.Show(strExceptionMessage,
 						"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -390,6 +440,8 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
+					progressBar1.Visible = false;
+					Application.DoEvents();
 					Cursor.Current = Cursors.Default;
 					MessageBox.Show(strExceptionMessage,
 						"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -402,10 +454,14 @@ namespace DocGeneratorUI
 					//	parSendBcc: false);
 					};
 				}
+			finally
+				{
+				progressBar1.Visible = false;
 				Cursor.Current = Cursors.Default;
-				MessageBox.Show("Successfully  DocGeneratorCore controller and processed all unprocessed "
-					+ " Document Collections" + " \nClick it again to run another cycle.",
-					"Run successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+				}
+			MessageBox.Show("Successfully completed the generation of Document Collection: " + maskedTextBox1.Text
+				+ " \nClick it again to generate the same Document Collection or enter another number...",
+				"Generation successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 		}
 	}

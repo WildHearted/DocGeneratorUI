@@ -33,9 +33,10 @@
 			this.button1 = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
 			this.groupBoxSpecific = new System.Windows.Forms.GroupBox();
+			this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
 			this.button2 = new System.Windows.Forms.Button();
 			this.label2 = new System.Windows.Forms.Label();
-			this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
+			this.progressBar1 = new System.Windows.Forms.ProgressBar();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.groupBoxSpecific.SuspendLayout();
 			this.SuspendLayout();
@@ -96,6 +97,16 @@
 			this.groupBoxSpecific.TabStop = false;
 			this.groupBoxSpecific.Text = "Generate specific Document Collection";
 			// 
+			// maskedTextBox1
+			// 
+			this.maskedTextBox1.AsciiOnly = true;
+			this.maskedTextBox1.BeepOnError = true;
+			this.maskedTextBox1.Location = new System.Drawing.Point(135, 30);
+			this.maskedTextBox1.Mask = "0000000";
+			this.maskedTextBox1.Name = "maskedTextBox1";
+			this.maskedTextBox1.Size = new System.Drawing.Size(58, 20);
+			this.maskedTextBox1.TabIndex = 5;
+			// 
 			// button2
 			// 
 			this.button2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
@@ -124,21 +135,24 @@
 			this.label2.TabIndex = 0;
 			this.label2.Text = "Document Collection ID:";
 			// 
-			// maskedTextBox1
+			// progressBar1
 			// 
-			this.maskedTextBox1.AsciiOnly = true;
-			this.maskedTextBox1.BeepOnError = true;
-			this.maskedTextBox1.Location = new System.Drawing.Point(135, 30);
-			this.maskedTextBox1.Mask = "0000000";
-			this.maskedTextBox1.Name = "maskedTextBox1";
-			this.maskedTextBox1.Size = new System.Drawing.Size(58, 20);
-			this.maskedTextBox1.TabIndex = 5;
+			this.progressBar1.Cursor = System.Windows.Forms.Cursors.No;
+			this.progressBar1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(105)))), ((int)(((byte)(190)))), ((int)(((byte)(42)))));
+			this.progressBar1.Location = new System.Drawing.Point(12, 225);
+			this.progressBar1.MarqueeAnimationSpeed = 10;
+			this.progressBar1.Name = "progressBar1";
+			this.progressBar1.Size = new System.Drawing.Size(449, 23);
+			this.progressBar1.Step = 5;
+			this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+			this.progressBar1.TabIndex = 4;
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(470, 227);
+			this.ClientSize = new System.Drawing.Size(470, 253);
+			this.Controls.Add(this.progressBar1);
 			this.Controls.Add(this.groupBoxSpecific);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.pictureBox1);
@@ -163,6 +177,7 @@
 		private System.Windows.Forms.Button button2;
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.MaskedTextBox maskedTextBox1;
+		private System.Windows.Forms.ProgressBar progressBar1;
 		}
 	}
 
