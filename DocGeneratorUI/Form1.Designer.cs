@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 			{
+			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
 			this.pictureBox1 = new System.Windows.Forms.PictureBox();
 			this.button1 = new System.Windows.Forms.Button();
@@ -37,8 +38,14 @@
 			this.button2 = new System.Windows.Forms.Button();
 			this.label2 = new System.Windows.Forms.Label();
 			this.progressBar1 = new System.Windows.Forms.ProgressBar();
+			this.timerCheckDataset = new System.Windows.Forms.Timer(this.components);
+			this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+			this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+			this.toolStripProgressBar = new System.Windows.Forms.ToolStripProgressBar();
+			this.timerCheckDataSetStatus = new System.Windows.Forms.Timer(this.components);
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.groupBoxSpecific.SuspendLayout();
+			this.statusStrip1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// pictureBox1
@@ -89,11 +96,12 @@
 			this.groupBoxSpecific.Controls.Add(this.maskedTextBox1);
 			this.groupBoxSpecific.Controls.Add(this.button2);
 			this.groupBoxSpecific.Controls.Add(this.label2);
+			this.groupBoxSpecific.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.groupBoxSpecific.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.groupBoxSpecific.Location = new System.Drawing.Point(12, 142);
+			this.groupBoxSpecific.Location = new System.Drawing.Point(12, 108);
 			this.groupBoxSpecific.Name = "groupBoxSpecific";
 			this.groupBoxSpecific.Size = new System.Drawing.Size(449, 77);
-			this.groupBoxSpecific.TabIndex = 3;
+			this.groupBoxSpecific.TabIndex = 2;
 			this.groupBoxSpecific.TabStop = false;
 			this.groupBoxSpecific.Text = "Generate specific Document Collection";
 			// 
@@ -121,7 +129,6 @@
 			this.button2.Size = new System.Drawing.Size(169, 39);
 			this.button2.TabIndex = 4;
 			this.button2.Text = "Generate";
-			this.button2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.button2.UseVisualStyleBackColor = true;
 			this.button2.Click += new System.EventHandler(this.button2_Click);
 			// 
@@ -139,7 +146,7 @@
 			// 
 			this.progressBar1.Cursor = System.Windows.Forms.Cursors.No;
 			this.progressBar1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(105)))), ((int)(((byte)(190)))), ((int)(((byte)(42)))));
-			this.progressBar1.Location = new System.Drawing.Point(12, 225);
+			this.progressBar1.Location = new System.Drawing.Point(9, 191);
 			this.progressBar1.MarqueeAnimationSpeed = 10;
 			this.progressBar1.Name = "progressBar1";
 			this.progressBar1.Size = new System.Drawing.Size(449, 23);
@@ -147,11 +154,54 @@
 			this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
 			this.progressBar1.TabIndex = 4;
 			// 
+			// timerCheckDataset
+			// 
+			this.timerCheckDataset.Interval = 60000;
+			this.timerCheckDataset.Tick += new System.EventHandler(this.timerCheckDataset_Tick);
+			// 
+			// statusStrip1
+			// 
+			this.statusStrip1.AutoSize = false;
+			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripStatusLabel,
+            this.toolStripProgressBar});
+			this.statusStrip1.Location = new System.Drawing.Point(0, 221);
+			this.statusStrip1.Name = "statusStrip1";
+			this.statusStrip1.Size = new System.Drawing.Size(471, 22);
+			this.statusStrip1.TabIndex = 6;
+			this.statusStrip1.Text = "statusStrip1";
+			// 
+			// toolStripStatusLabel
+			// 
+			this.toolStripStatusLabel.AutoSize = false;
+			this.toolStripStatusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.toolStripStatusLabel.ForeColor = System.Drawing.Color.DarkRed;
+			this.toolStripStatusLabel.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
+			this.toolStripStatusLabel.Name = "toolStripStatusLabel";
+			this.toolStripStatusLabel.Size = new System.Drawing.Size(230, 18);
+			this.toolStripStatusLabel.Text = "Loading DataSet...";
+			// 
+			// toolStripProgressBar
+			// 
+			this.toolStripProgressBar.AutoSize = false;
+			this.toolStripProgressBar.Margin = new System.Windows.Forms.Padding(1, 2, 1, 2);
+			this.toolStripProgressBar.Maximum = 6;
+			this.toolStripProgressBar.Name = "toolStripProgressBar";
+			this.toolStripProgressBar.Size = new System.Drawing.Size(225, 18);
+			this.toolStripProgressBar.Step = 1;
+			this.toolStripProgressBar.Visible = false;
+			// 
+			// timerCheckDataSetStatus
+			// 
+			this.timerCheckDataSetStatus.Interval = 10000;
+			this.timerCheckDataSetStatus.Tick += new System.EventHandler(this.timerCheckDataSetStatus_Tick);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(470, 253);
+			this.ClientSize = new System.Drawing.Size(471, 243);
+			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.progressBar1);
 			this.Controls.Add(this.groupBoxSpecific);
 			this.Controls.Add(this.label1);
@@ -164,6 +214,8 @@
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
 			this.groupBoxSpecific.ResumeLayout(false);
 			this.groupBoxSpecific.PerformLayout();
+			this.statusStrip1.ResumeLayout(false);
+			this.statusStrip1.PerformLayout();
 			this.ResumeLayout(false);
 
 			}
@@ -178,6 +230,11 @@
 		private System.Windows.Forms.Label label2;
 		private System.Windows.Forms.MaskedTextBox maskedTextBox1;
 		private System.Windows.Forms.ProgressBar progressBar1;
+		private System.Windows.Forms.Timer timerCheckDataset;
+		private System.Windows.Forms.StatusStrip statusStrip1;
+		private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel;
+		private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar;
+		private System.Windows.Forms.Timer timerCheckDataSetStatus;
 		}
 	}
 

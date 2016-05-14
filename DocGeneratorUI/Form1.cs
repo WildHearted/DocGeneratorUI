@@ -6,6 +6,7 @@ using System.Data.Services.Client;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using System.Windows.Forms;
 using DocGeneratorCore;
@@ -15,7 +16,7 @@ namespace DocGeneratorUI
 	public partial class Form1:Form
 		{
 		private CompleteDataSet completeDataSet;
-		private DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext sddpDataContext;
+		private static readonly Object lockThreadDatRefresh = new Object();
 
 		public Form1()
 			{
@@ -26,9 +27,9 @@ namespace DocGeneratorUI
 		private void Form1_Load(object sender, EventArgs e)
 			{
 			progressBar1.Visible = false;
+			if(this.completeDataSet == null)
+				this.completeDataSet = new CompleteDataSet();
 			//- Initiate the SharePoint Datacontext...
-			this.completeDataSet = new CompleteDataSet();
-
 			this.completeDataSet.SDDPdatacontext = new DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext(
 					new Uri(Properties.Resources.SharePointSiteURL + Properties.Resources.SharePointRESTuri));
 
@@ -38,34 +39,13 @@ namespace DocGeneratorUI
 				domain: Properties.Resources.DocGenerator_AccountDomain);
 			this.completeDataSet.SDDPdatacontext.MergeOption = MergeOption.NoTracking;
 
-			this.completeDataSet.LastRefreshedOn = new DateTime(2000, 1, 1, 0, 0, 0);
-			this.completeDataSet.RefreshingDateTimeStamp = DateTime.UtcNow;
-			this.completeDataSet.IsDataSetComplete = false;
-
-			//- --------------------------------------------------------------------------------------------------------------
-			// Launch the **6 Threads** to build the Complete DataSet while waiting for user input.
-			//- --------------------------------------------------------------------------------------------------------------
-			Thread tThread1 = new Thread(() => completeDataSet.PopulateBaseObjects());
-			Thread tThread2 = new Thread(() => completeDataSet.PopulateBaseObjects());
-			Thread tThread3 = new Thread(() => completeDataSet.PopulateBaseObjects());
-			Thread tThread4 = new Thread(() => completeDataSet.PopulateBaseObjects());
-			Thread tThread5 = new Thread(() => completeDataSet.PopulateBaseObjects());
-			Thread tThread6 = new Thread(() => completeDataSet.PopulateBaseObjects());
-			//- Pass the Thread Number to execute as the parameter to the method.
-			tThread1.Name = "Data1";
-			tThread1.Start();
-			tThread2.Name = "Data2";
-			tThread2.Start();
-			tThread3.Name = "Data3";
-			tThread3.Start();
-			tThread4.Name = "Data4";
-			tThread4.Start();
-			tThread5.Name = "Data5";
-			tThread5.Start();
-			tThread6.Name = "Data6";
-			tThread6.Start();
-
+			//DataCache datacashDataSet = new DataCache();
+			//- Define and launch a separate thread that will begin to opulate the dataset.
+			//Thread threadPopulateDataset = new Thread(() => datacashDataSet.Populate_DataSet(ref completeDataSet));
+			//threadPopulateDataset.Name = "PopulateDataset";
+			//threadPopulateDataset.Start();
 			}
+
 
 		private void button1_Click(object sender, EventArgs e)
 			{
@@ -78,7 +58,6 @@ namespace DocGeneratorUI
 
 			try
 				{
-
 				var dsDocCollections = 
 					from dsDocumentCollection in this.completeDataSet.SDDPdatacontext.DocumentCollectionLibrary
 					where dsDocumentCollection.GenerateActionValue != null
@@ -307,7 +286,7 @@ namespace DocGeneratorUI
 					}
 				Application.DoEvents();
 
-				
+				Console.WriteLine("Is the DataSet complete? [{0}]", this.completeDataSet.IsDataSetComplete);
 				
 				// Check if there are any Document Collections to generate
 				if(listDocumentCollections.Count > 0)
@@ -462,6 +441,48 @@ namespace DocGeneratorUI
 			MessageBox.Show("Successfully completed the generation of Document Collection: " + maskedTextBox1.Text
 				+ " \nClick it again to generate the same Document Collection or enter another number...",
 				"Generation successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+			}
+
+		/// <summary>
+		///  This timer is fired every 60 seconds, to check if something changed in the dataset and to 
+		///  refresh it if any data changed...
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void timerCheckDataset_Tick(object sender, EventArgs e)
+			{
+			Console.WriteLine("TTTT - TimerEvent: timerCheckDataSet");
+			Thread.CurrentThread.Name = "PopulateDataset";
+			DataCache datacashDataSet = new DataCache();
+			//- Define and launch a separate thread that will begin to opulate the dataset.
+			Thread threadPopulateDataset = new Thread(() => datacashDataSet.Populate_DataSet(ref completeDataSet));
+			threadPopulateDataset.Name = "PopulateDataset";
+			threadPopulateDataset.Start();
+			}
+
+		private void timerCheckDataSetStatus_Tick(object sender, EventArgs e)
+			{
+			if(this.completeDataSet == null)
+				{
+				this.toolStripStatusLabel.Text = "Loading DataSet... ";
+				this.toolStripStatusLabel.ForeColor = Color.Maroon;
+				Application.DoEvents();
+				}
+			else
+				{
+				if(this.completeDataSet.IsDataSetComplete)
+					{
+					this.toolStripStatusLabel.Text = "Loading DataSet... ";
+					this.toolStripStatusLabel.ForeColor = Color.Maroon;
+					Application.DoEvents();
+					}
+				else
+					{
+					this.toolStripStatusLabel.Text = "Dataset READY...";
+					this.toolStripStatusLabel.ForeColor = Color.Green;
+					Application.DoEvents();
+					}
+				}
 			}
 		}
 	}
