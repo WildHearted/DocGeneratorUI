@@ -26,9 +26,12 @@ namespace DocGeneratorUI
 
 		private void Form1_Load(object sender, EventArgs e)
 			{
-			progressBar1.Visible = false;
 			if(this.completeDataSet == null)
+				{
 				this.completeDataSet = new CompleteDataSet();
+				this.statusStrip1.Text = "Dataset not cached yet.";
+				this.statusStrip1.ForeColor = Color.Maroon;
+				}
 			//- Initiate the SharePoint Datacontext...
 			this.completeDataSet.SDDPdatacontext = new DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext(
 					new Uri(Properties.Resources.SharePointSiteURL + Properties.Resources.SharePointRESTuri));
@@ -39,18 +42,22 @@ namespace DocGeneratorUI
 				domain: Properties.Resources.DocGenerator_AccountDomain);
 			this.completeDataSet.SDDPdatacontext.MergeOption = MergeOption.NoTracking;
 
-			//DataCache datacashDataSet = new DataCache();
-			//- Define and launch a separate thread that will begin to opulate the dataset.
-			//Thread threadPopulateDataset = new Thread(() => datacashDataSet.Populate_DataSet(ref completeDataSet));
-			//threadPopulateDataset.Name = "PopulateDataset";
-			//threadPopulateDataset.Start();
+			if(this.completeDataSet.IsDataSetComplete)
+				{
+				this.statusStrip1.Text = "Dataset cached and ready.";
+				this.statusStrip1.ForeColor = Color.Green;
+				}
+			else
+				{
+				this.statusStrip1.Text = "Dataset is not cached.";
+				this.statusStrip1.ForeColor = Color.Maroon;
+				}
+			Application.DoEvents();
 			}
-
 
 		private void button1_Click(object sender, EventArgs e)
 			{
 			Cursor.Current = Cursors.WaitCursor;
-			progressBar1.Visible = true;
 
 			String strExceptionMessage = String.Empty;
 			// Initialise the listDocumentCollections object if it is null.
@@ -220,16 +227,16 @@ namespace DocGeneratorUI
 				}
 			finally
 				{
-				progressBar1.Visible = false;
 				Cursor.Current = Cursors.Default;
 				}
 			
 			}
 
+//===B
 		private void button2_Click(object sender, EventArgs e)
 			{
 			// Validate the input
-			if(maskedTextBox1.Text == null)
+			if(maskedTextBox1.Text == null || maskedTextBox1.Text == "")
 				{
 				MessageBox.Show("Please enter a numeric value, before clicking the Generate button",
 						"No value entred.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -245,7 +252,17 @@ namespace DocGeneratorUI
 				}
 			// -----------------------------------
 			Cursor.Current = Cursors.WaitCursor;
-			progressBar1.Visible = true;
+			if(this.completeDataSet.IsDataSetComplete)
+				{
+				this.toolStripStatusLabel.Text = "Dataset cached and ready.";
+				this.toolStripStatusLabel.ForeColor = Color.Green;
+				}
+			else
+				{
+				this.toolStripStatusLabel.Text = "Dataset is not cached, will be loaded now...";
+				this.toolStripStatusLabel.ForeColor = Color.Maroon;
+				}
+
 			Application.DoEvents();
 
 			string strExceptionMessage = String.Empty;
@@ -263,7 +280,6 @@ namespace DocGeneratorUI
 
 				if(objDocCollection == null)
 					{
-					progressBar1.Visible = false;
 					Cursor.Current = Cursors.Default;
 					MessageBox.Show("The Document Collection ID that you entered doesn't exist. Please enter a valid ID.",
 						"Document Collection ID, doesn't exist.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -303,7 +319,6 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult + "\nStatusCode: " + exc.StatusCode
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
-				progressBar1.Visible = false;
 				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
 				MessageBox.Show(strExceptionMessage,
@@ -316,24 +331,12 @@ namespace DocGeneratorUI
 				//	parBody: EmailBodyText,
 				//	parSendBcc: false);
 				}
-			catch(DataServiceQueryException exc)
+			catch(DataServiceQueryException)
 				{
-				strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " + Properties.Resources.SharePointSiteURL
-					+ " Please check that the computer/server is connected to the Domain network "
-					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
-					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
-				progressBar1.Visible = false;
-				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
-				MessageBox.Show(strExceptionMessage,
-					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				MessageBox.Show("The Document Collection ID that you entered doesn't exist. Please enter a valid ID.",
+					"Document Collection ID, doesn't exist.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
-				//EmailBodyText += "\n\t - Unable to generatate any documents. \n" + strExceptionMessage;
-				//bSuccessfulSentEmail = eMail.SendEmail(
-				//	parRecipient: Properties.Resources.EmailAddress_TechnicalSupport,
-				//	parSubject: "Error occurred in DocGenerator Server module.)",
-				//	parBody: EmailBodyText,
-				//	parSendBcc: false);
 				}
 			catch(DataServiceRequestException exc)
 				{
@@ -341,7 +344,6 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
-				progressBar1.Visible = false;
 				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
 				MessageBox.Show(strExceptionMessage,
@@ -360,7 +362,6 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
-				progressBar1.Visible = false;
 				Application.DoEvents();
 				Cursor.Current = Cursors.Default;
 				MessageBox.Show(strExceptionMessage,
@@ -381,7 +382,6 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
-					progressBar1.Visible = false;
 					Application.DoEvents();
 					Cursor.Current = Cursors.Default;
 					MessageBox.Show(strExceptionMessage,
@@ -400,7 +400,6 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
-					progressBar1.Visible = false;
 					Application.DoEvents();
 					Cursor.Current = Cursors.Default;
 					MessageBox.Show(strExceptionMessage,
@@ -419,7 +418,6 @@ namespace DocGeneratorUI
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
-					progressBar1.Visible = false;
 					Application.DoEvents();
 					Cursor.Current = Cursors.Default;
 					MessageBox.Show(strExceptionMessage,
@@ -435,9 +433,20 @@ namespace DocGeneratorUI
 				}
 			finally
 				{
-				progressBar1.Visible = false;
 				Cursor.Current = Cursors.Default;
 				}
+
+			if(this.completeDataSet.IsDataSetComplete)
+				{
+				this.statusStrip1.Text = "Dataset cached and ready.";
+				this.statusStrip1.ForeColor = Color.Green;
+				}
+			else
+				{
+				this.statusStrip1.Text = "Dataset is not cached.";
+				this.statusStrip1.ForeColor = Color.Maroon;
+				}
+
 			MessageBox.Show("Successfully completed the generation of Document Collection: " + maskedTextBox1.Text
 				+ " \nClick it again to generate the same Document Collection or enter another number...",
 				"Generation successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -464,21 +473,21 @@ namespace DocGeneratorUI
 			{
 			if(this.completeDataSet == null)
 				{
-				this.toolStripStatusLabel.Text = "Loading DataSet... ";
-				this.toolStripStatusLabel.ForeColor = Color.Maroon;
+				this.toolStripStatusLabel.Text = "DataSet Cache not loaded. ";
+				this.toolStripStatusLabel.ForeColor = Color.Red;
 				Application.DoEvents();
 				}
 			else
 				{
-				if(this.completeDataSet.IsDataSetComplete)
+				if(this.completeDataSet.IsDataSetComplete == false)
 					{
-					this.toolStripStatusLabel.Text = "Loading DataSet... ";
-					this.toolStripStatusLabel.ForeColor = Color.Maroon;
+					this.toolStripStatusLabel.Text = "DataSet Cache incomplete.. ";
+					this.toolStripStatusLabel.ForeColor = Color.Orange;
 					Application.DoEvents();
 					}
 				else
 					{
-					this.toolStripStatusLabel.Text = "Dataset READY...";
+					this.toolStripStatusLabel.Text = "Dataset Cashe Loaded.";
 					this.toolStripStatusLabel.ForeColor = Color.Green;
 					Application.DoEvents();
 					}
