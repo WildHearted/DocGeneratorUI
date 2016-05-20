@@ -324,18 +324,13 @@ namespace DocGeneratorUI
 				MessageBox.Show(strExceptionMessage,
 					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
-				//EmailBodyText += "\n\t - Unable to generatate any documents. \n" + strExceptionMessage;
-				//bSuccessfulSentEmail = eMail.SendEmail(
-				//	parRecipient: Properties.Resources.EmailAddress_TechnicalSupport,
-				//	parSubject: "Error occurred in DocGenerator Server module.)",
-				//	parBody: EmailBodyText,
-				//	parSendBcc: false);
 				}
-			catch(DataServiceQueryException)
+			catch(DataServiceQueryException exc)
 				{
 				Cursor.Current = Cursors.Default;
-				MessageBox.Show("The Document Collection ID that you entered doesn't exist. Please enter a valid ID.",
-					"Document Collection ID, doesn't exist.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				MessageBox.Show("First check that you are connected to the Network Domain, if not, establish VPN or LAN connection. Else, the Document Collection "
+				+ "ID that you entered doesn't exist.",
+					"Check Domain connection and that Document Collection ID exist.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 				}
 			catch(DataServiceRequestException exc)
