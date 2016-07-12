@@ -146,11 +146,56 @@ namespace DocGeneratorUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to https://teams.dimensiondata.com/sites/servicecatalogue.
+        ///   Looks up a localized string similar to /sites/ServiceCatalogue.
         /// </summary>
-        internal static string SharePointSiteURL {
+        internal static string SharePointSiteURL_Dev {
             get {
-                return ResourceManager.GetString("SharePointSiteURL", resourceCulture);
+                return ResourceManager.GetString("SharePointSiteURL_Dev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /sites/servicecatalogue.
+        /// </summary>
+        internal static string SharePointSiteURL_Prod {
+            get {
+                return ResourceManager.GetString("SharePointSiteURL_Prod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to /sites/uat-servicecatalogue.
+        /// </summary>
+        internal static string SharePointSiteURL_QA {
+            get {
+                return ResourceManager.GetString("SharePointSiteURL_QA", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://teams.uat.dimensiondata.com.
+        /// </summary>
+        internal static string SharePointURL_Dev {
+            get {
+                return ResourceManager.GetString("SharePointURL_Dev", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://teams.dimensiondata.com.
+        /// </summary>
+        internal static string SharePointURL_Prod {
+            get {
+                return ResourceManager.GetString("SharePointURL_Prod", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to https://teams.dimensiondata.com.
+        /// </summary>
+        internal static string SharePointURL_QA {
+            get {
+                return ResourceManager.GetString("SharePointURL_QA", resourceCulture);
             }
         }
     }

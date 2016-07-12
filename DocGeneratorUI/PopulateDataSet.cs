@@ -28,7 +28,7 @@ namespace DocGeneratorUI
 
 			//- Initiate the SharePoint Datacontext...
 			this.completeDataSet.SDDPdatacontext = new DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext(
-					new Uri(Properties.Resources.SharePointSiteURL + Properties.Resources.SharePointRESTuri));
+					new Uri(Properties.Resources.SharePointSiteURL_Prod + Properties.Resources.SharePointRESTuri));
 
 			this.completeDataSet.SDDPdatacontext.Credentials = new NetworkCredential(
 				userName: Properties.Resources.DocGenerator_AccountName,
