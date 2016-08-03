@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Services.Client;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
+using HtmlAgilityPack;
 using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using System.Windows.Forms;
@@ -784,6 +786,623 @@ namespace DocGeneratorUI
 
 			this.completeDataSet.SDDPdatacontext.MergeOption = MergeOption.NoTracking;
 
+			}
+
+		private void buttonTestHTML_Click(Object sender, EventArgs e)
+			{
+			string htmlText =
+				"<p> This section validates the<em> cascading numbered bullets</ em >.</ p ><lo><li> This is the 1st for Level 1 </li><li> This is the 2nd for Level 1 </li><li> This is the 3rd for Level 1 </li><lo><li> This is the 1st for Level 2 </li><li> This is the 2nd for Level 2 </li><lo><li> This is the 1st for Level 3 </li><lo><li> This is the 1st for Level 4 </li><lo><li> This is the 1st for Level 5 </li></ol></ol><li> This is the 2nd for Level 3 </li></ol><li> is the 3rd for Level 2 </li><li> This is the 4th for Level 2 </li></ol><li> This is the 4th for Level 1 </li></ol><p> This conclude the numbered list testing </p>";
+
+			//-Declare the htmlData object instance
+			HtmlAgilityPack.HtmlDocument htmlData = new HtmlAgilityPack.HtmlDocument();
+			//-Load the HTML content into the htmlData object.
+			//htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_CascadedBulletList.html");
+			htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_Everything.html");
+
+			//-Load a string into the HTMLDocument
+			Console.WriteLine("______________________________HTML starts______________________________________");
+			//htmlData.LoadHtml(htmlText);
+			Console.WriteLine("HTML: {0}", htmlData.DocumentNode.OuterHtml);
+			Console.WriteLine("_______________________________________________________________________________");
+			//- Set the ROOT of the data loaded in the htmlData
+			var htmlRoot = htmlData.DocumentNode;
+			Console.WriteLine("Root Node Tag..............: {0}", htmlRoot.Name);
+
+			/*Console.WriteLine("\t - Has Child Nodes......? {0}", htmlRoot.HasChildNodes);
+			*/
+
+			//- The sequence of the values in the tuple variable is: 
+			//-**1** *Bullet Levels*, 
+			//-**2** *Number Levels* 
+			Tuple<int, int> headingbulletNumberLevels = new Tuple<int, int>(0, 0);
+			int bulletLevel = 0;
+			int numberLevel = 0;
+			int headingLevel = 0;
+			bool isBold = false;
+			bool isItalics = false;
+			bool isUnderline = false;
+			bool isSubscript = false;
+			bool isSuperscript = false;
+			string clientName = "Software Engineering Services";
+			string cleanText = String.Empty;
+			string captionText = String.Empty;
+			string tableAttrValue = string.Empty;	//-Table Attribute value **work string** 
+			int tableWidth = 0;
+			int columnWidth = 0;
+			bool isHeaderRow = false;			//-indicated whether the current table row is **HeaderRow**
+			int tableRowSpanQty = 0;				//-variable indicates the **number** of table *rows* to span
+			int tableColumnSpanQty = 0;			//-variable indicating the **number** of table *columns* to span
+			foreach(HtmlNode node in htmlData.DocumentNode.Descendants())
+				{
+				
+				switch(node.Name)
+					{
+					case "div":
+						{
+						//-Check for other tags
+						if(node.HasChildNodes)
+							{
+							//- Just ignore the div tag
+							}
+						else
+							{
+							cleanText = CleanText(node.InnerText, clientName);
+							if(cleanText != String.Empty)
+								Console.Write(" <{0}>|{1}|", node.Name, cleanText);
+							}
+						break;
+						}
+
+					case "#text":
+						{
+						if(node.HasChildNodes)
+							{
+							//!to do!
+							}
+						else
+							{
+							cleanText = CleanText(node.InnerText, clientName);
+							if(cleanText != String.Empty)
+								{
+								headingLevel = 0;
+								if(node.XPath.Contains("/h1"))
+									headingLevel = 1;
+								if(node.XPath.Contains("/h2"))
+									headingLevel = 2;
+								if(node.XPath.Contains("/h3"))
+									headingLevel = 3;
+								if(node.XPath.Contains("/h4)"))
+									headingLevel = 4;
+
+
+								if(headingLevel > 0)
+									{
+									Console.Write("\n {0} + <h{1}>", Tabs(headingLevel), headingLevel);
+									}
+
+								if(node.XPath.Contains("/strong"))
+									Console.Write("|BOLD|");
+								if(node.XPath.Contains("/em"))
+									Console.Write("|ITALICS|");
+								if(node.XPath.Contains("/span"))
+									{
+									Console.Write("|UNDELINE|");
+									}
+								if(node.XPath.Contains("/sub"))
+									Console.Write("|SUBSCRIPT|");
+								if(node.XPath.Contains("/sup"))
+									Console.Write("|SUPERSCRIPT|");
+								if(cleanText != String.Empty)
+									Console.Write("[{0}]", cleanText);
+								}
+							}
+						break;
+						}
+
+					case "p":
+						{
+						//-Get the number of bullet - and number - levles in the xPath
+						headingbulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						headingLevel = headingbulletNumberLevels.Item1;
+						bulletLevel = headingbulletNumberLevels.Item2;
+
+						//-Check if the paragraph is part of a bullet- number- list
+						if(numberLevel > 0 || bulletLevel > 0)
+							{
+							//-don't insert a paragraph, because the text is part of the bullet or number
+							break;
+							}
+
+						if(node.HasChildNodes)
+							{
+							Console.Write("\n <{0}> ", node.Name);
+							}
+						else
+							{
+							cleanText = node.InnerText;
+							if(cleanText != String.Empty)
+								Console.Write(" <{0}>", node.Name);
+							}
+						break;
+						}
+					
+					//+Heading 1-4
+					/*case "h1":
+					case "h2":
+					case "h3":
+					case "h4":
+						{
+						//- Set **Heading** level
+						headingLevel = Convert.ToInt16(node.Name.Substring(1, 1));
+						if(node.HasChildNodes)
+							{
+							Console.Write("\n {0} + <{1}>", Tabs(headingLevel + bulletLevel), node.Name);
+							}
+						else
+							{
+							cleanText = node.InnerText;
+							Console.Write("\t\t\t <{0}>|{1}|", node.Name, cleanText);
+							}
+						break;
+						}*/
+					//+ Unorganised List - **<ul>**
+					case "ul":
+						{
+						if(node.HasChildNodes)
+							{
+							//Console.Write("\n {0} <{1}>", Tabs(headingLevel) + Tabs(bulletLevel), node.Name);
+							}
+						else
+							{
+							cleanText = node.InnerText;
+							Console.WriteLine("\t\t\t <{0}>|{1}|", node.Name, cleanText);
+							}
+						break;
+						}
+
+					//+ Organised List - **<ol>**
+					case "ol":
+						{
+						if(node.HasChildNodes)
+							{
+							//Console.Write("\n {0} <{1}>", Tabs(headingLevel) + Tabs(bulletLevel), node.Name);
+							}
+						else
+							{
+							cleanText = node.InnerText;
+							Console.WriteLine("\t\t\t <{0}>|{1}|", node.Name, cleanText);
+							}
+						break;
+						}
+
+					//+List Item - **<li>**
+					case "li":
+						{
+						//-Get the number of bullet- and number- levles in the xPath
+						headingbulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						headingLevel = headingbulletNumberLevels.Item1;
+						bulletLevel = headingbulletNumberLevels.Item2;
+						
+						if(node.HasChildNodes)
+							{
+							if(bulletLevel > 0)
+								{
+								Console.Write("\n {0} - <{1}>", Tabs(headingLevel + bulletLevel), node.Name);
+								}
+							else if(numberLevel > 0)
+								{
+								Console.Write("\n {0} {1} <{2}>", Tabs(headingLevel  + numberLevel), numberLevel , node.Name);
+								}
+							}
+						else
+							{
+							cleanText = node.InnerText;
+							Console.WriteLine("\t\t\t <{0}>|{1}|", node.Name, cleanText);
+							}
+						break;
+						}
+
+					//++Image
+					case "img":
+						{
+
+
+						break;
+						}
+
+					//++Table
+					case "table":
+						{
+						Console.Write("\n\n <Table> ");
+						tableWidth = 0;
+						if(!node.HasAttributes)  //- The table doesn't have attributes 
+							Console.Write("\n ERROR - No attributes defined for the table");
+						else //-Process the table attributes
+							{
+							foreach(HtmlAgilityPack.HtmlAttribute tableAttr in node.Attributes)
+								{
+								switch(tableAttr.Name)
+									{
+									//-use the **summary** to obtain the **Table Caption**
+									case "summary": //- get the table caption
+										{
+										if(tableAttr.Value == null)
+											captionText = String.Empty;
+										else
+											captionText = tableAttr.Value;
+										break;
+										}
+
+									//-get the table **width** from the style attribute
+									case "style":
+										{
+										//- Check that the style contains the table width as part of the style
+										if(tableAttr.Value.Contains("width:"))
+											{
+											if(tableAttr.Value.Contains("%"))
+												{
+												if(int.TryParse(tableAttr.Value.Substring(
+													tableAttr.Value.IndexOf(":") + 2,
+													(tableAttr.Value.IndexOf("%") - tableAttr.Value.IndexOf(":") - 2)),
+													out tableWidth) == false)
+													{
+													//- Could not parse the integer which means the tableWidth remains as it was before the parse.
+													}
+												}
+											else //-Table width is **NOT** a percentage :. px value
+												{
+												if(int.TryParse(tableAttr.Value.Substring(
+													tableAttr.Value.IndexOf(":") + 2,
+													(tableAttr.Value.IndexOf("px") - tableAttr.Value.IndexOf(":") - 2)),
+													out tableWidth) == false)
+													{
+													//- Could not parse the integer which means the tableWidth remains as it was before the parse.
+													}
+												}
+											}
+										break;
+										}
+
+									//-The table Width is specified as an attribute
+									case "width":
+										{
+										if(tableAttr.Value.Contains("%"))
+											{
+											if(int.TryParse(tableAttr.Value.Substring(
+												tableAttr.Value.IndexOf(":") + 2,
+												(tableAttr.Value.IndexOf("%") - tableAttr.Value.IndexOf(":") - 2)),
+												out tableWidth) == false)
+												{
+												//- Could not parse the integer which means the tableWidth remains as it was before the parse.
+												}
+											}
+										else //-Table width is **NOT** a percentage :. px value
+											{
+											if(int.TryParse(tableAttr.Value.Substring(
+												tableAttr.Value.IndexOf(":") + 2,
+												(tableAttr.Value.IndexOf("px") - tableAttr.Value.IndexOf(":") - 2)),
+												out tableWidth) == false)
+												{
+												//- Could not parse the integer which means the tableWidth remains as it was before the parse.
+												}
+											}
+
+										break;
+										}
+
+
+									}
+								}
+
+
+							}
+						Console.Write("\t Width: {0}", tableWidth);
+						break;
+						}
+					//+Table Body = **<tb>**
+					case "tbody":
+						{
+						//-Just ignore it.
+						break;
+						}
+
+
+					//+Table Row = **<tr>**
+					case "tr":
+						{
+						Console.Write("\n\t <Row>");
+
+						//Determine if it is a **HEADER** row
+						if(!node.HasAttributes)  //- The table doesn't have attributes 
+							{ //-Therefore it will also not have a Header Row
+							isHeaderRow = false;
+							}
+						else //-Process the table attributes
+							{
+
+							foreach(HtmlAgilityPack.HtmlAttribute tableAttr in node.Attributes)
+								{
+								//use the **class** to dertermine whether the row is specified as a *TableHeader*
+								if(tableAttr.Name == "class")
+									{
+									if(tableAttr.Value == null)
+										isHeaderRow = false;
+									else
+										{
+										if(tableAttr.Value.Contains("HeaderRow"))
+											isHeaderRow = true;
+										else
+											isHeaderRow = false;
+										}
+									}
+								}
+							}
+						Console.Write("Header Row: {0}", isHeaderRow);
+						break;
+						}
+
+					//+Table Header Cell - **<th>**
+					case "th":
+						{
+						//-If the **table header** was not determined in the class of the table row *<tr>* tag, then the table has a header row if a *<th>* tag is present
+						isHeaderRow = true;
+						//Determined the table has a **HEADER** row
+
+						if(node.HasAttributes)  //- The table Header Cell has attributes 
+							{
+							//-get the **RowSpanning** if there is a value
+							tableAttrValue = String.Empty;
+							columnWidth = 0;
+							tableAttrValue = node.Attributes.Where(a => a.Name == "rowspan").Single().Value.ToString();
+							//-if no **rowspan** is found, set the value to 1
+							if(tableAttrValue == String.Empty)
+								tableRowSpanQty = 1;
+							else
+								{
+								if(!int.TryParse(tableAttrValue, out tableRowSpanQty))
+									tableRowSpanQty = 1;
+								}
+
+							//-Get the **Column Spanning** if there is a value
+							tableAttrValue = String.Empty;
+							tableAttrValue = node.Attributes.Where(a => a.Name == "colspan").Single().Value.ToString();
+							if(tableAttrValue == String.Empty)
+								tableColumnSpanQty = 1;
+							else
+								{
+								if(!int.TryParse(tableAttrValue, out tableColumnSpanQty))
+									tableColumnSpanQty = 1;
+								}
+
+							//-Get the column **Width** is specified
+							tableAttrValue = node.Attributes.Where(a => a.Name == "style" && a.Value.Contains("width")).Single().Value.ToString();
+							if(tableAttrValue == String.Empty)
+								columnWidth = 0;
+							else
+								{
+								columnWidth = 0;
+								if(tableAttrValue.Contains("%"))
+									{
+									if(int.TryParse(tableAttrValue.Substring(
+										tableAttrValue.IndexOf(":") + 2,
+										(tableAttrValue.IndexOf("%") - tableAttrValue.IndexOf(":") - 2)),
+										out columnWidth) == false)
+										{
+										//- Could not parse the integer which means the tableWidth remains as it was before the parse.
+										}
+									}
+								else //-Column width is **NOT** a percentage :. px value
+									{
+									if(int.TryParse(tableAttrValue.Substring(
+										tableAttrValue.IndexOf(":") + 2,
+										(tableAttrValue.IndexOf("px") - tableAttrValue.IndexOf(":") - 2)),
+										out tableWidth) == false)
+										{
+										//-Could not parse the integer which means the tableWidth remains as it was before the parse.
+										}
+									}
+								}
+							}
+						else //- the table Header Cell doesn't have any attributes
+							{
+							tableColumnSpanQty = 1;
+							tableRowSpanQty = 1;
+							columnWidth = 0;
+							}
+						Console.Write("\n\t\t<col> Header Column: Width: {0}\t RowSpan: {1}\t ColumnSpan: {2}\t", columnWidth, tableRowSpanQty, tableColumnSpanQty);
+						break;
+						}
+					//+TableCell - **<td>**
+					case "td":
+						{
+						//-If the **table header** was not determined in the class of the table row *<tr>* tag, then the table has a header row if a *<th>* tag is present
+						isHeaderRow = false;
+
+						if(node.HasAttributes)  //- The table Header Cell has attributes 
+							{
+							foreach(HtmlAttribute tableAttr in node.Attributes)
+								{
+								switch(tableAttr.Name)
+									{
+									//-get the **RowSpanning** if there is a value
+									case "rowspan": //- get the rowspan if there is any
+										{
+										if(tableAttr.Value == null)
+											tableRowSpanQty = 1;
+										else
+											{
+											if(!int.TryParse(tableAttrValue, out tableRowSpanQty))
+												tableRowSpanQty = 1;
+											}
+										break;
+										}
+									//-get the **ColumnSpanning** if there is a value
+									case "colspan":
+										{
+										if(tableAttr.Value == null)
+											tableColumnSpanQty = 1;
+										else
+											{
+											if(!int.TryParse(tableAttrValue, out tableColumnSpanQty))
+												tableColumnSpanQty = 1;
+											}
+										break;
+										}
+									//get the column width if it is specified
+									case "style":
+										{//-Get the column **Width** if it is specified
+										if(tableAttr.Value.Contains("width"))
+											{
+											if(tableAttrValue.Contains("%"))
+												{
+												if(int.TryParse(tableAttrValue.Substring(
+													tableAttrValue.IndexOf(":") + 2,
+													(tableAttrValue.IndexOf("%") - tableAttrValue.IndexOf(":") - 2)),
+													out columnWidth) == false)
+													{
+													//- Could not parse the integer which means the tableWidth remains as it was before the parse.
+													}
+												}
+											else //-Column width is **NOT** a percentage :. px value
+												{
+												if(int.TryParse(tableAttrValue.Substring(
+													tableAttrValue.IndexOf(":") + 2,
+													(tableAttrValue.IndexOf("px") - tableAttrValue.IndexOf(":") - 2)),
+													out tableWidth) == false)
+													{
+													//-Could not parse the integer which means the tableWidth remains as it was before the parse.
+													}
+												}
+											}
+										else
+											{
+											columnWidth = 0;
+											}
+										break;
+										}
+									}
+								}
+							}
+						else //- the table Header Cell doesn't have any attributes
+							{
+							tableColumnSpanQty = 1;
+							tableRowSpanQty = 1;
+							columnWidth = 0;
+							}
+						Console.Write("\n\t\t<col> Header Column: Width: {0}\t RowSpan: {1}\t ColumnSpan: {2}\t", columnWidth, tableRowSpanQty, tableColumnSpanQty);
+						break;
+						}
+
+					default:
+						{
+						continue;
+						}
+					}
+				}
+
+			Console.WriteLine("");
+			Console.WriteLine("____________________________HTML Ends______________________________________");
+			}
+
+
+		private static string Tabs (int n)
+			{
+			return new String('\t', n);
+	
+			}
+
+		private static string CleanText (string parText, string parClientName)
+			{
+			//!The sequence in which these statements appear is important
+
+			//-keep this code for debugging purposes if strange/unwanted characters appear.
+			/*for(int i = 0; i < parText.Length; i++)
+				{
+				Console.Write("|" + ((int)parText[i]).ToString());
+				}
+			*/
+
+			string cleanText = parText;
+			cleanText = cleanText.Replace(((char)8203).ToString(),"");
+			cleanText = cleanText.Replace("&#160;", " "); //-remove *Hard space* characters
+			cleanText = cleanText.Replace("     ", " ");		//-cleanup any *5* spaces
+			cleanText = cleanText.Replace("   ", " ");		//-cleanup any *triple* spaces
+			cleanText = cleanText.Replace("  ", " ");         //-cleanup any *double* spaces
+			//cleanText = cleanText.Replace("\r ", "");		//- remove carraige *return* characters
+			cleanText = cleanText.Replace("\r", "");		//- remove carraige *return* characters
+			//cleanText = cleanText.Replace("\n ", "");		//-remove *New Line* characters
+			cleanText = cleanText.Replace("\n", "");          //-remove *New Line* characters
+			cleanText = cleanText.Replace("\t", "");          //-remove *Tab* characters
+			if(cleanText == " " || cleanText == "  " || cleanText == "   ")
+				cleanText = "";                              //-cleanup the string if it contains only a space.
+
+			//-Replace ClientName #tag with actual value
+			cleanText = cleanText.Replace("#ClientName#", parClientName);
+			cleanText = cleanText.Replace("#clientname#", parClientName);
+			cleanText = cleanText.Replace("#CLIENTNAME#", parClientName);
+
+			return cleanText;
+			}
+
+		private static Tuple<int, int> GetBulletNumberLevels (string parXpath)
+			{
+			int bulletLevels = 0;
+			int numberLevels = 0;	
+			int positionInString = 0;
+
+			//+Check the number of **Headings** </h> tags
+			//-Check if the xPath contains any bullets
+			positionInString = 0;
+
+			//+Check the number of **Unorganised List** </ul> tags
+			//-Check if the xPath contains any bullets
+			positionInString = 0;
+			if(parXpath.Contains("/ul"))
+				{ //- if it contains bullets, count the number of bullets
+				for(int i = 0; i < parXpath.Length - 1;)
+					{
+					//-get the ocurrences of bullets
+					positionInString = parXpath.IndexOf("/ul", i);
+					if(positionInString >= 0)
+						{
+						bulletLevels += 1;
+						i = positionInString + 3;
+						}
+					else if(positionInString < 0)
+						break;
+					}
+				}
+			else //-If it doesn't contain any bullets, set **bulletLevels** to 0
+				{
+				bulletLevels = 0;
+				}
+
+			//+Check the number of **Organised List** </ol> tags
+			//-Check if the xPath contains any **Organised Lists** (Numbered tags).
+			positionInString = 0;
+			if(parXpath.Contains("/ol"))
+				{ //- if it contains any, count the number of occurrences
+				for(int i = 0; i < parXpath.Length - 1;)
+					{
+					//-get the ocurrences of tags
+					positionInString = parXpath.IndexOf("/ol", i);
+					if(positionInString >= 0)
+						{
+						numberLevels += 1;
+						i = positionInString + 3;
+						}
+					else if(positionInString < 0)
+						break;
+
+					}
+				}
+			else //-If it doesn't contain any numbers, set **numberLevels** to 0
+				{
+				numberLevels = 0;
+				}
+
+			//-Return the counted occurrences
+			return new Tuple<int, int>(bulletLevels, numberLevels);
 			}
 		}
 	}

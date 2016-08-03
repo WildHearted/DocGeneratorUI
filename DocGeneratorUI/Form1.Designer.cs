@@ -50,6 +50,7 @@
 			this.buttonSendUserErrorEmail = new System.Windows.Forms.Button();
 			this.comboBoxPlatform = new System.Windows.Forms.ComboBox();
 			this.labelPlatform = new System.Windows.Forms.Label();
+			this.buttonTestHTML = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.groupBoxSpecific.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
@@ -343,11 +344,23 @@
 			this.labelPlatform.TabIndex = 9;
 			this.labelPlatform.Text = "Platform:";
 			// 
+			// buttonTestHTML
+			// 
+			this.buttonTestHTML.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.buttonTestHTML.Location = new System.Drawing.Point(429, 108);
+			this.buttonTestHTML.Name = "buttonTestHTML";
+			this.buttonTestHTML.Size = new System.Drawing.Size(75, 70);
+			this.buttonTestHTML.TabIndex = 10;
+			this.buttonTestHTML.Text = "Test HTML";
+			this.buttonTestHTML.UseVisualStyleBackColor = true;
+			this.buttonTestHTML.Click += new System.EventHandler(this.buttonTestHTML_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(524, 563);
+			this.Controls.Add(this.buttonTestHTML);
 			this.Controls.Add(this.comboBoxPlatform);
 			this.Controls.Add(this.labelPlatform);
 			this.Controls.Add(this.groupBoxEmails);
@@ -395,6 +408,7 @@
 		private System.Windows.Forms.RadioButton radioInformation;
 		private System.Windows.Forms.ComboBox comboBoxPlatform;
 		private System.Windows.Forms.Label labelPlatform;
+		private System.Windows.Forms.Button buttonTestHTML;
 		}
 	}
 
