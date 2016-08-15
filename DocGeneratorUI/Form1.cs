@@ -9,6 +9,9 @@ using System.Linq;
 using System.Net;
 using HtmlAgilityPack;
 using System.Runtime.Remoting.Contexts;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Validation;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System.Threading;
 using System.Windows.Forms;
 using DocGeneratorCore;
@@ -19,6 +22,22 @@ namespace DocGeneratorUI
 		{
 		private CompleteDataSet completeDataSet;
 		private static readonly Object lockThreadDatRefresh = new Object();
+
+		public enumDocumentTypes DocumentType { get; private set; }
+		public Boolean UnhandledError { get; private set; }
+		public List<string> ErrorMessages { get; private set; } = new List<string>();
+		public enumDocumentStatusses DocumentStatus { get; private set; }
+		public bool HyperlinkEdit { get; private set; }
+		public Boolean HyperlinkView { get; private set; }
+		public String Template { get; private set; }
+		public String LocalDocumentURI { get; private set; }
+		public String FileName { get; private set; }
+		public UInt32 PageWith { get; private set; }
+		public UInt32 PageHeight { get; private set; }
+		public Boolean ColorCodingLayer1 { get; private set; }
+		public Boolean ColorCodingLayer2 { get; private set; }
+		public Boolean Introductory_Section { get; private set; }
+		public Boolean Introduction { get; private set; }
 
 		public Form1()
 			{
@@ -32,7 +51,7 @@ namespace DocGeneratorUI
 				{
 				this.completeDataSet = new CompleteDataSet();
 				this.statusStrip1.Text = "Dataset not cached yet.";
-				this.statusStrip1.ForeColor = Color.Maroon;
+				this.statusStrip1.ForeColor = System.Drawing.Color.Maroon;
 				}
 			
 			Application.DoEvents();
@@ -272,12 +291,12 @@ namespace DocGeneratorUI
 			if(this.completeDataSet.IsDataSetComplete)
 				{
 				this.toolStripStatusLabel.Text = "Dataset cached and ready.";
-				this.toolStripStatusLabel.ForeColor = Color.Green;
+				this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Green;
 				}
 			else
 				{
 				this.toolStripStatusLabel.Text = "Dataset is not cached, will be loaded now...";
-				this.toolStripStatusLabel.ForeColor = Color.Maroon;
+				this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Maroon;
 				}
 
 			Application.DoEvents();
@@ -439,12 +458,12 @@ namespace DocGeneratorUI
 			if(this.completeDataSet.IsDataSetComplete)
 				{
 				this.statusStrip1.Text = "Dataset cached and ready.";
-				this.statusStrip1.ForeColor = Color.Green;
+				this.statusStrip1.ForeColor = System.Drawing.Color.Green;
 				}
 			else
 				{
 				this.statusStrip1.Text = "Dataset is not cached.";
-				this.statusStrip1.ForeColor = Color.Maroon;
+				this.statusStrip1.ForeColor = System.Drawing.Color.Maroon;
 				}
 
 			MessageBox.Show("Successfully completed the generation of Document Collection: " + maskedTextBox1.Text
@@ -474,7 +493,7 @@ namespace DocGeneratorUI
 			if(this.completeDataSet == null)
 				{
 				this.toolStripStatusLabel.Text = "DataSet Cache not loaded. ";
-				this.toolStripStatusLabel.ForeColor = Color.Red;
+				this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Red;
 				Application.DoEvents();
 				}
 			else
@@ -482,13 +501,13 @@ namespace DocGeneratorUI
 				if(this.completeDataSet.IsDataSetComplete == false)
 					{
 					this.toolStripStatusLabel.Text = "DataSet Cache incomplete.. ";
-					this.toolStripStatusLabel.ForeColor = Color.Orange;
+					this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Orange;
 					Application.DoEvents();
 					}
 				else
 					{
 					this.toolStripStatusLabel.Text = "Dataset Cashe Loaded.";
-					this.toolStripStatusLabel.ForeColor = Color.Green;
+					this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Green;
 					Application.DoEvents();
 					}
 				}
@@ -790,13 +809,11 @@ namespace DocGeneratorUI
 
 		private void buttonTestHTML_Click(Object sender, EventArgs e)
 			{
-			string htmlText =
-				"<p> This section validates the<em> cascading numbered bullets</ em >.</ p ><lo><li> This is the 1st for Level 1 </li><li> This is the 2nd for Level 1 </li><li> This is the 3rd for Level 1 </li><lo><li> This is the 1st for Level 2 </li><li> This is the 2nd for Level 2 </li><lo><li> This is the 1st for Level 3 </li><lo><li> This is the 1st for Level 4 </li><lo><li> This is the 1st for Level 5 </li></ol></ol><li> This is the 2nd for Level 3 </li></ol><li> is the 3rd for Level 2 </li><li> This is the 4th for Level 2 </li></ol><li> This is the 4th for Level 1 </li></ol><p> This conclude the numbered list testing </p>";
-
 			//-Declare the htmlData object instance
 			HtmlAgilityPack.HtmlDocument htmlData = new HtmlAgilityPack.HtmlDocument();
 			//-Load the HTML content into the htmlData object.
 			//htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_CascadedBulletList.html");
+			//htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_CascadedNumberList.html");
 			htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_Everything.html");
 
 			//-Load a string into the HTMLDocument
@@ -814,15 +831,10 @@ namespace DocGeneratorUI
 			//- The sequence of the values in the tuple variable is: 
 			//-**1** *Bullet Levels*, 
 			//-**2** *Number Levels* 
-			Tuple<int, int> headingbulletNumberLevels = new Tuple<int, int>(0, 0);
+			Tuple<int, int> bulletNumberLevels = new Tuple<int, int>(0, 0);
 			int bulletLevel = 0;
 			int numberLevel = 0;
 			int headingLevel = 0;
-			bool isBold = false;
-			bool isItalics = false;
-			bool isUnderline = false;
-			bool isSubscript = false;
-			bool isSuperscript = false;
 			string clientName = "Software Engineering Services";
 			string cleanText = String.Empty;
 			string captionText = String.Empty;
@@ -832,9 +844,12 @@ namespace DocGeneratorUI
 			bool isHeaderRow = false;			//-indicated whether the current table row is **HeaderRow**
 			int tableRowSpanQty = 0;				//-variable indicates the **number** of table *rows* to span
 			int tableColumnSpanQty = 0;			//-variable indicating the **number** of table *columns* to span
+
 			foreach(HtmlNode node in htmlData.DocumentNode.Descendants())
 				{
-				
+
+				//Console.WriteLine(">-- {0} --<", node.Name);
+
 				switch(node.Name)
 					{
 					case "div":
@@ -901,10 +916,10 @@ namespace DocGeneratorUI
 
 					case "p":
 						{
-						//-Get the number of bullet - and number - levles in the xPath
-						headingbulletNumberLevels = GetBulletNumberLevels(node.XPath);
-						headingLevel = headingbulletNumberLevels.Item1;
-						bulletLevel = headingbulletNumberLevels.Item2;
+						//-Get the number of bullet - and number - levels in the xPath
+						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						bulletLevel = bulletNumberLevels.Item1;
+						numberLevel = bulletNumberLevels.Item2;
 
 						//-Check if the paragraph is part of a bullet- number- list
 						if(numberLevel > 0 || bulletLevel > 0)
@@ -915,7 +930,7 @@ namespace DocGeneratorUI
 
 						if(node.HasChildNodes)
 							{
-							Console.Write("\n <{0}> ", node.Name);
+							Console.Write("\n\t <{0}> ", node.Name);
 							}
 						else
 							{
@@ -979,9 +994,9 @@ namespace DocGeneratorUI
 					case "li":
 						{
 						//-Get the number of bullet- and number- levles in the xPath
-						headingbulletNumberLevels = GetBulletNumberLevels(node.XPath);
-						headingLevel = headingbulletNumberLevels.Item1;
-						bulletLevel = headingbulletNumberLevels.Item2;
+						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						bulletLevel = bulletNumberLevels.Item1;
+						numberLevel = bulletNumberLevels.Item2;
 						
 						if(node.HasChildNodes)
 							{
@@ -991,7 +1006,7 @@ namespace DocGeneratorUI
 								}
 							else if(numberLevel > 0)
 								{
-								Console.Write("\n {0} {1} <{2}>", Tabs(headingLevel  + numberLevel), numberLevel , node.Name);
+								Console.Write("\n {0} {1}. <{2}>", Tabs(headingLevel  + numberLevel), numberLevel, node.Name);
 								}
 							}
 						else
@@ -1295,6 +1310,7 @@ namespace DocGeneratorUI
 
 					default:
 						{
+						//Console.WriteLine("\t ~~~ skip {0} ~~~", node.Name);
 						continue;
 						}
 					}
@@ -1403,6 +1419,405 @@ namespace DocGeneratorUI
 
 			//-Return the counted occurrences
 			return new Tuple<int, int>(bulletLevels, numberLevels);
+			}
+
+
+		private void buttonGenerateTestDoc_Click(Object sender, EventArgs e)
+			{
+
+			this.DocumentType = enumDocumentTypes.ISD_Document_DRM_Inline;
+			Console.WriteLine("\t Begin to generate {0}", this.DocumentType);
+			string parClientName = "XYZ Company";
+			this.UnhandledError = false;
+			DateTime timeStarted = DateTime.Now;
+			string hyperlinkImageRelationshipID = "";
+			string documentCollection_HyperlinkURL = "";
+			string currentListURI = "";
+			string currentHyperlinkViewEditURI = "";
+			string currentContentLayer = "None";
+			bool layerHeadingWritten = false;
+			bool drmHeading = false;
+			Table objActivityTable = new Table();
+			Table objServiceLevelTable = new Table();
+			int? intLayer1upElementID = 0;
+			int? intLayer1upDeliverableID = 0;
+			int intTableCaptionCounter = 0;
+			int intImageCaptionCounter = 0;
+			int iPictureNo = 49;
+			int intHyperlinkCounter = 9;
+			string htmlString = String.Empty;
+
+			this.HyperlinkEdit = false;
+			this.Template = "InternalServiceDefinitionTemplate.dotx";
+			this.Introductory_Section = true;
+			this.Introduction = true;
+			try
+				{
+				if(this.HyperlinkEdit)
+					{
+					documentCollection_HyperlinkURL = "https://en.wikipedia.org/wiki/Pixel_density";
+					currentHyperlinkViewEditURI = documentCollection_HyperlinkURL;
+					}
+				if(this.HyperlinkView)
+					{
+					documentCollection_HyperlinkURL = "https://en.wikipedia.org/wiki/Microsoft_Office_XML_formats";
+					currentHyperlinkViewEditURI = documentCollection_HyperlinkURL;
+					}
+
+				// define a new objOpenXMLdocument
+				oxmlDocument objOXMLdocument = new oxmlDocument();
+				// use CreateDocumentFromTemplate method to create a new MS Word Document based on
+				// the relevant template
+				if(objOXMLdocument.CreateDocWbkFromTemplate(
+					parDocumentOrWorkbook: enumDocumentOrWorkbook.Document,
+					parTemplateURL: this.Template,
+					parDocumentType: this.DocumentType,
+					parDataSet: ref this.completeDataSet))
+					{
+					Console.WriteLine("\t\t objOXMLdocument:\n" +
+					"\t\t\t+ LocalDocumentPath: {0}\n" +
+					"\t\t\t+ DocumentFileName.: {1}\n" +
+					"\t\t\t+ DocumentURI......: {2}", objOXMLdocument.LocalPath, objOXMLdocument.Filename, objOXMLdocument.LocalURI);
+					}
+				else
+					{
+					//- if the file creation failed.
+					throw new DocumentUploadException(message: "DocGenerator was unable to create the document based on the template.");
+					}
+
+				this.LocalDocumentURI = objOXMLdocument.LocalURI;
+				this.FileName = objOXMLdocument.Filename;
+
+				this.DocumentStatus = enumDocumentStatusses.Creating;
+				// Open the MS Word document in Edit mode
+				WordprocessingDocument objWPdocument = WordprocessingDocument.Open(path: objOXMLdocument.LocalURI, isEditable: true);
+				// Define all open XML object to use for building the document
+				MainDocumentPart objMainDocumentPart = objWPdocument.MainDocumentPart;
+				Body objBody = objWPdocument.MainDocumentPart.Document.Body;          // Define the objBody of the document
+				Paragraph objParagraph = new Paragraph();
+				ParagraphProperties objParaProperties = new ParagraphProperties();
+				Run objRun = new Run();
+				RunProperties objRunProperties = new RunProperties();
+				Text objText = new Text();
+				// Declare the HTMLdecoder object and assign the document's WordProcessing Body to
+				// the WPbody property.
+				//original version
+				//DocGeneratorCore.HTMLdecoder objHTMLdecoder = new DocGeneratorCore.HTMLdecoder();
+				//new version
+				HTMLdecoder objHTMLdecoder = new HTMLdecoder();
+				//!Set these HTMLdecoder properties....
+				//-Set the properties of the WordProcessing Body object (WPbody) of the HTMLdecoder object instance.
+				objHTMLdecoder.WPbody = objBody;
+				objHTMLdecoder.ClientName = parClientName;
+
+				// Determine the Page Size for the current Body object.
+				SectionProperties objSectionProperties = new SectionProperties();
+				this.PageWith = 11906;
+				this.PageHeight = 16838;
+
+				if(objBody.GetFirstChild<SectionProperties>() != null)
+					{
+					objSectionProperties = objBody.GetFirstChild<SectionProperties>();
+					PageSize objPageSize = objSectionProperties.GetFirstChild<PageSize>();
+					PageMargin objPageMargin = objSectionProperties.GetFirstChild<PageMargin>();
+					if(objPageSize != null)
+						{
+						this.PageWith = objPageSize.Width;
+						this.PageHeight = objPageSize.Height;
+						Console.WriteLine("\t\t Page width x height: {0} x {1} twips", this.PageWith, this.PageHeight);
+						}
+					if(objPageMargin != null)
+						{
+						if(objPageMargin.Left != null)
+							{
+							this.PageWith -= objPageMargin.Left;
+							//Console.WriteLine("\t\t\t - Left Margin..: {0} twips", objPageMargin.Left);
+							}
+						if(objPageMargin.Right != null)
+							{
+							this.PageWith -= objPageMargin.Right;
+							//Console.WriteLine("\t\t\t - Right Margin.: {0} twips", objPageMargin.Right);
+							}
+						if(objPageMargin.Top != null)
+							{
+							string tempTop = objPageMargin.Top.ToString();
+							//Console.WriteLine("\t\t\t - Top Margin...: {0} twips", tempTop);
+							this.PageHeight -= Convert.ToUInt32(tempTop);
+							}
+						if(objPageMargin.Bottom != null)
+							{
+							string tempBottom = objPageMargin.Bottom.ToString();
+							//Console.WriteLine("\t\t\t - Bottom Margin: {0} twips", tempBottom);
+							this.PageHeight -= Convert.ToUInt32(tempBottom);
+							}
+						}
+					}
+				
+
+				// Subtract the Table/Image Left indentation value from the Page width to ensure the
+				// table/image fits in the available space.
+				this.PageWith -= 846;
+				Console.WriteLine("\t\t Effective pageWidth x pageHeight.: {0} x {1} twips", this.PageWith, this.PageHeight);
+				//!Set the HTMLdecoder's **PageHeight** and **PageWidth** properties
+				objHTMLdecoder.PageHeight = this.PageHeight;
+				objHTMLdecoder.PageWidth = this.PageWith;
+
+				// Check whether Hyperlinks need to be included and add the image to the Document Body
+				if(this.HyperlinkEdit || this.HyperlinkView)
+					{
+					//Insert and embed the hyperlink image in the document and keep the Image's Relationship ID in a variable for repeated use
+					hyperlinkImageRelationshipID = oxmlDocument.InsertHyperlinkImage(parMainDocumentPart: ref objMainDocumentPart,
+						parDataSet: ref this.completeDataSet);
+					}
+
+
+				//Check is Content Layering was requested and add a Ledgend for the colour coding of content
+				if(this.ColorCodingLayer1 || this.ColorCodingLayer2)
+					{
+					objParagraph = oxmlDocument.Construct_Heading(parHeadingLevel: 0, parNoNumberedHeading: true);
+					objRun = oxmlDocument.Construct_RunText(
+						parText2Write: "Colour coding",
+						parBold: true);
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+
+					objParagraph = oxmlDocument.Construct_Paragraph(parBodyTextLevel: 0);
+					objRun = oxmlDocument.Construct_RunText(
+						parText2Write: "The following colour coding will appear in the document and it has the following meaning:");
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+
+					objParagraph = oxmlDocument.Construct_BulletNumberParagraph(parBulletLevel: 1, parIsBullet: true);
+					objRun = oxmlDocument.Construct_RunText(
+						parText2Write: "Services Framework Text is this colour.",
+						parContentLayer: "Layer1");
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+
+					objParagraph = oxmlDocument.Construct_BulletNumberParagraph(parBulletLevel: 1, parIsBullet: true);
+					objRun = oxmlDocument.Construct_RunText(
+						parText2Write: "Services Framework Plus is this colour.",
+						parContentLayer: "Layer2");
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+
+					objParagraph = oxmlDocument.Construct_Paragraph(parBodyTextLevel: 0);
+					objRun = oxmlDocument.Construct_RunText(
+						parText2Write: " ");
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+					}
+
+				this.DocumentStatus = enumDocumentStatusses.Building;
+
+				//++ Insert a Section
+				if(this.Introductory_Section)
+					{
+					objParagraph = oxmlDocument.Construct_Heading(parHeadingLevel: 1);
+					objRun = oxmlDocument.Construct_RunText(
+						parText2Write: "Heading Level 1",
+						parIsNewSection: true);
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+					}
+
+				//+ Insert a Heading
+				if(this.Introduction)
+					{
+					objParagraph = oxmlDocument.Construct_Heading(parHeadingLevel: 2);
+					objRun = oxmlDocument.Construct_RunText(parText2Write: "Heading Level 2");
+					// Check if a hyperlink must be inserted
+					if(this.HyperlinkEdit || this.HyperlinkView)
+						{
+						intHyperlinkCounter += 1;
+						Drawing objDrawing = oxmlDocument.ConstructClickLinkHyperlink(
+							parMainDocumentPart: ref objMainDocumentPart,
+							parImageRelationshipId: hyperlinkImageRelationshipID,
+							parClickLinkURL: documentCollection_HyperlinkURL,
+							parHyperlinkID: intHyperlinkCounter);
+						objRun.Append(objDrawing);
+						}
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+
+					//+Load the HTML data from a file in the TestData directory
+					string myPath = @"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\";
+					string htmlFilename = @myPath + "HTMLtestPage_Everything.html";
+					htmlString = System.IO.File.ReadAllText(@htmlFilename);
+
+
+
+					if(htmlString != null)
+						{
+						try
+							{
+							/*
+							objHTMLdecoder.DecodeHTML(parClientName: parClientName,
+								parMainDocumentPart: ref objMainDocumentPart,
+								parDocumentLevel: 2,
+								parHTML2Decode: htmlString,
+								parTableCaptionCounter: ref intTableCaptionCounter,
+								parImageCaptionCounter: ref intImageCaptionCounter,
+								parPictureNo: ref iPictureNo,
+								parHyperlinkID: ref intHyperlinkCounter,
+								parPageHeightTwips: this.PageHeight,
+								parPageWidthTwips: this.PageWith,
+								parSharePointSiteURL: @"https:\\teams.dimensiondata.com\sites\servicecatalogue\");
+							*/
+							//-Invoke the DecodeHTML methode to process the HTML text...
+							objHTMLdecoder.DecodeHTML(
+								parMainDocumentPart: ref objMainDocumentPart,
+								parDocumentLevel: 2,
+								parTableCaptionCounter: ref intTableCaptionCounter,
+								parImageCaptionCounter: ref intImageCaptionCounter,
+								parPictureNo: ref iPictureNo,
+								parHyperlinkID: ref intHyperlinkCounter,
+								parSharePointSiteURL: @"https:\\teams.dimensiondata.com\sites\servicecatalogue\",
+								parHTML2Decode: htmlString);
+
+							}
+						catch(InvalidContentFormatException exc)
+							{
+							Console.WriteLine("\n\nException occurred: {0}", exc.Message);
+							// A Table content error occurred, record it in the error log.
+							this.ErrorMessages.Add("Error: The Document Collection ID: " + 1
+								+ " contains an error in Introduction's Enhance Rich Text. " + exc.Message);
+							objParagraph = oxmlDocument.Construct_Paragraph(parBodyTextLevel: 2);
+							objRun = oxmlDocument.Construct_RunText(
+								parText2Write: "A content error occurred at this position and valid content could " +
+								"not be interpreted and inserted here. Please review the content in the SharePoint system and correct it. Error Detail: "
+								+ exc.Message,
+								parIsNewSection: false,
+								parIsError: true);
+							if(this.HyperlinkEdit || this.HyperlinkView)
+								{
+								intHyperlinkCounter += 1;
+								Drawing objDrawing = oxmlDocument.ConstructClickLinkHyperlink(
+									parMainDocumentPart: ref objMainDocumentPart,
+									parImageRelationshipId: hyperlinkImageRelationshipID,
+									parHyperlinkID: intHyperlinkCounter,
+									parClickLinkURL: documentCollection_HyperlinkURL);
+								objRun.Append(objDrawing);
+								}
+							objParagraph.Append(objRun);
+							objBody.Append(objParagraph);
+							}
+						}
+					}
+
+				//++ Insert the Document Generation Error Section
+				if(this.ErrorMessages.Count > 0)
+					{
+					objParagraph = oxmlDocument.Construct_Heading(parHeadingLevel: 1);
+					objRun = oxmlDocument.Construct_RunText(
+						parText2Write: "Errors that occurred in the HTML",
+						parIsNewSection: true);
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+
+					objParagraph = oxmlDocument.Construct_Heading(parHeadingLevel: 2);
+					objRun = oxmlDocument.Construct_RunText(parText2Write: "Errors that occurred");
+					objParagraph.Append(objRun);
+					objBody.Append(objParagraph);
+
+					foreach(var errorMessageEntry in this.ErrorMessages)
+						{
+						objParagraph = oxmlDocument.Construct_BulletNumberParagraph(parBulletLevel: 1, parIsBullet: false);
+						objRun = oxmlDocument.Construct_RunText(parText2Write: errorMessageEntry, parIsError: true);
+						objParagraph.Append(objRun);
+						objBody.Append(objParagraph);
+						}
+					}
+
+				//+ Validate the document with OpenXML validator
+				OpenXmlValidator objOXMLvalidator = new OpenXmlValidator(fileFormat: DocumentFormat.OpenXml.FileFormatVersions.Office2010);
+				int errorCount = 0;
+				Console.WriteLine("\n\rValidating document....");
+				foreach(ValidationErrorInfo validationError in objOXMLvalidator.Validate(objWPdocument))
+					{
+					errorCount += 1;
+					Console.WriteLine("------------- # {0} -------------", errorCount);
+					Console.WriteLine("Error ID...........: {0}", validationError.Id);
+					Console.WriteLine("Description........: {0}", validationError.Description);
+					Console.WriteLine("Error Type.........: {0}", validationError.ErrorType);
+					Console.WriteLine("Error Part.........: {0}", validationError.Part.Uri);
+					Console.WriteLine("Error Related Part.: {0}", validationError.RelatedPart);
+					Console.WriteLine("Error Path.........: {0}", validationError.Path.XPath);
+					Console.WriteLine("Error Path PartUri.: {0}", validationError.Path.PartUri);
+					Console.WriteLine("Error Node.........: {0}", validationError.Node);
+					Console.WriteLine("Error Related Node.: {0}", validationError.RelatedNode);
+					Console.WriteLine("Node Local Name....: {0}", validationError.Node.LocalName);
+					}
+
+				Console.WriteLine("Document generation completed, saving and closing the document.");
+				// Save and close the Document
+				objWPdocument.Close();
+
+				this.DocumentStatus = enumDocumentStatusses.Completed;
+
+				Console.WriteLine(
+					"Generation started...: {0} \nGeneration completed: {1} \n Durarion..........: {2}",
+					timeStarted, DateTime.Now, (DateTime.Now - timeStarted));
+
+				} // end Try
+
+			//++ -------------------
+			//++ Handle Exceptions
+			//++ -------------------
+			//+ NoContentspecified Exception
+			catch(NoContentSpecifiedException exc)
+				{
+				this.ErrorMessages.Add(exc.Message);
+				this.DocumentStatus = enumDocumentStatusses.Error;
+				return; //- exit the method because there is no files to cleanup
+				}
+
+			//+ UnableToCreateDocument Exception
+			catch(UnableToCreateDocumentException exc)
+				{
+				this.ErrorMessages.Add(exc.Message);
+				this.DocumentStatus = enumDocumentStatusses.FatalError;
+				return; //- exit the method because there is no files to cleanup
+				}
+
+			//+ DocumentUpload Exception
+			catch(DocumentUploadException exc)
+				{
+				this.ErrorMessages.Add(exc.Message);
+				this.DocumentStatus = enumDocumentStatusses.FatalError;
+				}
+
+			//+ OpenXMLPackage Exception
+			catch(OpenXmlPackageException exc)
+				{
+				this.ErrorMessages.Add("Unfortunately, an unexpected error occurred during document generation and the document could not be produced. ["
+					+ "[OpenXMLPackageException: " + exc.HResult + "Detail: " + exc.Message + "]");
+				this.DocumentStatus = enumDocumentStatusses.FatalError;
+				this.UnhandledError = true;
+				}
+
+			//+ ArgumentNull Exception
+			catch(ArgumentNullException exc)
+				{
+				this.ErrorMessages.Add("Unfortunately, an unexpected error occurred during  ocument generation and the document could not be produced. ["
+					+ "[ArgumentNullException: " + exc.HResult + "Detail: " + exc.Message + "]");
+				this.DocumentStatus = enumDocumentStatusses.FatalError;
+				this.UnhandledError = true;
+				}
+
+			//+ Exception (any not specified Exception)
+			catch(Exception exc)
+				{
+				this.ErrorMessages.Add("An unexpected error occurred during the document generation and the document could not be produced. ["
+					+ "[Exception: " + exc.HResult + "Detail: " + exc.Message + "]");
+				this.DocumentStatus = enumDocumentStatusses.FatalError;
+				this.UnhandledError = true;
+				}
+
+			Console.WriteLine("\t\t End of the generation of {0}", this.DocumentType);
+
+
+
 			}
 		}
 	}
