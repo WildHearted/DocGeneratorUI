@@ -321,25 +321,6 @@ namespace DocGeneratorUI
 									+ "Please inspect the content and resolve the issue, by formatting the relevant content with the "
 									+ "Enhanced Rich Text styles. |" + node.InnerText + "|");
 								}
-							else
-								{
-								/*this.WorkString = CleanText(node.InnerText, this.ClientName);
-								if(this.WorkString != String.Empty)
-									{
-									Console.Write(" <{0}>|{1}|", node.Name, this.WorkString);
-									if(this.WorkString != string.Empty)
-										{
-										objNewParagraph = oxmlDocument.Construct_Paragraph(
-											parBodyTextLevel: this.DocumentHierachyLevel + this.AdditionalHierarchicalLevel);
-										objRun = oxmlDocument.Construct_RunText(
-											parText2Write: this.WorkString,
-											parContentLayer: this.ContentLayer);
-										objNewParagraph.Append(objRun);
-										this.WPbody.Append(objNewParagraph);
-										}
-									}
-									*/
-								}
 							break;
 							}
 
@@ -651,7 +632,25 @@ namespace DocGeneratorUI
 						//++Table
 						case "table":
 							{
-							//!Add a check that prevent CASCADING tables...
+							//TODO: Code to process the TableToBeBuild once done, And to insert the Table Caption!
+							//TODO: After successful generation of the table, set it to null
+							//-Define the Table Instance 
+							if(this.TableToBeBuild == null)
+								{
+								this.TableToBeBuild = new WorkTable();
+								this.TableToBeBuild.Active = true;      //-Set Table Mode to Active
+								this.TableToBeBuild.GridDone = false;   //-The table's **GRID** is not yet determined...
+								}
+							else
+								{
+								if(this.TableToBeBuild.Active)
+									{
+									Console.WriteLine("\n ERROR - No attributes defined for the table");
+									throw new InvalidContentFormatException("The TABLE that is suppose to appear here, contains a cascading table "
+										+ " (a table within a table) The DocGenerator is not designed to produce cascading tables. "
+										+ "Please inspect the content and ensure there are not table embeded into another table.");
+									}
+								}
 
 							Console.Write("\n\n <Table> ");
 							tableWidth = 0;
@@ -659,7 +658,6 @@ namespace DocGeneratorUI
 							if(!node.HasAttributes)  //- The table doesn't have attributes 
 								{
 								Console.WriteLine("\n ERROR - No attributes defined for the table");
-								//-HTML tags - **THEREFORE** a format issue is raised...
 								throw new InvalidContentFormatException("The TABLE's width is missing, therefore the table cannot be inserted into the "
 									+ "document. Please inspect the content and resolve the issue, by formatting the relevant content with the "
 									+ "Enhanced Rich Text styles.");
@@ -667,11 +665,6 @@ namespace DocGeneratorUI
 
 							else 
 								{
-								//-Define the Table Instance 
-								this.TableToBeBuild = new WorkTable();
-								this.TableToBeBuild.Active = true;      //-Set Table Mode to Active
-								this.TableToBeBuild.GridDone = false;   //-The table's **GRID** is not yet determined...
-
 								//-Process the table attributes to determine how to format the table...
 								foreach(HtmlAttribute tableAttr in node.Attributes)
 									{
@@ -695,10 +688,8 @@ namespace DocGeneratorUI
 												{
 												if(tableAttr.Value.Contains("%"))
 													{
-													if(int.TryParse(tableAttr.Value.Substring(
-														tableAttr.Value.IndexOf(":") + 2,
-														(tableAttr.Value.IndexOf("%") - tableAttr.Value.IndexOf(":") - 2)),
-														out tableWidth))
+													if(int.TryParse(tableAttr.Value.Substring(tableAttr.Value.IndexOf(":") + 2,
+														(tableAttr.Value.IndexOf("%") - tableAttr.Value.IndexOf(":") - 2)),out tableWidth))
 														{ //-Successfully parsed the integer...
 														this.TableToBeBuild.OriginalTableWidthType = WorkTable.enumWidthType.Percentage;
 														this.TableToBeBuild.OriginalTableWidthValue = tableWidth;
@@ -761,7 +752,6 @@ namespace DocGeneratorUI
 							else
 								{
 								Console.WriteLine("\n ERROR - No attributes defined for the table");
-								//-HTML tags - **THEREFORE** a format issue is raised...
 								throw new InvalidContentFormatException("The TABLE's width is missing, therefore the table cannot be inserted into the "
 									+ "document. Please inspect the content and resolve the issue, by formatting the relevant content with the "
 									+ "Enhanced Rich Text styles.");
@@ -774,13 +764,22 @@ namespace DocGeneratorUI
 								}
 							else //-OriginalTableWidthType is **Pixels**
 								{
-								this.TableToBeBuild.WidthPrecetage = Convert.ToInt16((this.TableToBeBuild.OriginalTableWidthValue / this.PageWidth) * 100));
+								this.TableToBeBuild.WidthPrecetage = Convert.ToInt16((this.TableToBeBuild.OriginalTableWidthValue / this.PageWidth) * 100);
 								this.TableToBeBuild.WidthPixels = this.TableToBeBuild.OriginalTableWidthValue;
 								}
 
-							//!Build the Table Grid...
-							
+							//-Check if the table's width is defined, if not raise an exception and exit
+							if(this.TableToBeBuild.WidthPixels == 0 || this.TableToBeBuild.WidthPrecetage == 0)
+								{
+								Console.WriteLine("\n ERROR - Could Not determine the table's width.");
+								throw new InvalidContentFormatException("The TABLE's width could not be determined, therefore the table cannot be " 
+									+ "inserted into the document. Please inspect the content and resolve the issue, by formatting the relevant "
+									+ "content with the Enhanced Rich Text styles.");
+								}
 
+							//-Determine the Table Grid...
+							DetermineTableGrid(parHTMLnodes: node.DescendantsAndSelf());
+							
 							break;
 							}
 						//+Table Body = **<tb>**
@@ -1129,7 +1128,7 @@ namespace DocGeneratorUI
 
 		//***R
 
-		private void DetermineTableGrid(HtmlNodeCollection parHTMLnodes)
+		private void DetermineTableGrid(IEnumerable<HtmlNode> parHTMLnodes)
 			{
 			try
 				{
@@ -1137,18 +1136,18 @@ namespace DocGeneratorUI
 				this.TableToBeBuild.GridColumnWidths = new List<int>();
 
 				//-Initialise Variables and Properties
-				int columnCounter = 1;
-				string colSpan = "";
-				string columnWidthValue = "";
-				int columnWidthPercentage = 0;
-				int columnWidthPixels = 0;
-				int columnRowSpanValue = 0;
-				int columnSpan = 0;
-				//- **1st** = Width Value, **2nd** = columnSpan value
-				Tuple<int, int> columnWidth;
-				List<Tuple<int,int>> tableGrid = new List<Tuple<int, int>>();
+				int cellCounter = 0;
 
-				
+				//-Working Variables...
+				string colSpanValue;
+				int colSpan = 1;
+				string cellWidthValue = "";
+				int cellWidthPercentage = 0;
+				int cellWidthPixels = 0;
+
+				//-This list contains the **width** of each column once the method completed.
+				List<int> tableGrid = new List<int>();
+
 				//?This is what happens in this section of code...
 				//- | 1. All the rows of the table is processed to determine the GRID of the table that need to be created in the MS Document.
 				//- | 2. Each Column is each Row is inspected to determine how many columns is in the table and the **WIDTH** of each column.
@@ -1156,170 +1155,177 @@ namespace DocGeneratorUI
 				//- |     a) ... some columns may **NOT** have their width specified in the HTML.
 				//-|     b) ...columns may **SPAN** multiple columns which means their width may not applu to each of the spanned columns..
 
-				Console.WriteLine("\t\t\t {0} Begin to Define Table Grid {0}", new String('=', 40));
+				Console.WriteLine("\n{0} Begin to Define Table Grid {0}", new String('=', 40));
 				//- Process the collection of columns that were send as parameter.
-				foreach(HtmlNode node in parHTMLnodes)
+				foreach(HtmlNode node in parHTMLnodes.Where(n => n.Name != "#text"))
 					{
+					
 					switch(node.Name)
 						{
-						//+Table Body
+						//+Table Body or Table Row
 						case "tbody":
-							{
-							columnCounter = 0;
-
-							break;
-							}
-
-						//+Table Row
 						case "tr":
 							{
-							columnCounter = 0;
+							cellCounter = 0;
+							Console.Write("\n\t + <{0}>", node.Name);
 							break;
 							}
 
-						//+Table Header
+						//+Table Header or Table Cell
 						case "th":
+						case "td":
 							{
-							columnCounter += 1;
-							colSpan = node.ChildAttributes("colspan").FirstOrDefault().Value;
-							//-Check if the *cell* has a **colspan** value defined
-							if(string.IsNullOrWhiteSpace(colSpan))
-								{ //- The *cell* doesn't have a **colspan** value defined
+							Console.Write("\n\t\t - <{0}>", node.Name);
+							colSpanValue = String.Empty;
+							colSpan = 1;
+							cellWidthValue = String.Empty;
+							cellWidthPercentage = 0;
+							cellWidthPixels = 0;
+							cellCounter += 1;
 
-								}
-							else   //-The *cell* has a defined **colspan** value
+							//-Check if there is a **colspan** defined for the cell...
+							if(node.ChildAttributes("colspan").FirstOrDefault() == null)
 								{
-								//-Check if a column already Exist...
-								if(tableGrid.Count < columnCounter)
-									{
-									
-
-									}
+								colSpanValue = "1";
+								}
+							else
+								{
+								colSpanValue = node.ChildAttributes("colspan").FirstOrDefault().Value.ToString();
+								}
+							
+							//-Check if the *cell* has a **colspan** value defined
+							if(!string.IsNullOrWhiteSpace(colSpanValue))
+								{
+								colSpan = Convert.ToInt16(colSpanValue);
 								}
 
 							//-Check if a cell width is defined...
-							columnWidthValue = node.ChildAttributes("style").Where(v => v.Name == "width").FirstOrDefault().Value;
-							//-Check if a **width** value was defined for the cell...
-							if(String.IsNullOrWhiteSpace(columnWidthValue))
-								{ //-The *cell* DOESn't have a defined **width**
+							//- Cell **WIDTH** can be defined as an *attribute* or in a *style* value...
+							//-First Check for the **width** value defined in the *attribute*...
+							if(node.ChildAttributes("width").FirstOrDefault() != null)
+								{ //-The **width** attribute was found...
+								cellWidthValue = node.ChildAttributes("width").FirstOrDefault().Value.ToString();
 
+								//-Check if the *cell* has a **width** value defined
+								if(!string.IsNullOrWhiteSpace(cellWidthValue))
+									{ //-The *cell* has a defined **width** value - it is **NOT** *Null* or *space*...
+									  //-Check in the format the **Width**
+									if(cellWidthValue.Contains("%"))
+										{
+										int.TryParse(cellWidthValue.Substring(cellWidthValue.IndexOf(":") + 2,
+											(cellWidthValue.IndexOf("%") - cellWidthValue.IndexOf(":") - 2)), out cellWidthPercentage);
+										}
+									else
+										{ //-Table width is **NOT** a percentage :. px value
+										int.TryParse(cellWidthValue.Substring(cellWidthValue.IndexOf(":") + 2,
+											(cellWidthValue.IndexOf("px") - cellWidthValue.IndexOf(":") - 2)), out cellWidthPixels);
+										}
+									}
 								}
 							else
-								{ //- The *cell* HAS a defined **width**
-
+								{ //- **width** atrribute was not found, now check if there is a **width** defined in the style...
+								if(node.ChildAttributes("style").Where(v => v.Value.Contains("width")).FirstOrDefault() != null)
+									{
+									cellWidthValue = node.ChildAttributes("style").Where(v => v.Value.Contains("width")).FirstOrDefault().Value;
+									//-Check if a **width** value was defined for the cell...
+									if(!String.IsNullOrWhiteSpace(cellWidthValue))
+										{  //-The *cell* has a defined **width** value - it is **NOT** *Null* or *space*...
+										//-Determine the format the **Width**
+										if(cellWidthValue.Contains("%"))
+											{
+											int.TryParse(cellWidthValue.Substring(cellWidthValue.IndexOf(":") + 2,
+												(cellWidthValue.IndexOf("%") - cellWidthValue.IndexOf(":") - 2)), out cellWidthPercentage);
+											}
+										else
+											{ //-Table width is **NOT** a percentage :. px value
+											int.TryParse(cellWidthValue.Substring(cellWidthValue.IndexOf(":") + 2,
+												(cellWidthValue.IndexOf("px") - cellWidthValue.IndexOf(":") - 2)), out cellWidthPixels);
+											}
+										}
+									}
 								}
 
-							//TODO: Assign the width and the colspan to the columnGrid
-							tableGrid.Add();
-							columnWidth = new Tuple<int, int>();
+							//+By now we should know whether the cell has a **WIDTH** and **Column Span** 
+							//-If the **column span** is 0, set it to 1 which is the default value
+							if(colSpan < 0)
+								colSpan = 1;
+
+							//-Calculate the **cell width percentage** 
+							if(cellWidthPixels > 0 || cellWidthPercentage > 0)
+								{
+								//-Determine the percentage value of the cell if it was specified in pixels...
+								if(cellWidthPixels > 0)
+									{
+									cellWidthPercentage = (cellWidthPixels / this.TableToBeBuild.WidthPixels) * 100;
+									}
+								}
+
+							Console.Write("\t ColSpan: {0}\t Width: {1} %", colSpan, cellWidthPercentage);
+
+							//-Check if the column already exist in the columnGrid
+							if(cellCounter > tableGrid.Count)
+								{ //-- Column doesn't exist yet, add it...
+								tableGrid.Add(cellWidthPercentage);
+								}
+							else
+								{
+								//-Locate the column in the tableGrid; and compare values 
+								//- If current column is smaller replace it with the higher WIDTH value...
+								if(tableGrid[cellCounter - 1] < cellWidthPercentage)
+									{
+									tableGrid[cellCounter - 1] = cellWidthPercentage;
+									}
+
+								//? This is what happens if a cell has a Column Span value...
+								//-CheckBox if the **column** spans more than 1 column.
+								if(colSpan > 1)
+									{
+									//--Execute a loop for every column span > 1 :. start at 2 because 1 already covered above....
+									for(int i = 2; i < colSpan + 1; i++)
+										{
+										//-Check if the column already exisi in the tableGrid...
+										if(cellCounter + i > tableGrid.Count)
+											{ //--Doen't exisit yet, therefore create it
+											  //-Add it with a zero value, in order to validate later and to ensure it gets overwritten later...
+											tableGrid.Add(0);
+											}
+										//-if the column already exist, just ignore it, because we don't want to override it with zero.
+										}
+									}
+								}
 
 							break;
 							}
-
-						//+Table Cell
-						case "td":
-							{
-							columnCounter += 1;
-
-							break;
-							}
 						}
 
-
-					if(node.Name == "tbody")
-						{
-						columnCounter = 1;
-						}
-					else 
-
-					//+Determine the width of each column
-					//-Check if a width is defined for the cell
-					//-Does the *column* contains a **Width** attribute?
-					if(node.getAttribute("width", 0) == null)
-						{ //-it does not contain a *width* attribute...
-						  //-Check if *width* is specified in a style
-						if(node.style.width == null)
-							{//- Width not specified in the style either...
-							//!Report a Content Format Error!
-							this.Table2insert.Active = false;
-							throw new InvalidTableFormatException("The width of a tables's COLUMNS was NOT specified. Please review "
-								+ "the table content and specify a table width % value.");
-							}
-						else //-A width value was found in the Style...
-							{
-							columnWidthValue = node.style.width;
-							}
-						}
-					else //-Awidth value was found in the **Width attribute**
-						{
-						columnWidthValue = node.getAttribute("width", 0);
-						}
-
-					//-At this point there is a *column width* defined and the value resides in **sWidth**
-
-					//-Determine HOW the table width is specified
-					if(columnWidthValue.IndexOf("%", 0) > 0)
-						{
-						//this.TableColumnUnit = "%";
-						columnWidthValue = columnWidthValue.Substring(0, columnWidthValue.IndexOf("%", 0));
-						//-place the value into a temporary variable and remove any decimal if present...
-						if(int.TryParse(columnWidthValue, out columnWidthPercentage))
-							{
-							columnWidthPixels = this.Table2insert.WidthPixels * (columnWidthPercentage / 100);
-							}
-						else //-If the value cannot be parsed, it means it is an invalid value...
-							{
-							//!Report a Content Error!
-							this.Table2insert.Active = false;
-							throw new InvalidTableFormatException("Column's width value is set as " + columnWidthPercentage
-							+ "%, which is not correct. Table width values must not contain decimal values an preferably a percentage integer."
-							+ " Please review the content and ensure all columns have a integer % width value.");
-							}
-						}
-					else //- the width is specified in px...
-						{ //-place the value into a temporary variable and remove any decimal if present...
-						if(int.TryParse(columnWidthValue.Substring(0, (columnWidthValue.IndexOf(".", 0))), out columnWidthPixels))
-							{//-the parse was successful..
-							//-calulate the with percentage of the column.
-							columnWidthPercentage = (columnWidthPixels / this.Table2insert.WidthPixels) * 100;
-							}
-						else //-The parse failed
-							{
-							this.Table2insert.Active = false;
-							throw new InvalidTableFormatException("The table width value is set as " + columnWidthPercentage
-							+ "px, which is outside the valid range of 1% to 100%. Please review the content and correct the "
-							+ "table width % value.");
-							}
-						}
-					//+Store the column width in the List of Column Percentages
-					//-But before we save, let's check if there are any merged columns, to ensure the grid is complete
-
-					if(node.getAttribute("colspan", 0) == null)
-						{ //-There is no Column Merge present.
-						columnSpan = 1;
-						}
-					else //-Extract the **colspan** value
-						{
-						columnRowSpanValue = node.getAttribute("colspan", 0);
-						Console.WriteLine("ColumnSpan: {0}", columnRowSpanValue);
-						//-Convert the string value to an integer
-						//if(!int.TryParse(columnRowSpanValue,out columnSpan))
-						//	{//-conversion failed..
-						//	columnSpan = 1;
-						//	}
-						}
-					
-					//-Add a column each mearged column (**cell merges**) according to the value in the *columnSpan* variable
-					for(int i = 0; i < columnSpan; i++)
-						{
-						this.Table2insert.GridColumnWidths.Add(columnWidthPixels);
-						}
 					}
+				
+				//- Check if there are any columns in the tableGrid that have 0 cellWidthPercentage values.				
+				int totalColumnWidths = 0;
+				foreach(int item in tableGrid)
+					{
+					if(item == 0)
+						{
+						throw new InvalidTableFormatException("The table contains columns/cells that don't have a column width specified. Please revise the content and correct the content error. Ensure that all columns and cells have their width specified as a percentage of the table's width.");
+						}
+					else
+						totalColumnWidths += item;
+					} 
+				//- Also check that the total column of the column width doesn't exceed 100%
+				if(totalColumnWidths > 100)
+					{
+					throw new InvalidTableFormatException("The total values of the columns EXCEEDS the specified width of the table. Therefore the table cannot be accurately scalled and formatted to the document's page width. Please revise the content and ensure that all columns in the table widths don't exceed the width specified for the table.");
+					}
+
+				//At this point all is in order with the table grid, therefore insert it into the TableToBeBuild...
+				this.TableToBeBuild.GridColumnWidths = tableGrid;
+				this.TableToBeBuild.GridDone = true;
+
 				}
 			catch(InvalidTableFormatException exc)
 				{
 				Console.WriteLine("Exception: {0} - {1}", exc.Message, exc.Data);
-				this.Table2insert.Active = false;
+				this.TableToBeBuild.Active = false;
 				throw new InvalidTableFormatException(exc.Message);
 				}
 
@@ -1328,10 +1334,19 @@ namespace DocGeneratorUI
 				Console.WriteLine("\n\nException ERROR: {0} - {1} - {2} - {3}", exc.HResult, exc.Source, exc.Message, exc.Data);
 				}
 
-			Console.WriteLine("\t\t\t {0} Table Grid Defined {0}", new String('=', 40));
+			Console.WriteLine("\n\t\t{0}", new String('_', 90));
+
+			Console.Write("\t\t Columns: |");
+			foreach(int item in this.TableToBeBuild.GridColumnWidths)
+				{
+				Console.Write("\t{0}%", item);
+				}
+			Console.Write("\t |\n");
+			Console.WriteLine("\t\t{0}", new String('_', 90));
+
+			Console.WriteLine("{0} Table Grid Defined {0}", new String('=', 40));
 
 			} // end of DetermineTableGrid
-			*/
 	
 		//===G
 		//++BuildCompleteTable
