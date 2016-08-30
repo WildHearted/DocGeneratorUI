@@ -173,6 +173,7 @@
     <Content Include="DocGenerator32.ico" />
     <Content Include="TestData\HTMLtestPage_CascadedBulletList.html" />
     <Content Include="TestData\HTMLtestPage_CascadedNumberList.html" />
+    <Content Include="TestData\HTMLtestPage_ComplexTable.html" />
     <Content Include="TestData\HTMLtestPage_Everything.html" />
     <None Include="Service References\SDDPServiceReference\Reference.datasvcmap">
       <Generator>DataServicesCoreClientGenerator</Generator>

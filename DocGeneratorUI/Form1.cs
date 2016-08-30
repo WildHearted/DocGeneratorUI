@@ -1642,7 +1642,7 @@ namespace DocGeneratorUI
 
 					//+Load the HTML data from a file in the TestData directory
 					string myPath = @"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\";
-					string htmlFilename = @myPath + "HTMLtestPage_Everything.html";
+					string htmlFilename = @myPath + "HTMLtestPage_ComplexTable.html";
 					htmlString = System.IO.File.ReadAllText(@htmlFilename);
 
 
@@ -1674,7 +1674,6 @@ namespace DocGeneratorUI
 								parHyperlinkID: ref intHyperlinkCounter,
 								parSharePointSiteURL: @"https:\\teams.dimensiondata.com\sites\servicecatalogue\",
 								parHTML2Decode: htmlString);
-
 							}
 						catch(InvalidContentFormatException exc)
 							{
