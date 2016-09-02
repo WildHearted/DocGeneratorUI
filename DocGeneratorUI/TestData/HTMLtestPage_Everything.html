@@ -1,7 +1,5 @@
 ﻿<p>This pargraph demonstrates the replacement of HASH TAG Client Name HASH TAG the text hereafter must be replaced with the Client Name because it is the word "ClientName" between two ## characters without any spaces between the #'s and the word: #ClientName#.</p>
-<h1>
-	<div>This is Heading +1 style</div>
-</h1>
+<h1>This is Heading +1 style</h1>
 <p>This is a standard paragraph as DD Body Text, with additional text to check that the paragraph wraps correctly if it is more than a one liner.</p>
 <h2> This is Heading +2 style with a 
       <span style="text-decoration: underline;">undelined</span> word</h2>
@@ -17,13 +15,6 @@
 		<ul>
 			<li>This is the first Level 3 bullet</li>
 			<li>This is the second Level 3 bullet</li>
-			<ul>
-				<li>This is the first Level 4 bullet. (but the code should collaps this level into a third level)</li>
-				<li>Alternatively, this Level 4 and beyound can produce a formatting error</li>
-				<ul>
-					<li>This Level 5 bullet could also produce a formatting error</li>
-				</ul>
-			</ul>
 			<li>This is the third Level 3 bullet</li>
 		</ul>
 		<li>This is the third Level 2 bullet</li>
@@ -61,19 +52,6 @@
             <li>
                <p>This is the 1st number for Level 3</p>
             </li>
-            <ol>
-               <li>
-                  <p>This is the 1st number for Level 4 (will collapse to level 3 or error)</p>
-               </li>
-               <ol>
-                  <li>
-                     <p>This is the 1st number for Level 5 (will collapse to level 3 or error)</p>
-                  </li>
-               </ol>
-			<li>
-                  <p>This is the 2nd number for Level 4 (will collapse to level 3 or error)</p>
-               </li>
-            </ol>
             <li>
                <p>This is the 2nd for Level 3</p>
             </li>
@@ -109,7 +87,7 @@
 </p>
 
 <div class="ExternalClass53E62A1341694A549F1EE65FE25C5CA8">
-   <h1> ​Introduction to 
+   <h1>​Introduction to 
       <span style="text-decoration: underline;">Content Authoring</span></h1>
    <p>Most of the time, it seems straight forward to capture text, images and tables into documents like in MS Word, but with the Service Design and Development Portfolio (SDDP)System,&#160;things works a little different. The SDDP is an online system that is build/based/hosted as a SharePoint solution. Capturing content in an online system is a little different to writing/authoring MS Word documents, although the principles are the same.</p>
    <p>In the SDDP system, some content is captured as plain text fields (words without any formatting) and other content is captured as Enhanced Rich Text (ERT) content. Enhances Rich Text content are in essence words (text) but iy includes formatting, tables and images/pictures and other forms of media as well. </p>
@@ -117,34 +95,34 @@
    <h2>Plain Text</h2>
    <p>SDDP store some&#160;content as Plain Text fields, which is&#160;pure text that doesn&#39;t contain any formatting or other types of artifacts. Therefore, there are very seldom any complications with Plain Text conteant.</p>
    <h2>Enhanced Rich Text</h2>
-   <p>Enhanced Rich Text (ERT) fields are stored as HTML. As you may know, HTML (HyperText Mark-up Language) content can consist of text,&#160;formatting information and other artifacts like images, tables etc. The formatting&#160;indicates how the text and other artefacts are formatted and presented to the user. Most internet web sites are HTML which the browser you use, translates and displays as the web page you see on a monitor. The format “instructions” in HTML consist of a defined set of HTML tags. For example &lt;p&gt;My text.&lt;/p&gt; means that “My Text.” Is a separate paragraph. The tag&#160;&lt;H1&gt;My Heading&lt;/H1&gt; is a separate Heading level 1 paragraph.</p>
+   <p>Enhanced Rich Text (ERT) fields are stored as HTML. As you may know, <strong>HTML</strong> (HyperText Mark-up Language) content can consist of text,&#160;formatting information and other artifacts like images, tables etc. The formatting&#160;indicates how the text and other artefacts are formatted and presented to the user. Most internet web sites are HTML which the browser you use, translates and displays as the web page you see on a monitor. The format “instructions” in HTML consist of a defined set of HTML tags. For example &lt;p&gt;My text.&lt;/p&gt; means that “My Text.” Is a separate paragraph. The tag&#160;&lt;H1&gt;My Heading&lt;/H1&gt; is a separate Heading level 1 paragraph.</p>
    <p>Each ERT field contains the text and the various HTML tags that indicate how the text is formatted. The DocGenerator needs to read, the HTML content, interpret it and then construct the relevant documents and/or workbooks. The DocGenerator reads the HTML contained in an ERT field,&#160;then deciphers the HTML to determine the format of the text and each artefacts contained in the content. If the contents is 
       <em>valid </em>and it contains sufficient format information for the DocGenerator to include it in the document, it translates the 
       <strong>HTML </strong>into an 
       <span style="text-decoration: underline;">Open XML </span>format, which is the basis of all Microsoft Office and Adobe Acrobat documents.&#160;</p>
-   <p>When the DocGenerator cannot determine how author intended to format the text and artefacts (tables or images) based on the HTML, it will indicate that the specific “generated” document contains content that it cannot be interpreted to produce a properly formated document.</p>
-   <p>Therefore, this purpose of this document is to provide you with a guideline, directions and tips on how to author valid and properly formatted content that the DocGenerator will be able to successfully read and translate the content that you author, when it produce a document or workbook.</p>
+   <p>When the DocGenerator cannot determine how the author intended to format the text and artefacts (tables or images) based on the HTML, it will indicate that in the “generated” document contains content that it cannot be interpreted to produce a properly formated document.</p>
+   <p>Therefore, the purpose of this document is to provide you with a guideline, directions and tips on how to author valid and properly formatted content that the <strong>DocGenerator</strong> will be able to read and properly translate when it produces a document or workbook.</p>
    <h2>Tables</h2>
    <p>Tables are complext content sructures and is probably the most difficult component in the ERT that needs to be interpreted to reproduce an acceptable looking table in documents. Therefore most content issues usually pertains to tables.</p>
    <h3>Basic Table</h3>
-   <p>This is a very basic table with a fixed number of rows and columns. </p>
+   <p>This is a very basic table with a fixed number of rows and columns and no emphasised rows or columns. The table's width is specified as 100% which means that the table will occupy the complete available width of the document page.</p>
    <p>It consists of 3 row with 3 cells in each row. </p>
-   <table class="ms-rteTable-default" cellspacing="0" summary="Example of a Basic Table" style="width: 80%;">
+   <table class="ms-rteTable-default" cellspacing="0" summary="Example of a Basic Table" style="width: 100%;">
       <tbody>
-         <tr class="ms-rteTableHeaderRow-default">
-            <th class="ms-rteTableHeaderFirstCol-default" rowspan="1" colspan="1" style="width: 33.33%;">​Row 1 Column 1</th>
+         <tr class="ms-rteTableEvenRow-default">
+            <th class="ms-rteTableHeaderEvenCol-default" rowspan="1" colspan="1" style="width: 33.33%;">​Row 1 Column 1</th>
             <th class="ms-rteTableHeaderOddCol-default" rowspan="1" colspan="1" style="width: 33.33%;">​Row 1 Column 2</th>
-            <th class="ms-rteTableHeaderLastCol-default" rowspan="1" colspan="1" style="width: 33.33%;">Row 1 Column 3​</th>
+            <th class="ms-rteTableHeaderEvenCol-default" rowspan="1" colspan="1" style="width: 33.33%;">Row 1 Column 3​</th>
          </tr>
          <tr class="ms-rteTableOddRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1">​Row 2 Column 1</th>
+            <th class="ms-rteTableEvenCol-default" rowspan="1" colspan="1">​Row 2 Column 1</th>
             <td class="ms-rteTableOddCol-default">Row 2 Column 2​</td>
-            <td class="ms-rteTableLastCol-default">Row 2 Column 3​</td>
+            <td class="ms-rteTableEvenCol-default">Row 2 Column 3​</td>
          </tr>
-         <tr class="ms-rteTableFooterRow-default">
-            <th class="ms-rteTableFooterFirstCol-default" rowspan="1" colspan="1">​Row 3 Column 1</th>
+         <tr class="ms-rteTableEvenRow-default">
+            <th class="ms-rteTableFooterEvenCol-default" rowspan="1" colspan="1">​Row 3 Column 1</th>
             <td class="ms-rteTableFooterOddCol-default">​Row 3 Column 2</td>
-            <td class="ms-rteTableFooterLastCol-default">​Row 3 Column 3</td>
+            <td class="ms-rteTableFooterEvenCol-default">​Row 3 Column 3</td>
          </tr>
       </tbody>
    </table>
@@ -155,7 +133,7 @@
       <em>row </em>and 
       <em>column </em>position of each cell in the table.</p>
    <h3>Standard Table&#160;</h3>
-   <p>&#160;This is a simple table, similar to the previous table but with e few more features applied.</p>
+   <p>This is a simple table, similar to the previous table but with a row and column emphasis applied. The width of the table is specified as 80, which means that the table will occupy 80% of the available width on the page.</p>
    <table width="100%" class="ms-rteTable-default" cellspacing="0" summary="Example of a Standard Table">
       <tbody>
          <tr class="ms-rteTableHeaderRow-default">
@@ -192,88 +170,102 @@
    <p>The table&#39;s First Column is emphasised by marking the check box for First Column option in the table Style Option. positioned in any cell of the table.</p>
    <h4>Last Column emphasised</h4>
    <p>The table&#39;s Last Column is emphasised by marking the check box for Last Column option in the table Style Options.</p>
-   <p>Obviously any combination of these&#160;selection can be made depending on the desired result.</p>
+   <p>Any combination of these selections can be made depending on the desired result.</p>
    <h3>Complex Table</h3>
-   <table class="ms-rteTable-default" cellspacing="0" summary="Example of a complex table" style="width: 1000px; height: 141px;">
+   <table class="ms-rteTable-default" cellspacing="0" summary="Example of a complex table" style="width: 50%; height: 141px;">
       <tbody>
          <tr class="ms-rteTableHeaderRow-default">
-            <th class="ms-rteTableHeaderFirstCol-default" rowspan="1" colspan="4" style="width: 1000px;">1000</th>
+            <th class="ms-rteTableHeaderFirstCol-default" rowspan="1" colspan="4" style="width: 100%;">(100%)</th>
          </tr>
          <tr class="ms-rteTableOddRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="2" style="width: 500px; height: 35px;">500</th>
-            <td class="ms-rteTableLastCol-default" colspan="2" style="width: 500px; height: 35px;">​500</td>
+            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="2" style="width: 50%; height: 35px;">(50%)</th>
+            <td class="ms-rteTableLastCol-default" colspan="2" style="width: 50%; height: 35px;">​(50%)</td>
          </tr>
          <tr class="ms-rteTableEvenRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width: 250px;">250</th>
-            <td class="ms-rteTableLastCol-default" colspan="3" style="width: 750px;">750</td>
+            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width: 25%;">(25%)</th>
+            <td class="ms-rteTableLastCol-default" colspan="3" style="width: 75%;">(25%)</td>
          </tr>
          <tr class="ms-rteTableOddRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="2" style="width: 250px;">500</th>
-            <td class="ms-rteTableOddCol-default" rowspan="1" style="width: 250px;">250</td>
-            <td class="ms-rteTableLastCol-default" rowspan="1" colspan="1" style="width: 250px;">​250</td>
+            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="2" style="width: 50%;">(50%)</th>
+            <td class="ms-rteTableOddCol-default" rowspan="1" style="width: 25%;">(25%)</td>
+            <td class="ms-rteTableLastCol-default" rowspan="1" colspan="1" style="width: 25%;">​(25%)</td>
          </tr>
          <tr class="ms-rteTableEvenRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="3" style="width: 750px;">750</th>
-            <td class="ms-rteTableLastCol-default" rowspan="1" colspan="1" style="width: 250px;">​250</td>
+            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="3" style="width: 75%;">(75%)</th>
+            <td class="ms-rteTableLastCol-default" rowspan="1" colspan="1" style="width: 25%;">​(25%)</td>
          </tr>
          <tr class="ms-rteTableOddRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width: 250px;">​250</th>
-            <td class="ms-rteTableOddCol-default" rowspan="1" style="width: 250px;">​250</td>
-            <td class="ms-rteTableEvenCol-default" rowspan="1" style="width: 250px;">​250</td>
-            <td class="ms-rteTableLastCol-default" rowspan="1" colspan="1" style="width: 250px;">​250</td>
+            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width: 25%;">​(25%)</th>
+            <td class="ms-rteTableOddCol-default" rowspan="1" style="width: 25%;">​(25%)</td>
+            <td class="ms-rteTableEvenCol-default" rowspan="1" style="width: 25%;">​(25%)</td>
+            <td class="ms-rteTableLastCol-default" rowspan="1" colspan="1" style="width: 25%;">​(25%)</td>
          </tr>
       </tbody>
    </table>
-   <p>This complex table is correctly formatted and structured. All widths are specified in pixes and the with of each column is also correctly stated and every row totals to 100% of the width of the table. If there are discrepencies between the width of the columns of the table, the table will be reported to contain a content error.</p>
-   <h3>Very complex table </h3>
-   <p>With all the above formatting options plus various merged columns and rows.</p>
-   <table class="ms-rteTable-default" cellspacing="0" summary="Example of a very complex table" style="width: 80%;">
+	<p>The values in the cells of the table depicted above indicates the width of each cell in the table as a percentage value. A table's <strong>WIDTH</strong> and the <strong>WIDTH of each CELL</strong> in the table, MUST be specified as percentage value.</p>
+	<p>If the widths of the table and all the cells are <strong>NOT</strong> as percentage (%) values, the <em>DocGenerator</em> will not be able to accurately determine the scale of the table when inserting it into the MS WOrd document. Therefore, the <em>DocGenerator</em> will produce a <strong>Content Error</strong> which alert the user that ther is a table which could not be properly rendered.</p>
+	<p>This complex table is correctly formatted and structured. All widths are specified in pixes and the with of each column is also correctly stated and every row totals to 100% of the width of the table. If there are discrepencies between the width of the columns of the table, the table will be reported to contain a content error.</p>
+	<h3>Very complex table </h3>
+	<p>With all the above formatting options plus various merged columns and rows.</p>
+	<table class="ms-rteTable-default" cellspacing="0" summary="Example of a very complex table" style="width: 100%;">
       <tbody>
          <tr class="ms-rteTableEvenRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width: 15%;">
+            <th class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 15%;">
                <p>​R1C1</p>
             </th>
             <td class="ms-rteTableOddCol-default" rowspan="1" colspan="4" style="width: 85%; text-decoration: underline;">
-               <p style="text-align: center;">R1C2 &amp; R1C3&#160;&amp; R1C4 &amp; ​R1C5</p>
+               <p style="text-align: center;">R1C2 &amp; R1C3 &amp; R1C4 &amp; ​R1C5</p>
             </td>
          </tr>
          <tr class="ms-rteTableOddRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="2" colspan="1" style="width: 15%;">
-               <p>​R2C1</p>
-               <p>R3C1</p>
-            </th>
+            <th class="ms-rteTableEvenCol-default" rowspan="2" colspan="1" style="width: 15%;">​R2C1 ​R3C1</th>
             <td class="ms-rteTableOddCol-default" style="width: 20%;">​R2C2</td>
             <td class="ms-rteTableEvenCol-default" style="width: 20%;">​R2C3</td>
             <td class="ms-rteTableOddCol-default" style="width: 20%;">​R2C4</td>
-            <td class="ms-rteTableEvenCol-default" colspan="1" style="width: 15%; text-decoration: line-through;">​R2C5</td>
+            <td class="ms-rteTableEvenCol-default" colspan="1" style="width: 25%; text-decoration: line-through;">​R2C5</td>
          </tr>
          <tr class="ms-rteTableEvenRow-default">
-            <td class="ms-rteTableFirstCol-default" rowspan="1" style="width: 20%;">R3C2​</td>
+            <td class="ms-rteTableEvenCol-default" rowspan="1" style="width: 20%;">R3C2​</td>
             <td class="ms-rteTableOddCol-default" rowspan="2" colspan="2" style="width: 40%;">​R3C3 &amp; ​R3C4&#160;​R4C4 &amp; ​​R4C3</td>
-            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 15%; text-align: left;"> 
+            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 25%; text-align: left;">
                <strong>R3C5</strong>​</td>
          </tr>
          <tr class="ms-rteTableOddRow-default">
-            <th class="ms-rteTableFirstCol-default" rowspan="3" colspan="1" style="width: 15%;">
-               <p>​R4C1</p>
+            <th class="ms-rteTableEvenCol-default" rowspan="4" colspan="1" style="width: 15%; height: 155px;">
+               <p>R4C1</p>
                <p>R5C1</p>
                <p>R6C1</p>
+               <p>R7C1</p>
             </th>
             <td class="ms-rteTableOddCol-default" rowspan="1" style="width: 20%;">​R4C2</td>
-            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 15%; text-align: left;">​R4C5</td>
+            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 25%; text-align: left;">​R4C5</td>
          </tr>
          <tr class="ms-rteTableEvenRow-default">
-            <td class="ms-rteTableFirstCol-default" rowspan="1" colspan="2" style="width: 40%;">​R5C2 ​R5C3</td>
-            <td class="ms-rteTableOddCol-default" rowspan="1" colspan="2" style="width: 35%;">​R5C4 ​R5C5</td>
+            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="2" style="width: 20%;">​R5C2 ​R5C3</td>
+            <td class="ms-rteTableOddCol-default" rowspan="1" colspan="2" style="width: 45%;">​R5C4 ​R5C5</td>
          </tr>
          <tr class="ms-rteTableOddRow-default">
-            <td class="ms-rteTableFirstCol-default" style="width: 20%;">R6C2​</td>
+            <td class="ms-rteTableEvenCol-default" rowspan="2" style="width: 20%;">
+               <p>R6C2​</p>
+               <p>​R7C2</p>
+            </td>
             <td class="ms-rteTableOddCol-default" style="width: 20%;">​R6C3</td>
-            <td class="ms-rteTableEvenCol-default" colspan="2" style="width: 35%;">​R6C4 ​R6C5</td>
+            <td class="ms-rteTableEvenCol-default" colspan="2" style="width: 45%;">​R6C4 ​R6C5</td>
+         </tr>
+         <tr class="ms-rteTableEvenCol-default">
+            <td class="ms-rteTableEvenCol-default" rowspan="1" style="width: 20%;">​R7C3</td>
+            <td class="ms-rteTableOddCol-default" rowspan="1" colspan="1" style="width: 20%;">​R7C4</td>
+            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 25%;">R7C5​</td>
          </tr>
       </tbody>
    </table>
-   <p>Very&#160;complext tables is more difficult&#160;to interpret and produce in an MS Word document, therefore you must ensure that it is 100% correctly defined in SharePoint, else it will produce a content error when generated. Every cell must contain the correct width, give special attention to the width of the merged columns and ensure that the total width of each row does not exceet 100% the width of the table.</p>
+   <p>Complext tables are more difficult to interpret and reproduce from HTML into a MS Word document, therefore you must ensure that tables are 100% correctly defined in SharePoint, else it will produce a content error when generated. </p>
+	<ol>
+		<li>Every cell int the table MUST contain the correct width. Pay special attention to the width of the merged columns equals the total % value of all the columns with which the cell is merged.</li> 
+		<li>Ensure that the TOTAL width of a each ROW does not exceet 100%.</li>
+		<li>Do NOT specify deciaml, decimals are ignored.</li>
+		<li>...</li>
+	</ol>
 </div>
 
 <p class="ExternalClass8E2C3072385D48FAA6EE8C1CC9AC3AD8">&#160;</p>

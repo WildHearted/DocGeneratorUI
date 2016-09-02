@@ -32,8 +32,8 @@ namespace DocGeneratorUI
 		public String Template { get; private set; }
 		public String LocalDocumentURI { get; private set; }
 		public String FileName { get; private set; }
-		public UInt32 PageWith { get; private set; }
-		public UInt32 PageHeight { get; private set; }
+		public uint PageWith { get; set; }
+		public uint PageHeight { get;  set; }
 		public Boolean ColorCodingLayer1 { get; private set; }
 		public Boolean ColorCodingLayer2 { get; private set; }
 		public Boolean Introductory_Section { get; private set; }
@@ -824,7 +824,7 @@ namespace DocGeneratorUI
 			//- Set the ROOT of the data loaded in the htmlData
 			var htmlRoot = htmlData.DocumentNode;
 			Console.WriteLine("Root Node Tag..............: {0}", htmlRoot.Name);
-
+			this.ErrorMessages = new List<string>();
 			/*Console.WriteLine("\t - Has Child Nodes......? {0}", htmlRoot.HasChildNodes);
 			*/
 
@@ -844,6 +844,7 @@ namespace DocGeneratorUI
 			bool isHeaderRow = false;			//-indicated whether the current table row is **HeaderRow**
 			int tableRowSpanQty = 0;				//-variable indicates the **number** of table *rows* to span
 			int tableColumnSpanQty = 0;			//-variable indicating the **number** of table *columns* to span
+
 
 			foreach(HtmlNode node in htmlData.DocumentNode.Descendants())
 				{
@@ -1428,6 +1429,7 @@ namespace DocGeneratorUI
 			this.DocumentType = enumDocumentTypes.ISD_Document_DRM_Inline;
 			Console.WriteLine("\t Begin to generate {0}", this.DocumentType);
 			string parClientName = "XYZ Company";
+			this.ErrorMessages = new List<string>();
 			this.UnhandledError = false;
 			DateTime timeStarted = DateTime.Now;
 			string hyperlinkImageRelationshipID = "";
@@ -1443,6 +1445,7 @@ namespace DocGeneratorUI
 			int? intLayer1upDeliverableID = 0;
 			int intTableCaptionCounter = 0;
 			int intImageCaptionCounter = 0;
+			int numberingCounter = 49;
 			int iPictureNo = 49;
 			int intHyperlinkCounter = 9;
 			string htmlString = String.Empty;
@@ -1504,7 +1507,7 @@ namespace DocGeneratorUI
 				//original version
 				//DocGeneratorCore.HTMLdecoder objHTMLdecoder = new DocGeneratorCore.HTMLdecoder();
 				//new version
-				HTMLdecoder objHTMLdecoder = new HTMLdecoder();
+				uiHTMLdecoder objHTMLdecoder = new uiHTMLdecoder();
 				//!Set these HTMLdecoder properties....
 				//-Set the properties of the WordProcessing Body object (WPbody) of the HTMLdecoder object instance.
 				objHTMLdecoder.WPbody = objBody;
@@ -1512,39 +1515,39 @@ namespace DocGeneratorUI
 
 				// Determine the Page Size for the current Body object.
 				SectionProperties objSectionProperties = new SectionProperties();
-				this.PageWith = 11906;
-				this.PageHeight = 16838;
+				this.PageWith = 0; // Convert.ToUInt32(Properties.AppResources.DefaultPageWidth);
+				this.PageHeight = 0; //Convert.ToUInt32(Properties.AppResources.DefaultPageHeight);
 
-				if(objBody.GetFirstChild<SectionProperties>() != null)
+				if (objBody.GetFirstChild<SectionProperties>() != null)
 					{
 					objSectionProperties = objBody.GetFirstChild<SectionProperties>();
 					PageSize objPageSize = objSectionProperties.GetFirstChild<PageSize>();
 					PageMargin objPageMargin = objSectionProperties.GetFirstChild<PageMargin>();
-					if(objPageSize != null)
+					if (objPageSize != null)
 						{
 						this.PageWith = objPageSize.Width;
 						this.PageHeight = objPageSize.Height;
-						Console.WriteLine("\t\t Page width x height: {0} x {1} twips", this.PageWith, this.PageHeight);
+						//Console.WriteLine("\t\t Page width x height: {0} x {1} twips", this.PageWith, this.PageHight);
 						}
-					if(objPageMargin != null)
+					if (objPageMargin != null)
 						{
-						if(objPageMargin.Left != null)
+						if (objPageMargin.Left != null)
 							{
 							this.PageWith -= objPageMargin.Left;
 							//Console.WriteLine("\t\t\t - Left Margin..: {0} twips", objPageMargin.Left);
 							}
-						if(objPageMargin.Right != null)
+						if (objPageMargin.Right != null)
 							{
 							this.PageWith -= objPageMargin.Right;
 							//Console.WriteLine("\t\t\t - Right Margin.: {0} twips", objPageMargin.Right);
 							}
-						if(objPageMargin.Top != null)
+						if (objPageMargin.Top != null)
 							{
 							string tempTop = objPageMargin.Top.ToString();
 							//Console.WriteLine("\t\t\t - Top Margin...: {0} twips", tempTop);
 							this.PageHeight -= Convert.ToUInt32(tempTop);
 							}
-						if(objPageMargin.Bottom != null)
+						if (objPageMargin.Bottom != null)
 							{
 							string tempBottom = objPageMargin.Bottom.ToString();
 							//Console.WriteLine("\t\t\t - Bottom Margin: {0} twips", tempBottom);
@@ -1552,21 +1555,20 @@ namespace DocGeneratorUI
 							}
 						}
 					}
-				
-
 				// Subtract the Table/Image Left indentation value from the Page width to ensure the
 				// table/image fits in the available space.
-				this.PageWith -= 846;
-				Console.WriteLine("\t\t Effective pageWidth x pageHeight.: {0} x {1} twips", this.PageWith, this.PageHeight);
+				this.PageWith -= 855; //Convert.ToUInt16(Properties.AppResources.Document_Table_Left_Indent);
+				
+
 				//!Set the HTMLdecoder's **PageHeight** and **PageWidth** properties
-				objHTMLdecoder.PageHeight = this.PageHeight;
-				objHTMLdecoder.PageWidth = this.PageWith;
+				objHTMLdecoder.PageHeightDxa = this.PageHeight;
+				objHTMLdecoder.PageWidthDxa = this.PageWith;
 
 				// Check whether Hyperlinks need to be included and add the image to the Document Body
 				if(this.HyperlinkEdit || this.HyperlinkView)
 					{
 					//Insert and embed the hyperlink image in the document and keep the Image's Relationship ID in a variable for repeated use
-					hyperlinkImageRelationshipID = oxmlDocument.InsertHyperlinkImage(parMainDocumentPart: ref objMainDocumentPart,
+					hyperlinkImageRelationshipID = oxmlDocument.Insert_HyperlinkImage(parMainDocumentPart: ref objMainDocumentPart,
 						parDataSet: ref this.completeDataSet);
 					}
 
@@ -1587,14 +1589,14 @@ namespace DocGeneratorUI
 					objParagraph.Append(objRun);
 					objBody.Append(objParagraph);
 
-					objParagraph = oxmlDocument.Construct_BulletNumberParagraph(parBulletLevel: 1, parIsBullet: true);
+					objParagraph = oxmlDocument.Construct_BulletParagraph(parBulletLevel: 1);
 					objRun = oxmlDocument.Construct_RunText(
 						parText2Write: "Services Framework Text is this colour.",
 						parContentLayer: "Layer1");
 					objParagraph.Append(objRun);
 					objBody.Append(objParagraph);
 
-					objParagraph = oxmlDocument.Construct_BulletNumberParagraph(parBulletLevel: 1, parIsBullet: true);
+					objParagraph = oxmlDocument.Construct_BulletParagraph(parBulletLevel: 1);
 					objRun = oxmlDocument.Construct_RunText(
 						parText2Write: "Services Framework Plus is this colour.",
 						parContentLayer: "Layer2");
@@ -1630,7 +1632,7 @@ namespace DocGeneratorUI
 					if(this.HyperlinkEdit || this.HyperlinkView)
 						{
 						intHyperlinkCounter += 1;
-						Drawing objDrawing = oxmlDocument.ConstructClickLinkHyperlink(
+						Drawing objDrawing = oxmlDocument.Construct_ClickLinkHyperlink(
 							parMainDocumentPart: ref objMainDocumentPart,
 							parImageRelationshipId: hyperlinkImageRelationshipID,
 							parClickLinkURL: documentCollection_HyperlinkURL,
@@ -1642,7 +1644,8 @@ namespace DocGeneratorUI
 
 					//+Load the HTML data from a file in the TestData directory
 					string myPath = @"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\";
-					string htmlFilename = @myPath + "HTMLtestPage_ComplexTable.html";
+					//string htmlFilename = @myPath + "HTMLtestPage_ComplexTable.html";
+					string htmlFilename = @myPath + "HTMLtestPage_Everything.html";
 					htmlString = System.IO.File.ReadAllText(@htmlFilename);
 
 
@@ -1670,35 +1673,34 @@ namespace DocGeneratorUI
 								parDocumentLevel: 2,
 								parTableCaptionCounter: ref intTableCaptionCounter,
 								parImageCaptionCounter: ref intImageCaptionCounter,
+								parNumberingCounter: ref numberingCounter,
 								parPictureNo: ref iPictureNo,
+								parClientName: parClientName,
+								parPageHeightDxa: this.PageHeight,
+								parPageWidthDxa: this.PageWith,
 								parHyperlinkID: ref intHyperlinkCounter,
 								parSharePointSiteURL: @"https:\\teams.dimensiondata.com\sites\servicecatalogue\",
 								parHTML2Decode: htmlString);
 							}
 						catch(InvalidContentFormatException exc)
 							{
-							Console.WriteLine("\n\nException occurred: {0}", exc.Message);
+							Console.WriteLine("\nException occurred: {0}", exc.Message);
 							// A Table content error occurred, record it in the error log.
-							this.ErrorMessages.Add("Error: The Document Collection ID: " + 1
-								+ " contains an error in Introduction's Enhance Rich Text. " + exc.Message);
-							objParagraph = oxmlDocument.Construct_Paragraph(parBodyTextLevel: 2);
-							objRun = oxmlDocument.Construct_RunText(
-								parText2Write: "A content error occurred at this position and valid content could " +
+							this.ErrorMessages.Add("Content Error: The Document Collection ID: " + 1
+								+ " contains a CONTENT error in Introduction's Enhance Rich Text. " + exc.Message);
+							objParagraph = oxmlDocument.Construct_Error(parText: "A content error occurred at this position and valid content could " +
 								"not be interpreted and inserted here. Please review the content in the SharePoint system and correct it. Error Detail: "
-								+ exc.Message,
-								parIsNewSection: false,
-								parIsError: true);
+								+ exc.Message);
 							if(this.HyperlinkEdit || this.HyperlinkView)
 								{
 								intHyperlinkCounter += 1;
-								Drawing objDrawing = oxmlDocument.ConstructClickLinkHyperlink(
+								Drawing objDrawing = oxmlDocument.Construct_ClickLinkHyperlink(
 									parMainDocumentPart: ref objMainDocumentPart,
 									parImageRelationshipId: hyperlinkImageRelationshipID,
 									parHyperlinkID: intHyperlinkCounter,
 									parClickLinkURL: documentCollection_HyperlinkURL);
 								objRun.Append(objDrawing);
 								}
-							objParagraph.Append(objRun);
 							objBody.Append(objParagraph);
 							}
 						}
@@ -1721,9 +1723,7 @@ namespace DocGeneratorUI
 
 					foreach(var errorMessageEntry in this.ErrorMessages)
 						{
-						objParagraph = oxmlDocument.Construct_BulletNumberParagraph(parBulletLevel: 1, parIsBullet: false);
-						objRun = oxmlDocument.Construct_RunText(parText2Write: errorMessageEntry, parIsError: true);
-						objParagraph.Append(objRun);
+						objParagraph = oxmlDocument.Construct_Error(parText: errorMessageEntry);
 						objBody.Append(objParagraph);
 						}
 					}
@@ -1813,10 +1813,76 @@ namespace DocGeneratorUI
 				this.UnhandledError = true;
 				}
 
-			Console.WriteLine("\t\t End of the generation of {0}", this.DocumentType);
+			Console.WriteLine("{1} End of the generation of {0} {1}", this.DocumentType, new string('#', 25));
+
+			}
+
+		private void buttonTestSomething_Click(object sender, EventArgs e)
+			{
+			int intValue = 0;
+			Console.Write("\n\nExtract the Width from ");
+			string testString = "margin&#58;5px;width&#58;50%;height&#58;14%;";
+			string myString = testString;
+			Console.Write(myString);
+			string WorkString = myString.Replace("&#58;", "");
+			WorkString = WorkString.Replace(":", "");
+			WorkString = WorkString.Replace(" ", "");
+			if (WorkString.Substring(
+				startIndex: WorkString.IndexOf(value: "width", startIndex: 0) + 5,
+				length: WorkString.IndexOf(";", startIndex: WorkString.IndexOf("width", 0) + 5) - WorkString.IndexOf("width", 0)).Contains("px") == true)
+				{
+				Console.Write("\t = Pixels: ");
+				WorkString = WorkString.Substring(
+				startIndex: WorkString.IndexOf(value: "width", startIndex: 0) + 5,
+				length: (WorkString.IndexOf(";", startIndex: WorkString.IndexOf("width", 0) + 5) - 2) - (WorkString.IndexOf("width", 0) + 5));
+				Console.Write(WorkString);
+				int.TryParse(WorkString, out intValue);
+				}
+			else
+				{
+				Console.Write("\t = Percentage: ");
+				WorkString = WorkString.Substring(
+					startIndex: WorkString.IndexOf(value: "width", startIndex: 0) + 5,
+					length: (WorkString.IndexOf(";", startIndex: WorkString.IndexOf("width", 0) + 5) - 1) - (WorkString.IndexOf("width", 0) + 5));
+				Console.Write(WorkString);
+				int.TryParse(WorkString, out intValue);
+				}
 
 
-
+			Console.Write("\n\nExtract the Height from :");
+			myString = testString;
+			Console.Write(myString);
+			WorkString = myString.Replace("&#58;", "");
+			WorkString = WorkString.Replace(":", "");
+			WorkString = WorkString.Replace(" ", "");
+			/*
+			Console.WriteLine("Height starts at: {0}", WorkString.IndexOf("height", 0));
+			Console.WriteLine("Height VALUE starts at: {0} = {1}", WorkString.IndexOf("height", 0) + 6, WorkString.Substring(WorkString.IndexOf("height", 0) + 6,
+				5));
+			Console.WriteLine("Height ends at: {0}", WorkString.IndexOf(value: ";", startIndex: WorkString.IndexOf("height", 0) + 6));
+			Console.WriteLine("{0} - {1}", WorkString.IndexOf(value: ";", startIndex: WorkString.IndexOf("height", 0) + 6), WorkString.IndexOf("height", 0) + 6);
+			Console.WriteLine("Height value: {0}", WorkString.Substring(startIndex: WorkString.IndexOf("height", 0) + 6,
+				length: (WorkString.IndexOf(value: ";", startIndex: WorkString.IndexOf("height", 0) + 6)) - (WorkString.IndexOf("height", 0) + 6) ) );
+				*/
+			if (WorkString.Substring(startIndex: WorkString.IndexOf("height", 0) + 6,
+				length: (WorkString.IndexOf(value: ";", startIndex: WorkString.IndexOf("height", 0) + 6)) - (WorkString.IndexOf("height", 0) + 6)).Contains("px"))
+				{
+				Console.Write("\t = Pixels: ");
+				WorkString = WorkString.Substring(
+					startIndex: WorkString.IndexOf(value: "height", startIndex: 0) + 6,
+					length: (WorkString.IndexOf(";", startIndex: WorkString.IndexOf("height", 0) + 6) - 2) - (WorkString.IndexOf("height", 0) + 6));
+				Console.Write(WorkString);
+				int.TryParse(WorkString, out intValue);
+				}
+			else
+				{
+				Console.Write("\t = Percentage: ");
+				WorkString = WorkString.Substring(
+					startIndex: WorkString.IndexOf(value: "height", startIndex: 0) + 6,
+					length: (WorkString.IndexOf(";", startIndex: WorkString.IndexOf("height", 0) + 6) - 1) - (WorkString.IndexOf("height", 0) + 6));
+				Console.Write(WorkString);
+				int.TryParse(WorkString, out intValue);
+				}
 			}
 		}
 	}

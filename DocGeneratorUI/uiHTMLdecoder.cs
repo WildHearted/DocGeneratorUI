@@ -45,7 +45,7 @@ namespace DocGeneratorUI
 
 		public int WidthPercentage { get; set; } = 0;
 
-		public int WidthPixel { get; set; } = 0;
+		public int WidthInDxa { get; set; } = 0;
 
 		public enum enumAlignmentHorizontal
 			{
@@ -103,7 +103,7 @@ namespace DocGeneratorUI
 		///      2. Span indicator which is **True** if the width was derived from a merged/spanned
 		///         cell and False if it was from an unmerged cell
 		/// </summary>
-		public List<int> GridColumnWidths { get; set; }
+		public List<int> GridColumnWidthPercentages { get; set; }
 
 		/// <summary>
 		///      Set to TRUE (the default is FALSE) as soon as the Table Grid was determined and defined.
@@ -137,12 +137,12 @@ namespace DocGeneratorUI
 		/// </summary>
 		public List<WorkRow> Rows { get; set; } = new List<WorkRow>();
 
-		public int WidthPixels { get; set; } = 0;
+		public int WidthInDXA { get; set; } = 0;
 
 		/// <summary>
 		///      The percentage of the Document page that the table will occupy...
 		/// </summary>
-		public int WidthPrecetage { get; set; } = 0;
+		public int WidthPrecentage { get; set; } = 0;
 
 		public enum enumWidthType
 			{
@@ -156,7 +156,7 @@ namespace DocGeneratorUI
 	///      decode HTML structure and translate it into Open XML document or Workbook content. Set
 	///      the properties begore
 	/// </summary>
-	class HTMLdecoder
+	class uiHTMLdecoder
 		{
 		/// <summary>
 		///      The Additional Hierarchical Level property contains the number of additional levels
@@ -165,7 +165,6 @@ namespace DocGeneratorUI
 		/// </summary>
 		public int AdditionalHierarchicalLevel { get; set; }
 
-		//++ Object Properties
 		public bool Bold { get; set; } = false;
 
 		/// <summary>
@@ -197,26 +196,26 @@ namespace DocGeneratorUI
 		/// <summary>
 		///      ... is used to keep track and number the Captions for Images
 		/// </summary>
-		public int ImageCaptionCounter { get; set; }
+//		public int ImageCaptionCounter { get; set; }
 
 		public bool Italics { get; set; } = false;
 
 		/// The PageHeight property contains the page Height of the OXML page into which the decoded
 		/// HTML content will be inserted. It is mostly used for image and table positioning on the
 		/// page in the OXML document. </summary>
-		public UInt32 PageHeight { get; set; }
+		public uint PageHeightDxa { get; set; }
 
 		/// <summary>
 		///      The PageWidth property contains the page width of the OXML page into which the
 		///      decoded HTML content will be inserted. It is mostly used for image and table
 		///      positioning on the page in the OXML document.
 		/// </summary>
-		public UInt32 PageWidth { get; set; }
+		public uint PageWidthDxa { get; set; }
 
 		/// <summary>
 		///      ... is used to keep track of the Picture IDs that needs to be unique in OpenXML documents.
 		/// </summary>
-		public int PictureNo { get; set; }
+//		public int PictureNo { get; set; }
 
 		public bool StrikeTrough { get; set; } = false;
 
@@ -227,7 +226,7 @@ namespace DocGeneratorUI
 		/// <summary>
 		///      ...is used to keep track of the Caption numbers for Tables
 		/// </summary>
-		public int TableCaptionCounter { get; set; }
+//		public int TableCaptionCounter { get; set; }
 
 		public WorkTable TableToBuild { get; set; }
 
@@ -275,7 +274,9 @@ namespace DocGeneratorUI
 		/// <summary>
 		///      Contains the level of the numbered list
 		/// </summary>
-		private int NumberedLevel { get; set; } = 0;
+//		private int NumberingCounter { get; set; } = 0;
+
+		public bool RestartNumbering { get; set; } = false;
 
 		private string SharePointSiteURL { get; set; } = string.Empty;
 
@@ -323,9 +324,10 @@ namespace DocGeneratorUI
 			}
 
 		//++ Object Methods
-		public Table InsertTable(
+		public Table BuildTable(
 			WorkTable parWorkTable,
-			string parContentLayer)
+			string parContentLayer,
+			ref int parNumberingCounter)
 			{
 			int cellWidth = 0;
 			decimal cellWidthPixels = 0m;
@@ -342,7 +344,8 @@ namespace DocGeneratorUI
 
 			Console.Write("\t\t Initialise the Table Object... ");
 			//Construct the table in the
-			objTable = oxmlDocument.ConstructTable(
+			objTable = oxmlDocument.Construct_Table(
+				parTableWidthInDXA: parWorkTable.WidthInDXA,
 				parFirstRow: parWorkTable.FirstRow,
 				parFirstColumn: parWorkTable.FirstColumn,
 				parLastColumn: parWorkTable.LastColumn,
@@ -355,8 +358,8 @@ namespace DocGeneratorUI
 			Console.Write("\n\t\t Create the Table Grid Object... ");
 			TableGrid objTableGrid = new TableGrid();
 			objTableGrid = oxmlDocument.ConstructTableGrid(
-				parColumnWidthList: parWorkTable.GridColumnWidths, 
-				parTableWidthPixels: parWorkTable.WidthPixels);
+				parColumnWidthList: parWorkTable.GridColumnWidthPercentages, 
+				parTableWidthPixels: parWorkTable.WidthInDXA);
 			objTable.Append(objTableGrid);
 			Console.Write("\t Done!");
 
@@ -410,19 +413,19 @@ namespace DocGeneratorUI
 						{ //-the cell spans multiple columns...
 						//-Add the width of the spanned columns
 						cellWidth = 0;
-						for (int i = columnCounter; i <= cellItem.MergeColumns; i++)
+						for (int i = columnCounter; i <= columnCounter + cellItem.MergeColumns - 1; i++)
 							{
-							cellWidth += parWorkTable.GridColumnWidths[i];
+							cellWidth += parWorkTable.GridColumnWidthPercentages[i];
 							}
 						}
 					else
 						{ //- it is a single column cell
-						cellWidth = parWorkTable.GridColumnWidths[columnCounter];
+						cellWidth = parWorkTable.GridColumnWidthPercentages[columnCounter];
 						}
 					Console.Write("\t Width:{0}%", cellWidth);
 					//-The values in the **parWorkTable.GridColumnWidths** are percentages (%)
 					//-Therefore it must be converted to pixels
-					cellWidthPixels = (parWorkTable.WidthPixels * cellWidth) / 100m;
+					cellWidthPixels = (parWorkTable.WidthInDXA * cellWidth) / 100m;
 					Console.Write(" - {0}px", cellWidthPixels);
 
 					//- Add the **TableCell** to the row...
@@ -451,7 +454,11 @@ namespace DocGeneratorUI
 						}
 					else
 						{ //-there is content in the cell, process it
-						paragraphs = DissectHTMLstring(parHTMLString: cellItem.HTMLcontent, parIsTable: true);
+						paragraphs = DissectHTMLstring
+							(parHTMLString: cellItem.HTMLcontent, 
+							parNumberingCounter: ref parNumberingCounter, 
+							parIsTable: true,
+							parIsTableHeader: rowItem.FirstRoW);
 						//-Process all the paragraphs...
 						foreach (Paragraph paragraphItem in paragraphs)
 							{
@@ -538,7 +545,11 @@ namespace DocGeneratorUI
 			ref int parImageCaptionCounter,
 			ref int parPictureNo,
 			ref int parHyperlinkID,
+			ref int parNumberingCounter,
 			string parSharePointSiteURL,
+			uint parPageHeightDxa,
+			uint parPageWidthDxa,
+			string parClientName,
 			string parHyperlinkURL = "",
 			string parHyperlinkImageRelationshipID = "",
 			string parContentLayer = "None")
@@ -548,9 +559,10 @@ namespace DocGeneratorUI
 			this.SharePointSiteURL = parSharePointSiteURL;
 			this.DocumentHierachyLevel = parDocumentLevel;
 			this.AdditionalHierarchicalLevel = 0;
-			this.TableCaptionCounter = parTableCaptionCounter;
-			this.ImageCaptionCounter = parImageCaptionCounter;
-			this.PictureNo = parPictureNo;
+			this.PageHeightDxa = Convert.ToUInt16(parPageHeightDxa);
+			this.PageWidthDxa = Convert.ToUInt16(parPageWidthDxa);
+			this.ClientName = parClientName;
+			//this.PictureNo = parPictureNo;
 			this.HyperlinkImageRelationshipID = parHyperlinkImageRelationshipID;
 			this.HyperlinkURL = parHyperlinkURL;
 			this.ContentLayer = parContentLayer;
@@ -570,7 +582,6 @@ namespace DocGeneratorUI
 			int rowCounter = 1;             //-| variable which keeps track of the number of rows in a table
 			int rowSpan = 1;				//-| variable used to termporary keep row span values when processing tables
 			int spanValue = 1;
-			bool newParagraph = true;
 			bool isDIVempty = true;
 
 			Paragraph objNewParagraph = new Paragraph();
@@ -587,7 +598,7 @@ namespace DocGeneratorUI
 				//-Load a string into the HTMLDocument
 
 				htmlData.LoadHtml(parHTML2Decode);
-				Console.WriteLine("HTML: {0}", htmlData.DocumentNode.OuterHtml);
+				//Console.WriteLine("HTML: {0}", htmlData.DocumentNode.OuterHtml);
 				//- Set the ROOT of the data loaded in the htmlData
 				var htmlRoot = htmlData.DocumentNode;
 				Console.WriteLine("Root Node Tag..............: {0}", htmlRoot.Name);
@@ -604,22 +615,22 @@ namespace DocGeneratorUI
 						if (this.TableToBuild.Active
 						&& !node.XPath.Contains("table"))
 							{
-							Console.WriteLine("\n{0} Table Mapped {0}", new string('=', 25));
+							Console.WriteLine("\n\t{0} Table Mapped {0}", new string('-', 60));
 							Table objTable = new Table();
-							Console.WriteLine("\n\t {0} Constructing TABLE for insertion into Document {0}", new string('-', 25));
-							objTable = InsertTable(parWorkTable: this.TableToBuild, parContentLayer: parContentLayer);
+							Console.WriteLine("\n\t{0} Constructing TABLE for insertion into Document {0}", new string('-', 25));
+							objTable = BuildTable(parWorkTable: this.TableToBuild, parNumberingCounter: ref parNumberingCounter, parContentLayer: parContentLayer);
 							Console.WriteLine("\n\t {0} Insert constructed TABLE into the document {0}", new string('-', 25));
 							this.WPbody.Append(objTable);
 							//-If the table has a caption, insert it...
-							if(!string.IsNullOrWhiteSpace(this.TableToBuild.Caption))
+							if (!string.IsNullOrWhiteSpace(this.TableToBuild.Caption))
 								{
-								this.TableCaptionCounter += 1;
-								Console.WriteLine("\t Table Caption... |{0} {1}: {2}|", "Table", this.TableCaptionCounter, this.TableToBuild.Caption);
+								parTableCaptionCounter += 1;
+								Console.WriteLine("\t Table Caption... |{0} {1}: {2}|", "Table", parTableCaptionCounter, this.TableToBuild.Caption);
 								objNewParagraph = oxmlDocument.Construct_Caption(
 									parCaptionType: "Table",
-									parCaptionText: "Table" + this.TableCaptionCounter + ": " + this.TableToBuild.Caption);
-									//parCaptionText: Properties.AppResources.Document_Caption_Table_Text + this.TableCaptionCounter + ": "
-									// this.TableToBuild.Caption));
+									parCaptionText: "Table" + parTableCaptionCounter + ": " + this.TableToBuild.Caption);
+								//parCaptionText: Properties.AppResources.Document_Caption_Table_Text + this.TableCaptionCounter + ": "
+								// this.TableToBuild.Caption));
 								this.WPbody.Append(objNewParagraph);
 								}
 							Console.WriteLine("\n\t {0} Inserted TABLE and Caption into the document {0}", new string('=', 25));
@@ -644,8 +655,8 @@ namespace DocGeneratorUI
 							foreach (HtmlNode decendentNode in node.Descendants())
 								{
 								//-Check for any valid content that need to be processed...
-								if (decendentNode.Name == "#text"   //-//text
-								|| decendentNode.Name == "p"        //-//paragraph
+								//if (decendentNode.Name == "#text"   //-//text
+								if (decendentNode.Name == "p"        //-//paragraph
 								|| decendentNode.Name == "ol"       //-//Organised List
 								|| decendentNode.Name == "ul"       //-//Unorganised List
 								|| decendentNode.Name == "li"       //-//ListItem
@@ -666,7 +677,7 @@ namespace DocGeneratorUI
 							//-When the code reach this point it means that there is text in an isolated **DIV** tag
 							//-which means the text cannot be properly formatted because it doesn't contain valid...
 							//-Just check first if there is not a populated paragraph that need to be inserted into the document before the content error is raised
-							if (objNewParagraph != null && !String.IsNullOrEmpty(objNewParagraph.InnerText))
+							if (objNewParagraph != null && !string.IsNullOrEmpty(objNewParagraph.InnerText))
 								{ //-Write the *paragraph* to the document...
 								this.WPbody.Append(objNewParagraph);
 								objNewParagraph = null;
@@ -763,7 +774,7 @@ namespace DocGeneratorUI
 									{
 									this.HyperlinkID += 1;
 									DocumentFormat.OpenXml.Wordprocessing.Drawing objDrawing =
-										oxmlDocument.ConstructClickLinkHyperlink(
+										oxmlDocument.Construct_ClickLinkHyperlink(
 										parMainDocumentPart: ref parMainDocumentPart,
 										parImageRelationshipId: this.HyperlinkImageRelationshipID,
 										parClickLinkURL: this.HyperlinkURL,
@@ -782,7 +793,7 @@ namespace DocGeneratorUI
 						//- **Normal** Paragraphs and **Table** paragraphs are handled a little different because,
 						//- table paragrpahs are embedded in a *workCell* and is processed later by another method.
 						//-Therefore we skip over paragraphs when we process tables.
-						if(node.XPath.IndexOf(value: "table", startIndex: 0, comparisonType: StringComparison.OrdinalIgnoreCase) > 0)
+						if (node.XPath.IndexOf(value: "table", startIndex: 0, comparisonType: StringComparison.OrdinalIgnoreCase) > 0)
 							break;
 
 						//-Check if the **objNewParagraph** is *NOT* null **AND** that it actually contains text
@@ -897,6 +908,15 @@ namespace DocGeneratorUI
 						if (node.HasChildNodes)
 							{
 							//Console.Write("\n {0} <{1}>", Tabs(headingLevel) + Tabs(bulletLevel), node.Name);
+							//-Determine the number of bullet- and number- levels from the xPath
+							bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+							bulletLevel = bulletNumberLevels.Item1;
+							numberLevel = bulletNumberLevels.Item2;
+							if(numberLevel == 1)
+								{
+								this.RestartNumbering = true;
+								parNumberingCounter += 1;
+								}
 							}
 						else
 							{
@@ -904,15 +924,12 @@ namespace DocGeneratorUI
 							this.WorkString = node.InnerText;
 							Console.WriteLine("\t\t\t <{0}>|{1}|", node.Name, this.WorkString);
 							}
+
 						break;
 
 						//---g
 						//+<li>  **List Item**
 						case "li":
-						//-Determine the number of bullet- and number- levsel from the xPath
-						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
-						bulletLevel = bulletNumberLevels.Item1;
-						numberLevel = bulletNumberLevels.Item2;
 
 						//-Check if there is a populated paragraph that contains text and write it to the Document before initiating a new paragraph...
 						if (objNewParagraph != null
@@ -922,24 +939,27 @@ namespace DocGeneratorUI
 							objNewParagraph = null;
 							}
 
+						//-Determine the number of bullet- and number- levels from the xPath
+						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						bulletLevel = bulletNumberLevels.Item1;
+						numberLevel = bulletNumberLevels.Item2;
+						
 						//-Construct the paragraph with the bullet or number :. depends on the value of the bulletLevel...
 						if (bulletLevel > 0)
 							{//- if it is a **Bullet** list entry, create a new **Pargraph** *Bullet* object...
-							objNewParagraph = oxmlDocument.Construct_BulletNumberParagraph(
-								parIsBullet: true,
+							objNewParagraph = oxmlDocument.Construct_BulletParagraph(
+								parIsTableBullet: false,
 								parBulletLevel: bulletLevel);
 							}
 						//- check if it is **Organised/Number list** item
 						else if (numberLevel > 0)
 							{//-if it is a **Number** list entry, create a new **Pargraph** *Number* object instance...
-							objNewParagraph = oxmlDocument.Construct_BulletNumberParagraph(
-							parIsBullet: false,
-							parBulletLevel: numberLevel);
-							}
-						else
-							{
-							//?condition should never materialise, unless the bullet/number
-							break;
+							objNewParagraph = oxmlDocument.Construct_NumberParagraph(
+								parIsTableNumber: false,
+								parRestartNumbering: this.RestartNumbering,
+								parNumberingId: parNumberingCounter,
+								parNumberLevel: numberLevel);
+							this.RestartNumbering = false;
 							}
 
 						if (node.HasChildNodes)
@@ -953,22 +973,82 @@ namespace DocGeneratorUI
 								Console.Write("\n {0} {1}. <{2}>", new String('\t', (headingLevel + numberLevel)), numberLevel, node.Name);
 								}
 							}
-						else
-							{
-							//?Check if thia code is ever reached...
-							this.WorkString = node.InnerText;
-							Console.WriteLine("\t\t\t <{0}>|{1}|", node.Name, this.WorkString);
-							}
 						break;
 
 						//---g
 						//++Image
 						case "img":
+							{
+							//-Check if the **objNewParagraph** is *NOT * null * *AND * *that it actually contains text
+							if (objNewParagraph != null && !String.IsNullOrEmpty(objNewParagraph.InnerText))
+									{ //-Write the *paragraph* to the document...
+									this.WPbody.Append(objNewParagraph);
+									objNewParagraph = null;
+									}
+							string imageFileURL = string.Empty;
+							//-Process the table attributes to determine how to format the image...
+							foreach (HtmlAttribute imageAttr in node.Attributes)
+								{
+								switch (imageAttr.Name)
+									{
+									//-use the **alt** attribute to obtain and set the **Image Caption**
+									case "alt":
+									this.CaptionType = enumCaptionType.Image;
+									if (imageAttr.Value == null)
+										this.CaptionText = string.Empty;
+									else
+										{
+										this.CaptionText = imageAttr.Value;
+										parImageCaptionCounter += 1;
+										}
+
+									objNewParagraph = oxmlDocument.Construct_Caption(
+										parCaptionType: "Image",
+										parCaptionText: "Image " + parImageCaptionCounter + ": " + this.CaptionText
+										//TODO: Insert the Properties....
+										//parCaptionText: Properties.AppResources.Document_Caption_Image_Text + parImageCaptionCounter + ": " + this.CaptionText
+										);
+									break;
+									case "src":
+									imageFileURL = imageAttr.Value;
+									if (imageFileURL.StartsWith("about"))
+										imageFileURL = imageFileURL.Substring(6, imageFileURL.Length - 6);
+									break;
+									}
+								}
+							Console.Write("\n\t <img> URL: {0}", imageFileURL);
+							try
+								{
+								objRun = oxmlDocument.Insert_Image(
+									parMainDocumentPart: ref parMainDocumentPart,
+									parParagraphLevel: this.DocumentHierachyLevel + this.AdditionalHierarchicalLevel,
+									parPictureSeqNo: parImageCaptionCounter,
+									parImageURL: this.SharePointSiteURL + imageFileURL,
+									parEffectivePageTWIPSheight: this.PageHeightDxa,
+									parEffectivePageTWIPSwidth: this.PageWidthDxa);
+
+								objNewParagraph.Append(objRun);
+								}
+							catch (InvalidImageFormatException exc)
+								{
+								throw new InvalidImageFormatException(exc.Message);
+								}
+							this.WPbody.Append(objNewParagraph);
+							}
+
 						break;
 
 						//---g
 						//++Table
 						case "table":
+
+						//-Check if the **objNewParagraph** is *NOT* null **AND** that it actually contains text
+						if (objNewParagraph != null && !String.IsNullOrEmpty(objNewParagraph.InnerText))
+							{ //-Write the *paragraph* to the document...
+							this.WPbody.Append(objNewParagraph);
+							objNewParagraph = null;
+							}
+
 						//-Define the Table Instance
 						if (this.TableToBuild == null)
 							{
@@ -1007,7 +1087,7 @@ namespace DocGeneratorUI
 									//-use the **summary** to obtain and set the **Table Caption**
 									case "summary": //- get the table caption
 									if (tableAttr.Value == null)
-										this.TableToBuild.Caption = String.Empty;
+										this.TableToBuild.Caption = string.Empty;
 									else
 										this.TableToBuild.Caption = tableAttr.Value;
 									break;
@@ -1096,25 +1176,25 @@ namespace DocGeneratorUI
 
 						if (this.TableToBuild.OriginalTableWidthValue <= 0)
 							{
-							Console.WriteLine("\n ERROR - No attributes defined for the table");
-							throw new InvalidContentFormatException("The TABLE's width is missing, therefore the table cannot be inserted into the "
-								+ "document. Please inspect the content and resolve the issue, by formatting the relevant content with the "
-								+ "Enhanced Rich Text styles.");
+							throw new InvalidTableFormatException("The TABLE's width is NOT specified, therefore the table cannot be inserted into the "
+								+ "document. Please inspect the content and resolve the issue, by formatting the table with the "
+								+ "Enhanced Rich Text styles or correct the HTML vor the table.");
 							}
 
 						if (this.TableToBuild.OriginalTableWidthType == WorkTable.enumWidthType.Percent)
 							{
-							this.TableToBuild.WidthPrecetage = this.TableToBuild.OriginalTableWidthValue;
-							this.TableToBuild.WidthPixels = Convert.ToInt16((this.PageWidth * this.TableToBuild.OriginalTableWidthValue) / 100);
+							this.TableToBuild.WidthPrecentage = this.TableToBuild.OriginalTableWidthValue;
+							this.TableToBuild.WidthInDXA = Convert.ToInt16((this.PageWidthDxa * this.TableToBuild.OriginalTableWidthValue) / 100);
 							}
 						else //-OriginalTableWidthType is **Pixels**
 							{
-							this.TableToBuild.WidthPrecetage = Convert.ToInt16((Convert.ToDecimal(this.TableToBuild.OriginalTableWidthValue) / Convert.ToDecimal(this.PageWidth)) * 100M);
-							this.TableToBuild.WidthPixels = this.TableToBuild.OriginalTableWidthValue;
+							throw new InvalidTableFormatException("The TABLE's width is specified in pixels while it should be specified as a percentage. "
+								+ "Therefore the table cannot be scalled and inserted into the document. "
+								+ "Please inspect the at this position and resolve the issue, by specifying table WIDTH as a %.");
 							}
 
 						//-Check if the table's width is defined, if not raise an exception and exit
-						if (this.TableToBuild.WidthPixels == 0 || this.TableToBuild.WidthPrecetage == 0)
+						if (this.TableToBuild.WidthInDXA == 0 || this.TableToBuild.WidthPrecentage == 0)
 							{
 							Console.WriteLine("\n ERROR - Could Not determine the table's width.");
 							throw new InvalidContentFormatException("The TABLE's width could not be determined, therefore the table cannot be "
@@ -1122,12 +1202,14 @@ namespace DocGeneratorUI
 								+ "content with the Enhanced Rich Text styles.");
 							}
 
-						Console.Write("\t ...Original Table Width: {0} {1}\t translated to: {2}%\t {3}px ", this.TableToBuild.OriginalTableWidthValue, this.TableToBuild.OriginalTableWidthType,
-						this.TableToBuild.WidthPrecetage, this.TableToBuild.WidthPixels);
+						Console.Write("\t ...Original Table Width: {0} {1}\t translated to: {2}%\t {3}dxa ", this.TableToBuild.OriginalTableWidthValue, this.TableToBuild.OriginalTableWidthType,
+						this.TableToBuild.WidthPrecentage, this.TableToBuild.WidthInDXA);
 
 						//-Determine the Table Grid...
+						Console.WriteLine("\n{0} Begin to Define Table Grid {0}", new string('-', 50));
 						DetermineTableGrid(parHTMLnodes: node.DescendantsAndSelf());
 						rowCounter = 0;
+						Console.WriteLine("{0} Begin to Map the TABLE {0}", new string('-', 50));
 						break;
 
 						//---g
@@ -1151,7 +1233,7 @@ namespace DocGeneratorUI
 							this.TableToBuild.Rows.Add(workRow);
 							workRow = this.TableToBuild.Rows.SingleOrDefault(r => r.Number == rowCounter);
 							}
-						
+
 						Console.Write("\n\t\t <Row> No:{0}", workRow.Number);
 
 						//+Set the Row's properties...
@@ -1201,7 +1283,7 @@ Repeat_Cell:
 						//-Increment the **columnNo * *counter which keeps track of the number of columns in a row...
 						columnCounter += 1;
 						rowSpan = 1;
-						
+
 						Console.Write("\n\t\t\t Cell:<{0}> \tNo:{1}", node.Name, columnCounter);
 						//-Check if the cell already exist in the *workRow*
 						//workCell = new WorkCell();
@@ -1214,7 +1296,7 @@ Repeat_Cell:
 							workCell.MergeRow = enumTableRowMergeType.None;
 							workRow.Cells.Add(workCell);
 							}
-						else if(workCell.MergeRow == enumTableRowMergeType.Continue)
+						else if (workCell.MergeRow == enumTableRowMergeType.Continue)
 							{
 							Console.Write("\tFirst:{0}", workCell.FirstColumn);
 							Console.Write("\tOdd:{0}", workCell.OddColumn);
@@ -1222,13 +1304,13 @@ Repeat_Cell:
 							Console.Write("\tLast:{0}", workCell.LastColumn);
 							Console.Write("\tColSpan:{0}", workCell.MergeColumns);
 							Console.Write("\tWidth:{0}%", workCell.WidthPercentage);
-							Console.Write("\tWidth:{0}px", workCell.WidthPixel);
+							Console.Write("\tWidth:{0}px", workCell.WidthInDxa);
 							Console.Write("\tRowSpan:{0}", workCell.MergeRow);
 							goto Repeat_Cell;
 							}
 
 						workCell = workRow.Cells.SingleOrDefault(c => c.Number == columnCounter);
-						
+
 						//+Set the **Cell's** properties...
 						foreach (HtmlAttribute nodeAttribute in node.Attributes)
 							{
@@ -1317,13 +1399,13 @@ Repeat_Cell:
 						if (columnWidth == 0)
 							{
 							//-Derive the column width from the Grid
-							workCell.WidthPercentage = this.TableToBuild.GridColumnWidths[columnCounter - 1];
+							workCell.WidthPercentage = this.TableToBuild.GridColumnWidthPercentages[columnCounter - 1];
 							//-Check if the cell spans multiple columns and add those column's values to the initial columns width value.
 							if (workCell.MergeColumns > 1)
 								{
 								for (int i = 2; i < workCell.MergeColumns + 1; i++)
 									{
-									workCell.WidthPercentage = this.TableToBuild.GridColumnWidths[i - 1];
+									workCell.WidthPercentage = this.TableToBuild.GridColumnWidthPercentages[i - 1];
 									}
 								}
 							}
@@ -1337,7 +1419,7 @@ Repeat_Cell:
 						//-Set the column number for the sell
 						workCell.Number = columnCounter;
 						//-Calculate the Column Width pixels...
-						workCell.WidthPixel = (this.TableToBuild.WidthPixels * workCell.WidthPercentage) / 100;
+						workCell.WidthInDxa = (this.TableToBuild.WidthInDXA * workCell.WidthPercentage) / 100;
 						//-Embed the text in the HTMLcontent property
 						workCell.HTMLcontent = node.InnerHtml;
 						Console.Write("\tFirst:{0}", workCell.FirstColumn);
@@ -1346,11 +1428,11 @@ Repeat_Cell:
 						Console.Write("\tLast:{0}", workCell.LastColumn);
 						Console.Write("\tColSpan:{0}", workCell.MergeColumns);
 						Console.Write("\tWidth:{0}%", workCell.WidthPercentage);
-						Console.Write("\tWidth:{0}px", workCell.WidthPixel);
-						
+						Console.Write("\tWidth:{0}dxa", workCell.WidthInDxa);
+
 						//+Populate the rows and cells for each spanned row
 						//-Check if the row span greater than 1, meaning the call contains a **VerticalMerge**
-						if(rowSpan > 1)
+						if (rowSpan > 1)
 							{
 							workCell.MergeRow = enumTableRowMergeType.Restart;
 							Console.Write("\tRowSpan:{0}", workCell.MergeRow);
@@ -1359,7 +1441,7 @@ Repeat_Cell:
 								{
 								//-Check if the row already exist
 								WorkRow newWorkRow = new WorkRow();
-								if(this.TableToBuild.Rows.Where(r => r.Number == (rowCounter + rowIncrement - 1)).FirstOrDefault() == null)
+								if (this.TableToBuild.Rows.Where(r => r.Number == (rowCounter + rowIncrement - 1)).FirstOrDefault() == null)
 									{ //-The row doesn't exist yet...
 									newWorkRow.Number = rowCounter + (rowIncrement - 1);
 									this.TableToBuild.Rows.Add(newWorkRow);
@@ -1372,14 +1454,14 @@ Repeat_Cell:
 
 								//+Check if the specific cell already exist in the row.
 								WorkCell newWorkCell = new WorkCell();
-								if(newWorkRow.Cells.Where(c => c.Number == columnCounter).FirstOrDefault() == null)
+								if (newWorkRow.Cells.Where(c => c.Number == columnCounter).FirstOrDefault() == null)
 									{
 									//-cell doesn't exist, number it
 									newWorkCell.Number = columnCounter;
 									newWorkCell.MergeRow = enumTableRowMergeType.Continue;
 									newWorkCell.MergeColumns = workCell.MergeColumns;
 									newWorkCell.WidthPercentage = workCell.WidthPercentage;
-									newWorkCell.WidthPixel = workCell.WidthPixel;
+									newWorkCell.WidthInDxa = workCell.WidthInDxa;
 									newWorkRow.Cells.Add(newWorkCell);
 									}
 								else
@@ -1409,48 +1491,38 @@ Repeat_Cell:
 					objNewParagraph = null;
 					}
 
-					Console.WriteLine("\n______________________________ HTML decoding iterations END ______________________________________");
-
-				return true;
+				
+				}
+			catch (InvalidContentFormatException exc)
+				{
+				Console.WriteLine("\n\nInvalid Content Format Exception: {0} - {1}", exc.Message, exc.Data);
+				// Update the counters before returning
+				throw new InvalidContentFormatException(exc.Message);
 				}
 			catch (InvalidTableFormatException exc)
 				{
 				Console.WriteLine("\n\nException: {0} - {1}", exc.Message, exc.Data);
 				// Update the counters before returning
-				parTableCaptionCounter = this.TableCaptionCounter;
-				parImageCaptionCounter = this.ImageCaptionCounter;
-				parPictureNo = this.PictureNo;
-				parHyperlinkID = this.HyperlinkID;
 				throw new InvalidContentFormatException(exc.Message);
 				}
 			catch (InvalidImageFormatException exc)
 				{
 				Console.WriteLine("\n\nException: {0} - {1}", exc.Message, exc.Data);
 				// Update the counters before returning
-				parTableCaptionCounter = this.TableCaptionCounter;
-				parImageCaptionCounter = this.ImageCaptionCounter;
-				parPictureNo = this.PictureNo;
-				parHyperlinkID = this.HyperlinkID;
 				throw new InvalidContentFormatException(exc.Message);
 				}
 			catch (Exception exc)
 				{
 				// Update the counters before returning
-				parTableCaptionCounter = this.TableCaptionCounter;
-				parImageCaptionCounter = this.ImageCaptionCounter;
-				parPictureNo = this.PictureNo;
-				parHyperlinkID = this.HyperlinkID;
 				Console.WriteLine("\n**** Exception **** \n\t{0} - {1}\n\t{2}", exc.HResult, exc.Message, exc.StackTrace);
 				throw new InvalidContentFormatException("An unexpected error occurred at this point, in the document generation. \nError detail: " + exc.Message);
 				}
 			finally
 				{
-				// Update the counters before returning
-				parTableCaptionCounter = this.TableCaptionCounter;
-				parImageCaptionCounter = this.ImageCaptionCounter;
-				parPictureNo = this.PictureNo;
-				parHyperlinkID = this.HyperlinkID;
+				Console.WriteLine("\n{0} HTML decoding iterations ENDed {0}", new string('=', 25));
 				}
+
+			return true;
 			}
 
 
@@ -1558,7 +1630,7 @@ Repeat_Cell:
 				//-| The **Tuple** consist of two intances:
 				//-- |    1. Column **Width** as a n integer value
 				//--|    2. **Span** indicator which is **True** if the width was derived from a *merged/spanned* cell and **False** if it was from an unmerged cell
-				this.TableToBuild.GridColumnWidths = new List<int>();
+				this.TableToBuild.GridColumnWidthPercentages = new List<int>();
 
 				//-Initialise Variables and Properties
 				int cellCounter = 0;
@@ -1586,7 +1658,6 @@ Repeat_Cell:
 				//- |     a) ... some columns may **NOT** have their width specified in the HTML.
 				//-|     b) ...columns may **SPAN** multiple columns which means their width may not apply to each of the spanned columns..
 
-				Console.WriteLine("\n{0} Begin to Define Table Grid {0}", new String('-', 40));
 				//- Process the collection of columns that were send as parameter.
 				foreach (HtmlNode node in parHTMLnodes.Where(n => n.Name != "#text" && n.Name != "p"))
 					{
@@ -1724,14 +1795,11 @@ Repeat_for_RowSpans:
 								colSpan = 1;
 
 							//-Calculate the **cell width percentage** (we only work with % from here on, to ensure scalability to document width).
-							if (cellWidthPixels > 0 || cellWidthPercentage > 0)
+							if (cellWidthPixels > 0)
 								{
 								//-Determine the percentage value of the cell if it was specified in pixels...
-								if (cellWidthPixels > 0)
-									{
-									cellWidthPercentage = Convert.ToInt16((Convert.ToDecimal(cellWidthPixels) / Convert.ToDecimal
-										(this.TableToBuild.WidthPixels)) * 100);
-									}
+								throw new InvalidTableFormatException("There are cells in the table with a WIDTH specified in pixels instead of a percentage. "
+									+ "Please inspect the content and resolve the issue, by ensuring that ALL columns in the table have % values.)");
 								}
 
 							//-If the **row span** is 0, set it to 1 which is the default value
@@ -1907,7 +1975,7 @@ Repeat_for_RowSpans:
 				//-At this point all is in order with the table grid, therefore insert it into the **this.TableToBeBuild**.
 				foreach (var item in gridColumns)
 					{
-					this.TableToBuild.GridColumnWidths.Add(item.Item1);
+					this.TableToBuild.GridColumnWidthPercentages.Add(item.Item1);
 					}
 				this.TableToBuild.GridDone = true;
 				}
@@ -1922,21 +1990,22 @@ Repeat_for_RowSpans:
 				Console.WriteLine("\n\nException ERROR: {0} - {1} - {2} - {3}", exc.HResult, exc.Source, exc.Message, exc.Data);
 				}
 
-			Console.WriteLine("{0} Table Grid Defined {0}", new String('-', 40));
-			} 
+			Console.WriteLine("{0} Table Grid Defined {0}", new String('-', 50));
+			}
 
 
 		//===R
 
 		public List<Paragraph> DissectHTMLstring(
 			string parHTMLString,
-			bool parIsTable = false)
+			ref int parNumberingCounter,
+			bool parIsTable = false,
+			bool parIsTableHeader = false)
 			{
 
 			List<Paragraph> paragraphs = new List<Paragraph>();		//-List of all the paragrpahs that will be returned to the calling method.
 			bool isDIVempty = false;                                //-Indicator which facilitate the validation of empty DIV tags
-			Paragraph workParagraph = new Paragraph();              //-Work variable used to construct a Paragraph
-			Paragraph errorParagraph = new Paragraph();				//-used to insert error content as a paragraph without disruption..
+			Paragraph workParagraph = null;              //-Work variable used to construct a Paragraph
 			Run workRun = new Run();                                //-Work variable which is used to construct a Run.
 			string workString = string.Empty;                       //-A string variable used to process text
 			bool bold = false;
@@ -1963,320 +2032,343 @@ Repeat_for_RowSpans:
 			//Console.WriteLine("HTML: {0}", htmlData.DocumentNode.OuterHtml);
 			//- Set the ROOT of the data loaded in the htmlData
 			var htmlRoot = htmlData.DocumentNode;
-			
-			foreach (HtmlNode node in htmlData.DocumentNode.DescendantsAndSelf())
+
+			try
 				{
-
-				//-Check is a new paragraph is initialised and it contains content
-
-				switch (node.Name)
+				foreach (HtmlNode node in htmlData.DocumentNode.DescendantsAndSelf())
 					{
-					//---g
-					//+<DIV>
-					case "div":
-					//-Check for other tags in the **div** tag
-					isDIVempty = true;
-					if (node.HasChildNodes)
+
+					//-Check is a new paragraph is initialised and it contains content
+
+					switch (node.Name)
 						{
-						//-Check if there are any other valid HTML closing tags succeeding the **<DIV>**
-						foreach (HtmlNode decendentNode in node.Descendants())
+						//---g
+						//+<DIV>
+						case "div":
+						//-Check for other tags in the **div** tag
+						isDIVempty = true;
+						if (node.HasChildNodes)
 							{
-							//-Check for any valid content that need to be processed...
-							if (decendentNode.Name == "#text"   //-//text
-							|| decendentNode.Name == "p"        //-//paragraph
-							|| decendentNode.Name == "ol"       //-//Organised List
-							|| decendentNode.Name == "ul"       //-//Unorganised List
-							|| decendentNode.Name == "li"       //-//ListItem
-							|| node.XPath.Contains("/img")      //-//Image
-							|| node.XPath.Contains("/table")    //-//Table
-							|| decendentNode.Name.Contains("h")) //-//Heading
+							//-Check if there are any other valid HTML closing tags succeeding the **<DIV>**
+							foreach (HtmlNode decendentNode in node.Descendants())
 								{
-								//- Just CONSUME the div tag and process the tags in the subsequent node cycles...
-								isDIVempty = false;
-								break;
+								//-Check for any valid content that need to be processed...
+								if (decendentNode.Name == "#text"   //-//text
+								|| decendentNode.Name == "p"        //-//paragraph
+								|| decendentNode.Name == "ol"       //-//Organised List
+								|| decendentNode.Name == "ul"       //-//Unorganised List
+								|| decendentNode.Name == "li"       //-//ListItem
+								|| node.XPath.Contains("/img")      //-//Image
+								|| node.XPath.Contains("/table")    //-//Table
+								|| decendentNode.Name.Contains("h")) //-//Heading
+									{
+									//- Just CONSUME the div tag and process the tags in the subsequent node cycles...
+									isDIVempty = false;
+									break;
+									}
 								}
 							}
-						}
 
-					if (isDIVempty)
-						{
-						//-When the code reach this point, it means that there is text in an isolated **DIV** tag
-						//-which means the text cannot be properly formatted because it doesn't contain valid...
-						//-No HTML tags - **THEREFORE** a format issue is raised...
+						if (isDIVempty)
+							{
+							//-When the code reach this point, it means that there is text in an isolated **DIV** tag
+							//-which means the text cannot be properly formatted because it doesn't contain valid...
+							//-No HTML tags - **THEREFORE** a format issue is raised...
+							if (workParagraph != null
+							&& !String.IsNullOrEmpty(workParagraph.InnerText))
+								{ //-Add the *paragraph* to the list of Paragraphs...
+								paragraphs.Add(workParagraph);
+								workParagraph = null;
+								}
+							//-Construct a paragraph in which to place the content error's run content.
+							throw new InvalidContentFormatException("The content was probably pasted from an external source without "
+								+ "formatting it after pasting. "
+								+ "Please inspect the content and resolve the issue, by formatting the relevant content using the relevant "
+								+ "Enhanced Rich Text styles. |" + node.InnerText + "|");
+							}
+						break;
+						//---g
+						//+<#text> **TEXT**
+						case "#text":
+						//-First, clean the string by removing unwanted and unnecessary characters
+						workString = CleanText(parText: node.InnerText, parClientName: this.ClientName);
+						//-Check if the **workString** is blank, then **DON'T** process it
+						if (String.IsNullOrWhiteSpace(workString))
+							break;
+
+						if (node.XPath.Contains("/strong"))
+							{
+							//Console.Write("|BOLD|");
+							bold = true;
+							}
+						else
+							bold = false;
+
+						if (node.XPath.Contains("/em"))
+							{
+							//Console.Write("|ITALICS|");
+							italic = true;
+							}
+						else
+							italic = false;
+
+						if (node.ParentNode.Attributes.Where(a => a.Name == "style" && a.Value.Contains("line-through")).FirstOrDefault() != null)
+							{
+							strikethrough = true;
+							//Console.Write("|STRIKE-THROUGH|");
+							}
+						else
+							strikethrough = false;
+
+						if (node.ParentNode.Attributes.Where(a => a.Name == "style" && a.Value.Contains("underline")).FirstOrDefault() != null)
+							{
+							underline = true;
+							//Console.Write("|UNDERLINE|");
+							}
+						else
+							underline = false;
+
+						if (node.XPath.Contains("/sub"))
+							{
+							//Console.Write("|SUBSCRIPT|");
+							subscript = true;
+							}
+						else
+							subscript = false;
+
+						if (node.XPath.Contains("/sup"))
+							{
+							//Console.Write("|SUPERSCRIPT|");
+							superScript = true;
+							}
+						else
+							superScript = false;
+
+						//-Insert the **text** if the string is *not* empty
+						if (!string.IsNullOrWhiteSpace(workString))
+							{
+							//-Check if there is an initialised paragraph
+							if (workParagraph == null)
+								{
+								workParagraph = oxmlDocument.Construct_Paragraph(
+									parBodyTextLevel: 0,
+									parIsTableParagraph: parIsTable,
+									parIsTableHeader: parIsTableHeader);
+								}
+
+							//Console.Write("[{0}]", workString);
+							workRun = oxmlDocument.Construct_RunText(
+								parText2Write: workString,
+								parContentLayer: this.ContentLayer,
+								parBold: bold,
+								parItalic: italic,
+								parUnderline: underline,
+								parSubscript: subscript,
+								parSuperscript: superScript,
+								parStrikeTrough: strikethrough);
+							}
+						workParagraph.Append(workRun);
+						break;
+
+						//+<p> - **Paragraph**
+						case "p":
+						//! **Normal** Paragraphs and **Table** paragraphs are a little different...
 						if (workParagraph != null
-						&& !String.IsNullOrEmpty(workParagraph.InnerText))
-							{ //-Add the *paragraph* to the list of Paragraphs...
+						&& !string.IsNullOrEmpty(workParagraph.InnerText))
+							{ //-Write the *paragraph* to the **paragraphs list**
+							paragraphs.Add(workParagraph);	
+							}
+						workParagraph = null;
+
+						//-Check if the paragraph contains any usable content.
+						if (!node.HasChildNodes)
+							{ //-Check if it contains any usable text
+							workString = CleanString(node.InnerText, this.ClientName);
+							if (string.IsNullOrWhiteSpace(workString))
+								break;
+							}
+
+						//-Check if the paragraph is part of a bullet- or number- list
+						if ((node.XPath.Contains("/ol")
+						|| node.XPath.Contains("/ul"))
+						&& node.XPath.Contains("/li"))
+							{ //-If is :. get the number of bullet- or number level in the xPath
+							bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+							bulletLevel = bulletNumberLevels.Item1;
+							numberLevel = bulletNumberLevels.Item2;
+							//- now exit the loop, to process the **"#text"** or other child tags...
+							break;
+							}
+						else
+							{
+							bulletLevel = 0;
+							numberLevel = 0;
+							}
+
+						if (bulletLevel > 0) //-**Bulleted** paragraph
+							workParagraph = oxmlDocument.Construct_BulletParagraph(parBulletLevel: bulletLevel, parIsTableBullet: parIsTable);
+						else if(numberLevel > 0) //-**Numbered** paragraph
+							workParagraph = oxmlDocument.Construct_BulletParagraph(parBulletLevel: bulletLevel, parIsTableBullet: parIsTable);
+						else //-**Normal** Paragraph.
+							workParagraph = oxmlDocument.Construct_Paragraph(parIsTableParagraph: parIsTable, parIsTableHeader: parIsTableHeader);
+						break;
+
+						//---g
+						//+<h1-4> **Heading 1 - 4**
+						case "h1":
+						case "h2":
+						case "h3":
+						case "h4":
+						//-**Headings** are not allowed if processing **table** content
+						if (parIsTable)
+							{
+							//-Construct a paragraph in which to place the content error's run content.
+							throw new InvalidTableFormatException(message:
+							"Heading  Styles cannot be included in tables, because it will disrupt the numbering system in the document. "
+							+ "Rather use bullets or numbers if required."
+							+ "Please inspect the content and resolve the issue, by removing Style Headings from the table.");
+							}
+
+						//Console.Write("\n {0} + <{1}>", new String('\t', headingLevel * 2), node.Name);
+						//- Set the **this.AdditionalHierarchicalLevel** to the headingLevel value
+						this.AdditionalHierarchicalLevel = headingLevel;
+
+						//-Check if there is a populated paragraph that need to be committed before initialising the new one...
+						if (workParagraph != null
+						&& workParagraph.InnerText != null)
+							{ //-Add the *paragraph* to the **documents**
 							paragraphs.Add(workParagraph);
 							workParagraph = null;
 							}
-						//-Construct a paragraph in which to place the content error's run content.
-						workParagraph = oxmlDocument.Construct_Paragraph(
-							parBodyTextLevel: 0,
-							parIsTableParagraph: parIsTable);
-						workRun = oxmlDocument.Construct_RunText(parText2Write:
-						"The content between demarcation marks was probably pasted from an external source without formatting it properly. "
-							+ "Please inspect the content and resolve the issue, by applying the relevant formats by using the relevant "
-							+ "Enhanced Rich Text styles. |" + node.InnerText + "|", parIsError: true);
-						}
-					break;
-					//---g
-					//+<#text> **TEXT**
-					case "#text":
-					//-First, clean the string by removing unwanted and unnecessary characters
-					workString = CleanText(parText: node.InnerText, parClientName: this.ClientName);
-					//-Check if the **workString** is blank, then **DON'T** process it
-					if (String.IsNullOrWhiteSpace(workString))
+
+						//-Check if there are child nodes, and check if the innterText is also blank
+						if (!node.HasChildNodes)
+							{
+							if (node.InnerText == string.Empty)
+								{//-skip the paragraph because it will be a blank heading in the document...
+								break;
+								}
+							}
+
+						//-Ininitialise a new paragrpah for the **Heading**
+						workParagraph = oxmlDocument.Construct_Heading(
+							parHeadingLevel: this.DocumentHierachyLevel + this.AdditionalHierarchicalLevel);
 						break;
 
-					if (node.XPath.Contains("/strong"))
-						{
-						//Console.Write("|BOLD|");
-						bold = true;
-						}
-					else
-						bold = false;
+						//---g
 
-					if (node.XPath.Contains("/em"))
-						{
-						//Console.Write("|ITALICS|");
-						italic = true;
-						}
-					else
-						italic = false;
+						//+ <UL> **Unorganised List**
+						case "ul":
+						//-Check if there is a populated paragraph that need to be processed
+						if (workParagraph != null
+						&& workParagraph.InnerText != null)
+							{ //-Write the *paragraph* to the document...
+							paragraphs.Add(workParagraph);
+							workParagraph = null;
+							}
+						else
+							workParagraph = null;
 
-					if (node.ParentNode.Attributes.Where(a => a.Name == "style" && a.Value.Contains("line-through")).FirstOrDefault() != null)
-						{
-						strikethrough = true;
-						//Console.Write("|STRIKE-THROUGH|");
-						}
-					else
-						strikethrough = false;
+						break;
 
-					if (node.ParentNode.Attributes.Where(a => a.Name == "style" && a.Value.Contains("underline")).FirstOrDefault() != null)
-						{
-						underline = true;
-						//Console.Write("|UNDERLINE|");
-						}
-					else
-						underline = false;
+						//---g
+						//+<ol> **Organised List**
+						case "ol":
+						//-Check if there is a populated paragraph that **CONTAINS** text...
+						if (workParagraph != null
+						&& !string.IsNullOrWhiteSpace(workParagraph.InnerText))
+							{ //-Write the *paragraph* to the document...
+							paragraphs.Add(workParagraph);
+							workParagraph = null;
+							}
+						else
+							workParagraph = null;
 
-					if (node.XPath.Contains("/sub"))
-						{
-						//Console.Write("|SUBSCRIPT|");
-						subscript = true;
-						}
-					else
-						subscript = false;
-
-					if (node.XPath.Contains("/sup"))
-						{
-						//Console.Write("|SUPERSCRIPT|");
-						superScript = true;
-						}
-					else
-						superScript = false;
-
-					if (node.XPath.Contains("/sup"))
-						{
-						//Console.Write("|SUPERSCRIPT|");
-						superScript = true;
-						}
-					else
-						superScript = false;
-
-					//-Insert the **text** if the string is *not* empty
-					if (!string.IsNullOrWhiteSpace(workString))
-						{
-						//Console.Write("[{0}]", workString);
-						workRun = oxmlDocument.Construct_RunText(
-							parText2Write: workString,
-							parContentLayer: this.ContentLayer,
-							parBold: bold,
-							parItalic: italic,
-							parUnderline: underline,
-							parSubscript: subscript,
-							parSuperscript: superScript,
-							parStrikeTrough: strikethrough);
-						}
-					workParagraph.Append(workRun);
-					break;
-
-					//+<p> - **Paragraph**
-					case "p":
-					//! **Normal** Paragraphs and **Table** paragraphs are handled a little different because...
-					//-Check if the **objNewParagraph** is *NOT* null **AND** that it actually contains text
-					if (workParagraph != null 
-					&& !string.IsNullOrEmpty(workParagraph.InnerText))
-						{ //-Write the *paragraph* to the **paragraphs list**
-						paragraphs.Add(workParagraph);
-						workParagraph = null;
-						}
-
-					//-Check if the paragraph is part of a bullet- or number- list
-					if ((node.XPath.Contains("/ol") 
-					|| node.XPath.Contains("/ul"))
-					&& node.XPath.Contains("/li"))
-						{ //-If is :. get the number of bullet- or number level in the xPath
+						//-Determine the number of bullet - and number - levels usng the occurrences in xPath
 						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
 						bulletLevel = bulletNumberLevels.Item1;
 						numberLevel = bulletNumberLevels.Item2;
-						//- now exit the loop, to process the **"#text"** or other child tags...
-						break;
-						}
-					else
-						{
-						bulletLevel = 0;
-						numberLevel = 0;
-						}
 
-					//-Check if a **NEW** paragraph must be initialised or whether the existing paragraph needs to be used to add run text.
-					if (workParagraph == null)
-						workParagraph = new Paragraph();
-
-					if (node.HasChildNodes)
-						{
-						//Console.Write("\n <{0}> ", node.Name);
-						}
-					else
-						{//?Does this means it is an empty paragraph?
-						workString = node.InnerText;
-						if (string.IsNullOrWhiteSpace(workString))
-							Console.Write(" <{0}>", node.Name);
-						}
-					break;
-
-					//---g
-					//+<h1-4> **Heading 1 - 4**
-					case "h1":
-					case "h2":
-					case "h3":
-					case "h4":
-					//-**Headings** are not allowed if processing **table** content
-					if(parIsTable)
-						{
-						//-Construct a paragraph in which to place the content error's run content.
-						errorParagraph = oxmlDocument.Construct_Error(parText:
-						"Heading  Styles cannot be included in tables, because it will disrupt the numbering system in the document. Rater use bullets or numbers if required."
-							+ "Please inspect the content and resolve the issue, by removing Style Headings from table cells.");
-						paragraphs.Add(errorParagraph);
-						errorParagraph = null;
-						break;
-						}
-
-					//Console.Write("\n {0} + <{1}>", new String('\t', headingLevel * 2), node.Name);
-					//- Set the **this.AdditionalHierarchicalLevel** to the headingLevel value
-					this.AdditionalHierarchicalLevel = headingLevel;
-
-					//-Check if there is a populated paragraph that need to be committed before initialising the new one...
-					if (workParagraph != null
-					&& workParagraph.InnerText != null)
-						{ //-Add the *paragraph* to the **documents**
-						paragraphs.Add(workParagraph);
-						}
-
-					//-Check //-if there ano child nodes, check if the innterText is also blank
-					if (!node.HasChildNodes)
-						{
-						if (node.InnerText == String.Empty)
-							{//-skip the paragraph because it will be a blank heading in the document...
-							break;
+						//-If the number level is equal to 1, then a new number list must begin at 1.
+						if (numberLevel == 1)
+							{
+							this.RestartNumbering = true;
+							parNumberingCounter += 1;
 							}
-						}
-					
-					//-Ininitialise a new paragrpah for the **Heading**
-					workParagraph = oxmlDocument.Construct_Heading(
-						parHeadingLevel: this.DocumentHierachyLevel + this.AdditionalHierarchicalLevel);
-					break;
+						break;
 
-					//---g
+						//---g
+						//+<li>  **List Item**
+						case "li":
+						//-Determine the number of bullet- and number- levels usng the occurrences in xPath
+						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						bulletLevel = bulletNumberLevels.Item1;
+						numberLevel = bulletNumberLevels.Item2;
 
-					//+ <UL> **Unorganised List**
-					case "ul":
-					//-Check if there is a populated paragraph that need to be processed
-					if (workParagraph != null
-					&& workParagraph.InnerText != null)
-						{ //-Write the *paragraph* to the document...
-						paragraphs.Add(workParagraph);
-						workParagraph = null;
-						}
-					else
-						workParagraph = null;
+						//-Check if there is a populated paragraph that contains text and write it to the Document before initiating a new paragraph...
+						if (workParagraph != null
+						&& !string.IsNullOrEmpty(workParagraph.InnerText))
+							{ //-Write the *paragraph* to the document...
+							paragraphs.Add(workParagraph);
+							workParagraph = null;
+							}
 
-					break;
-
-					//---g
-					//+<ol> **Organised List**
-					case "ol":
-					//-Check if there is a populated paragraph that **CONTAINS** text...
-					if (workParagraph != null
-					&& !string.IsNullOrWhiteSpace(workParagraph.InnerText))
-						{ //-Write the *paragraph* to the document...
-						paragraphs.Add(workParagraph);
-						workParagraph = null;
-						}
-					else
-						workParagraph = null;
-					break;
-
-					//---g
-					//+<li>  **List Item**
-					case "li":
-					//-Determine the number of bullet- and number- levels usng the occurrences in xPath
-					bulletNumberLevels = GetBulletNumberLevels(node.XPath);
-					bulletLevel = bulletNumberLevels.Item1;
-					numberLevel = bulletNumberLevels.Item2;
-
-					//-Check if there is a populated paragraph that contains text and write it to the Document before initiating a new paragraph...
-					if (workParagraph != null
-					&& !string.IsNullOrEmpty(workParagraph.InnerText))
-						{ //-Write the *paragraph* to the document...
-						paragraphs.Add(workParagraph);
-						workParagraph = null;
-						}
-
-					//-Construct the paragraph with the bullet level depending bulletLevel value
-					if (bulletLevel > 0)
-						{//- if it is a **Bullet** list entry, create a new **Pargraph** *Bullet* object...
-						workParagraph = oxmlDocument.Construct_BulletNumberParagraph(
-							parIsBullet: true,
-							parBulletLevel: bulletLevel);
-						}
-
-					//- check if it is **Organised/Number list** item
-					else if (numberLevel > 0)
-						{//-if it is a **Number** list entry, create a new **Pargraph** *Number* object instance...
-						workParagraph = oxmlDocument.Construct_BulletNumberParagraph(
-						parIsBullet: false,
-						parBulletLevel: numberLevel);
-						}
-
-
-					if (node.HasChildNodes)
-						{
+						//-Construct the paragraph with the bullet level depending bulletLevel value
 						if (bulletLevel > 0)
-							{
-							//Console.Write("\n {0} - <{1}>", new String('\t', headingLevel + bulletLevel), node.Name);
+							{//- if it is a **Bullet** list entry, create a new **Pargraph** *Bullet* object...
+							workParagraph = oxmlDocument.Construct_BulletParagraph(
+								parIsTableBullet: parIsTable,
+								parBulletLevel: bulletLevel);
 							}
+
+						//- check if it is **Organised/Number list** item
 						else if (numberLevel > 0)
-							{
-							//Console.Write("\n {0} {1}. <{2}>", new String('\t', (headingLevel + numberLevel)), numberLevel, node.Name);
+							{//-if it is a **Number** list entry, create a new **Pargraph** *Number* object instance...
+							workParagraph = oxmlDocument.Construct_NumberParagraph(
+							parIsTableNumber: parIsTable,
+							parNumberLevel: numberLevel,
+							parRestartNumbering: this.RestartNumbering,
+							parNumberingId: parNumberingCounter);
+							this.RestartNumbering = false;
 							}
+						break;
+
+						//---g
+						//++Image
+						case "img":
+						break;
 						}
-					break;
-
-					//---g
-					//++Image
-					case "img":
-					break;
 					}
+				//-Commit the last paragraph if it has not been written yet.
+				if (workParagraph != null
+				&& !string.IsNullOrEmpty(workParagraph.InnerText))
+					paragraphs.Add(workParagraph);
+
 				}
-
-			if (workParagraph != null
-			&& !string.IsNullOrEmpty(workParagraph.InnerText))
-				paragraphs.Add(workParagraph);
-
-			if (errorParagraph.InnerText != string.Empty)
-				paragraphs.Add(errorParagraph);
+			catch (InvalidContentFormatException exc)
+				{
+				Console.WriteLine("\n\nInvalid Content Format Exception: {0} - {1}", exc.Message);
+				// Update the counters before returning
+				throw new InvalidContentFormatException(exc.Message);
+				}
+			catch (InvalidTableFormatException exc)
+				{
+				Console.WriteLine("\n\n Invalid Table Format Exception: {0} - {1}", exc.Message);
+				// Update the counters before returning
+				throw new InvalidContentFormatException(exc.Message);
+				}
+			catch (InvalidImageFormatException exc)
+				{
+				Console.WriteLine("\n\nInvalid Image Exception: {0} - {1}", exc.Message);
+				// Update the counters before returning
+				throw new InvalidContentFormatException(exc.Message);
+				}
+			catch (Exception exc)
+				{
+				// Update the counters before returning
+				Console.WriteLine("\n**** Exception **** \n\t{0} - {1}\n\t{2}", exc.HResult, exc.Message, exc.StackTrace);
+				throw new InvalidContentFormatException("An unexpected error occurred at this point, in the document generation. \nError detail: " + exc.Message);
+				}
 
 			//Console.WriteLine("\n{0} Done dissecting HTML {0}", new string('_', 25));
 			return paragraphs;

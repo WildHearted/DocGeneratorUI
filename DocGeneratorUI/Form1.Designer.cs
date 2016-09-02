@@ -52,6 +52,7 @@
 			this.labelPlatform = new System.Windows.Forms.Label();
 			this.buttonTestHTML = new System.Windows.Forms.Button();
 			this.buttonGenerateTestDoc = new System.Windows.Forms.Button();
+			this.buttonTestSomething = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.groupBoxSpecific.SuspendLayout();
 			this.statusStrip1.SuspendLayout();
@@ -367,11 +368,22 @@
 			this.buttonGenerateTestDoc.UseVisualStyleBackColor = true;
 			this.buttonGenerateTestDoc.Click += new System.EventHandler(this.buttonGenerateTestDoc_Click);
 			// 
+			// buttonTestSomething
+			// 
+			this.buttonTestSomething.Location = new System.Drawing.Point(548, 108);
+			this.buttonTestSomething.Name = "buttonTestSomething";
+			this.buttonTestSomething.Size = new System.Drawing.Size(205, 32);
+			this.buttonTestSomething.TabIndex = 12;
+			this.buttonTestSomething.Text = "Test Something";
+			this.buttonTestSomething.UseVisualStyleBackColor = true;
+			this.buttonTestSomething.Click += new System.EventHandler(this.buttonTestSomething_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(765, 563);
+			this.Controls.Add(this.buttonTestSomething);
 			this.Controls.Add(this.buttonGenerateTestDoc);
 			this.Controls.Add(this.buttonTestHTML);
 			this.Controls.Add(this.comboBoxPlatform);
@@ -423,6 +435,7 @@
 		private System.Windows.Forms.Label labelPlatform;
 		private System.Windows.Forms.Button buttonTestHTML;
 		private System.Windows.Forms.Button buttonGenerateTestDoc;
+		private System.Windows.Forms.Button buttonTestSomething;
 		}
 	}
 
