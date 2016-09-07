@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using HtmlAgilityPack;
 using System.Runtime.Remoting.Contexts;
+using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Validation;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -814,8 +815,8 @@ namespace DocGeneratorUI
 			//-Load the HTML content into the htmlData object.
 			//htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_CascadedBulletList.html");
 			//htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_CascadedNumberList.html");
-			htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_Everything.html");
-
+			//htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_Everything.html");
+			htmlData.Load(@"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\HTMLtestPage_ProblemContent.html");
 			//-Load a string into the HTMLDocument
 			Console.WriteLine("______________________________HTML starts______________________________________");
 			//htmlData.LoadHtml(htmlText);
@@ -1507,7 +1508,7 @@ namespace DocGeneratorUI
 				//original version
 				//DocGeneratorCore.HTMLdecoder objHTMLdecoder = new DocGeneratorCore.HTMLdecoder();
 				//new version
-				uiHTMLdecoder objHTMLdecoder = new uiHTMLdecoder();
+				HTMLdecoder objHTMLdecoder = new HTMLdecoder();
 				//!Set these HTMLdecoder properties....
 				//-Set the properties of the WordProcessing Body object (WPbody) of the HTMLdecoder object instance.
 				objHTMLdecoder.WPbody = objBody;
@@ -1617,7 +1618,7 @@ namespace DocGeneratorUI
 					{
 					objParagraph = oxmlDocument.Construct_Heading(parHeadingLevel: 1);
 					objRun = oxmlDocument.Construct_RunText(
-						parText2Write: "Heading Level 1",
+						parText2Write: "DD Heading 1",
 						parIsNewSection: true);
 					objParagraph.Append(objRun);
 					objBody.Append(objParagraph);
@@ -1627,7 +1628,7 @@ namespace DocGeneratorUI
 				if(this.Introduction)
 					{
 					objParagraph = oxmlDocument.Construct_Heading(parHeadingLevel: 2);
-					objRun = oxmlDocument.Construct_RunText(parText2Write: "Heading Level 2");
+					objRun = oxmlDocument.Construct_RunText(parText2Write: "DD Heading 2");
 					// Check if a hyperlink must be inserted
 					if(this.HyperlinkEdit || this.HyperlinkView)
 						{
@@ -1646,28 +1647,16 @@ namespace DocGeneratorUI
 					string myPath = @"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\";
 					//string htmlFilename = @myPath + "HTMLtestPage_ComplexTable.html";
 					string htmlFilename = @myPath + "HTMLtestPage_Everything.html";
+					//string htmlFilename = @myPath + "HTMLtestPage_ProblemContent_All.html";
 					htmlString = System.IO.File.ReadAllText(@htmlFilename);
-
-
 
 					if(htmlString != null)
 						{
 						try
 							{
-							/*
-							objHTMLdecoder.DecodeHTML(parClientName: parClientName,
-								parMainDocumentPart: ref objMainDocumentPart,
-								parDocumentLevel: 2,
-								parHTML2Decode: htmlString,
-								parTableCaptionCounter: ref intTableCaptionCounter,
-								parImageCaptionCounter: ref intImageCaptionCounter,
-								parPictureNo: ref iPictureNo,
-								parHyperlinkID: ref intHyperlinkCounter,
-								parPageHeightTwips: this.PageHeight,
-								parPageWidthTwips: this.PageWith,
-								parSharePointSiteURL: @"https:\\teams.dimensiondata.com\sites\servicecatalogue\");
-							*/
-							//-Invoke the DecodeHTML methode to process the HTML text...
+							
+							htmlString = HTMLdecoder.CleanHTML(htmlString, parClientName);
+							
 							objHTMLdecoder.DecodeHTML(
 								parMainDocumentPart: ref objMainDocumentPart,
 								parDocumentLevel: 2,
@@ -1822,28 +1811,33 @@ namespace DocGeneratorUI
 			int intValue = 0;
 			Console.Write("\n\nExtract the Width from ");
 			string testString = "margin&#58;5px;width&#58;50%;height&#58;14%;";
+			testString = "width&#58;80px;";
 			string myString = testString;
-			Console.Write(myString);
+			Console.WriteLine(myString);
 			string WorkString = myString.Replace("&#58;", "");
 			WorkString = WorkString.Replace(":", "");
 			WorkString = WorkString.Replace(" ", "");
+			int startInString = WorkString.IndexOf(value: "width", startIndex: 0) + 5;
+			int endInString = WorkString.IndexOf(";", startIndex: WorkString.IndexOf("width", 0) + 5);
+
+			Console.WriteLine("Begin Posisie:{0} = {1}", startInString, WorkString.Substring(startInString,1));
+			Console.WriteLine("End Posisie..:{0} = {1}", endInString, WorkString.Substring(endInString, 1));
+			Console.WriteLine("{0} - {1}", endInString, startInString);
+			Console.WriteLine("{0}", WorkString.Substring(startInString, 
+				length: endInString - startInString ));
 			if (WorkString.Substring(
-				startIndex: WorkString.IndexOf(value: "width", startIndex: 0) + 5,
-				length: WorkString.IndexOf(";", startIndex: WorkString.IndexOf("width", 0) + 5) - WorkString.IndexOf("width", 0)).Contains("px") == true)
+				startIndex: startInString,
+				length: endInString - startInString).Contains("px") == true)
 				{
 				Console.Write("\t = Pixels: ");
-				WorkString = WorkString.Substring(
-				startIndex: WorkString.IndexOf(value: "width", startIndex: 0) + 5,
-				length: (WorkString.IndexOf(";", startIndex: WorkString.IndexOf("width", 0) + 5) - 2) - (WorkString.IndexOf("width", 0) + 5));
+				WorkString = WorkString.Substring(startIndex: startInString, length: endInString - startInString -2);
 				Console.Write(WorkString);
 				int.TryParse(WorkString, out intValue);
 				}
 			else
 				{
 				Console.Write("\t = Percentage: ");
-				WorkString = WorkString.Substring(
-					startIndex: WorkString.IndexOf(value: "width", startIndex: 0) + 5,
-					length: (WorkString.IndexOf(";", startIndex: WorkString.IndexOf("width", 0) + 5) - 1) - (WorkString.IndexOf("width", 0) + 5));
+				WorkString = WorkString.Substring(startIndex: startInString, length: endInString - startInString - 1);
 				Console.Write(WorkString);
 				int.TryParse(WorkString, out intValue);
 				}

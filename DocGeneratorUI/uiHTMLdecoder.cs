@@ -537,7 +537,7 @@ namespace DocGeneratorUI
 		///      returns a boolean value of TRUE if insert was successfull and FALSE if there was any
 		///      form of failure during the insertion.
 		/// </returns>
-		public bool DecodeHTML(
+		public bool uiDecodeHTML(
 			ref MainDocumentPart parMainDocumentPart,
 			int parDocumentLevel,
 			string parHTML2Decode,
@@ -1024,8 +1024,12 @@ namespace DocGeneratorUI
 									parParagraphLevel: this.DocumentHierachyLevel + this.AdditionalHierarchicalLevel,
 									parPictureSeqNo: parImageCaptionCounter,
 									parImageURL: this.SharePointSiteURL + imageFileURL,
-									parEffectivePageTWIPSheight: this.PageHeightDxa,
-									parEffectivePageTWIPSwidth: this.PageWidthDxa);
+									parEffectivePageHeightDxa: this.PageHeightDxa,
+									parEffectivePageWidthDxa: this.PageWidthDxa,
+									parImageHeight: 0,
+									parImageHeightType: enumWidthHeightType.Percent,
+									parImageWidth: 0,
+									parImageWidthType: enumWidthHeightType.Percent);
 
 								objNewParagraph.Append(objRun);
 								}
