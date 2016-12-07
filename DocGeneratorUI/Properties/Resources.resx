@@ -142,25 +142,4 @@
   <data name="EmailAddress_TechnicalSupport" xml:space="preserve">
     <value>ben.vandenberg@za.didata.com</value>
   </data>
-  <data name="SharePointRESTuri" xml:space="preserve">
-    <value>/_vti_bin/listdata.svc</value>
-  </data>
-  <data name="SharePointSiteURL_Prod" xml:space="preserve">
-    <value>/sites/servicecatalogue</value>
-  </data>
-  <data name="SharePointSiteURL_Dev" xml:space="preserve">
-    <value>/sites/ServiceCatalogue</value>
-  </data>
-  <data name="SharePointSiteURL_QA" xml:space="preserve">
-    <value>/sites/uat-servicecatalogue</value>
-  </data>
-  <data name="SharePointURL_Dev" xml:space="preserve">
-    <value>https://teams.uat.dimensiondata.com</value>
-  </data>
-  <data name="SharePointURL_Prod" xml:space="preserve">
-    <value>https://teams.dimensiondata.com</value>
-  </data>
-  <data name="SharePointURL_QA" xml:space="preserve">
-    <value>https://teams.dimensiondata.com</value>
-  </data>
 </root>

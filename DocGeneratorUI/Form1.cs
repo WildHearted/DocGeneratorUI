@@ -21,9 +21,14 @@ namespace DocGeneratorUI
 	{
 	public partial class Form1:Form
 		{
-		private CompleteDataSet completeDataSet;
+		#region Variables
 		private static readonly Object lockThreadDatRefresh = new Object();
+		DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext sddpDataContext;
+		DocGeneratorCore.enumPlatform platform;
 
+		#endregion
+
+		#region Properties
 		public enumDocumentTypes DocumentType { get; private set; }
 		public Boolean UnhandledError { get; private set; }
 		public List<string> ErrorMessages { get; private set; } = new List<string>();
@@ -40,6 +45,9 @@ namespace DocGeneratorUI
 		public Boolean Introductory_Section { get; private set; }
 		public Boolean Introduction { get; private set; }
 
+		#endregion
+
+		#region Methods
 		public Form1()
 			{
 			Thread.CurrentThread.Name = "MainGUI";
@@ -48,42 +56,53 @@ namespace DocGeneratorUI
 
 		private void Form1_Load(object sender, EventArgs e)
 			{
-			if(this.completeDataSet == null)
+
+			if(Properties.Settings.Default.LastSelectedPlatform.IndexOf(value: "prod", startIndex: 0, comparisonType: StringComparison.OrdinalIgnoreCase) >= 0)
 				{
-				this.completeDataSet = new CompleteDataSet();
-				this.statusStrip1.Text = "Dataset not cached yet.";
-				this.statusStrip1.ForeColor = System.Drawing.Color.Maroon;
+				this.radioButtonPROD.Checked = true;
+				}
+			else if (Properties.Settings.Default.LastSelectedPlatform.IndexOf(value: "q", startIndex: 0, comparisonType: StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+				this.radioButtonQA.Checked = true;
+				}
+			else if (Properties.Settings.Default.LastSelectedPlatform.IndexOf(value: "dev", startIndex: 0, comparisonType: StringComparison.OrdinalIgnoreCase) >= 0)
+				{
+				this.radioButtonDEV.Checked = true;
 				}
 			
 			Application.DoEvents();
 			}
 
-		private void button1_Click(object sender, EventArgs e)
+		private void buttonGenerateAll_Click(object sender, EventArgs e)
 			{
 
-			if(this.comboBoxPlatform.SelectedItem == null 
-				|| this.comboBoxPlatform.ToString().StartsWith("Select"))
+			if (this.radioButtonDEV.Checked)
+				platform = enumPlatform.Development;
+			else if (this.radioButtonPROD.Checked)
+				platform = enumPlatform.Production;
+			else if (this.radioButtonQA.Checked)
+				platform = enumPlatform.QualityAssurance;
+			else
 				{
 				MessageBox.Show(
 					text: "Please specify a Platform before proceeding.",
 					caption: "No Platform specified",
 					buttons: MessageBoxButtons.OK,
 					icon: MessageBoxIcon.Error);
-				this.comboBoxPlatform.Focus();
+				this.groupBoxPlatform.Focus();
 				return;
 				}
 
+			Console.WriteLine("Platform: {0}", platform);
 			Cursor.Current = Cursors.WaitCursor;
 
-
-			String strExceptionMessage = String.Empty;
-			// Initialise the listDocumentCollections object if it is null.
+			//-| Initialise the listDocumentCollections object if it is null.
 			List<DocumentCollection> listDocumentCollections = new List<DocumentCollection>();
-
+			string strExceptionMessage = string.Empty;
 			try
 				{
 				var dsDocCollections = 
-					from dsDocumentCollection in this.completeDataSet.SDDPdatacontext.DocumentCollectionLibrary
+					from dsDocumentCollection in sddpDataContext.DocumentCollectionLibrary
 					where dsDocumentCollection.GenerateActionValue != null
 					&& dsDocumentCollection.GenerateActionValue != "Save but don't generate the documents yet"
 					&& (dsDocumentCollection.GenerationStatus == enumGenerationStatus.Pending.ToString()
@@ -101,18 +120,20 @@ namespace DocGeneratorUI
 					else
 						objDocumentCollection.Title = recDocCollectionToGenerate.Title;
 					objDocumentCollection.DetailComplete = false;
-					// Add the DocumentCollection object to the listDocumentCollection
+					//-| Add the DocumentCollection object to the listDocumentCollection
 					listDocumentCollections.Add(objDocumentCollection);
 					}
 
-				// Check if there are any Document Collections to generate
+				//-| Check if there are any Document Collections to generate
 				if(listDocumentCollections.Count > 0)
 					{
 					foreach(DocumentCollection entryDocumentCollection in listDocumentCollections)
-						{// Invoke the DocGeneratorCore's MainController object MainProcess method
+						{
+						//-| Invoke the DocGeneratorCore's MainController object MainProcess method
 						MainController objMainController = new MainController();
 						objMainController.DocumentCollectionsToGenerate = listDocumentCollections;
-						objMainController.MainProcess(parDataSet: ref this.completeDataSet);
+						objMainController.Platform = Properties.Settings.Default.CurrentPlatform;
+						objMainController.MainProcess();
 						}
 					}
 
@@ -123,7 +144,8 @@ namespace DocGeneratorUI
 			catch(DataServiceClientException exc)
 				{
 				strExceptionMessage = "*** Exception ERROR ***: DocGeneratorServer cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint 
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult + "\nStatusCode: " + exc.StatusCode
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -141,7 +163,8 @@ namespace DocGeneratorUI
 			catch(DataServiceQueryException exc)
 				{
 				strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -159,7 +182,8 @@ namespace DocGeneratorUI
 			catch(DataServiceRequestException exc)
 				{
 				strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -177,7 +201,8 @@ namespace DocGeneratorUI
 			catch(DataServiceTransportException exc)
 				{
 				strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -197,7 +222,8 @@ namespace DocGeneratorUI
 				if(exc.HResult == -2146330330)
 					{
 					strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -215,7 +241,8 @@ namespace DocGeneratorUI
 				else if(exc.HResult == -2146233033)
 					{
 					strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-						+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+						+ Properties.Settings.Default.CurrentURLSharePoint
+						+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 						+ " Please check that the computer/server is connected to the Domain network "
 						+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 						+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -233,7 +260,8 @@ namespace DocGeneratorUI
 				else
 					{
 					strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-						+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+						+ Properties.Settings.Default.CurrentURLSharePoint
+						+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 						+ " Please check that the computer/server is connected to the Domain network "
 						+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 						+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -256,60 +284,62 @@ namespace DocGeneratorUI
 			
 			}
 
-//===B
-		private void button2_Click(object sender, EventArgs e)
+		//===B
+		private void buttonGenerateDocCollection_Click(object sender, EventArgs e)
 			{
-			// Validate the input
-
-			if(this.comboBoxPlatform.SelectedItem == null
-				|| this.comboBoxPlatform.ToString().StartsWith("Select"))
+			//-| Validate the input
+			if (this.radioButtonDEV.Checked)
+				platform = enumPlatform.Development;
+			else if (this.radioButtonPROD.Checked)
+				platform = enumPlatform.Production;
+			else if (this.radioButtonQA.Checked)
+				platform = enumPlatform.QualityAssurance;
+			else
 				{
 				MessageBox.Show(
 					text: "Please specify a Platform before proceeding.",
 					caption: "No Platform specified",
 					buttons: MessageBoxButtons.OK,
 					icon: MessageBoxIcon.Error);
-				this.comboBoxPlatform.Focus();
+				this.groupBoxPlatform.Focus();
 				return;
 				}
 
-			if(maskedTextBox1.Text == null || maskedTextBox1.Text == "")
+			Console.WriteLine("Platform: {0}", platform);
+
+			if (string.IsNullOrEmpty(this.textBoxDocumentCollection.Text))
 				{
 				MessageBox.Show("Please enter a numeric value, before clicking the Generate button",
 						"No value entred.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 				}
-			int intDocumentCollectionID;
-			bool bIsNumeric = int.TryParse(maskedTextBox1.Text.Trim(), out intDocumentCollectionID);
+			else
+				Console.WriteLine("Generate documents for DocumentCollection: {0}", this.textBoxDocumentCollection.Text);
+
+			int intDocumentCollectionID = 0;
+
+			bool bIsNumeric = int.TryParse(this.textBoxDocumentCollection.Text.Trim(), out intDocumentCollectionID);
+
 			if(!bIsNumeric)
 				{
 				MessageBox.Show("Only numeric values can be entered.",
 						"Invalid value entered.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 				}
-			// -----------------------------------
+			//-|Begin to process...
 			Cursor.Current = Cursors.WaitCursor;
-			if(this.completeDataSet.IsDataSetComplete)
-				{
-				this.toolStripStatusLabel.Text = "Dataset cached and ready.";
-				this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Green;
-				}
-			else
-				{
-				this.toolStripStatusLabel.Text = "Dataset is not cached, will be loaded now...";
-				this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Maroon;
-				}
-
+		
 			Application.DoEvents();
 
 			string strExceptionMessage = String.Empty;
-			// Initialise the listDocumentCollections object if it is null.
+			//-|Initialise the DocumentCollections List
 			List<DocumentCollection> listDocumentCollections = new List<DocumentCollection>();
 
 			try
 				{
+				//-|Read the Document Collection from SharePoint and load it into the Object model.
 				var dsDocumentCollections = 
-					from dsDC in this.completeDataSet.SDDPdatacontext.DocumentCollectionLibrary
+					from dsDC in sddpDataContext.DocumentCollectionLibrary
 					where dsDC.Id == intDocumentCollectionID
 					select dsDC;
 
@@ -324,7 +354,7 @@ namespace DocGeneratorUI
 					}
 				else
 					{
-					// Create a DocumentCollection instance and populate the basic attributes.
+					//-|Create a DocumentCollection instance and populate the basic attributes.
 					Application.DoEvents();
 					DocumentCollection objDocumentCollection = new DocumentCollection();
 					objDocumentCollection.ID = objDocCollection.Id;
@@ -334,26 +364,26 @@ namespace DocGeneratorUI
 						objDocumentCollection.Title = objDocCollection.Title;
 
 					objDocumentCollection.DetailComplete = false;
-					// Add the DocumentCollection object to the listDocumentCollection
+					//-|Add the DocumentCollection object to the DocumentCollection List
 					listDocumentCollections.Add(objDocumentCollection);
 					}
 				Application.DoEvents();
-
-				Console.WriteLine("Is the DataSet complete? [{0}]", this.completeDataSet.IsDataSetComplete);
 				
-				// Check if there are any Document Collections to generate
+				//-|Check if there are any Document Collections to generate
 				if(listDocumentCollections.Count > 0)
 					{
-					// Invoke the DocGeneratorCore's MainController object MainProcess method and send all the entries for processing
+					//-| Invoke the DocGeneratorCore's **MainController** object and send all the Document Collections entries for generation.
 					MainController objMainController = new MainController();
 					objMainController.DocumentCollectionsToGenerate = listDocumentCollections;
-					objMainController.MainProcess(parDataSet: ref this.completeDataSet);
+					objMainController.Platform = Properties.Settings.Default.CurrentPlatform;
+					objMainController.MainProcess();
 					}
 				}
 			catch(DataServiceClientException exc)
 				{
 				strExceptionMessage = "*** Exception ERROR ***: DocGeneratorUI cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult + "\nStatusCode: " + exc.StatusCode
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -371,7 +401,8 @@ namespace DocGeneratorUI
 					MessageBox.Show("An Authenication error occurred for Account: " 
 						+ Properties.Resources.DocGenerator_AccountName 
 						+ " is not authorised to access: " 
-						+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+						+ Properties.Settings.Default.CurrentURLSharePoint
+						+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 						+ "\nPlease check if the password has not expired." ,
 						"Unauthorised.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 					}
@@ -386,7 +417,8 @@ namespace DocGeneratorUI
 			catch(DataServiceRequestException exc)
 				{
 				strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -399,7 +431,8 @@ namespace DocGeneratorUI
 			catch(DataServiceTransportException exc)
 				{
 				strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-					+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+					+ Properties.Settings.Default.CurrentURLSharePoint
+					+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 					+ " Please check that the computer/server is connected to the Domain network "
 					+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 					+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -409,12 +442,23 @@ namespace DocGeneratorUI
 					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 				return;
 				}
-			catch(Exception exc)
+			catch (LocalDatabaseCreationExeption exc)
+				{
+				strExceptionMessage = "*** Exception ERROR ***: Cannot create the local Database for " + platform + "\n " + exc.Message;
+				Application.DoEvents();
+				Cursor.Current = Cursors.Default;
+				MessageBox.Show(strExceptionMessage,
+					"Unable to generatate any documents.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+				return;
+				}
+
+			catch (Exception exc)
 				{
 				if(exc.HResult == -2146330330)
 					{
 					strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-						+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+						+ Properties.Settings.Default.CurrentURLSharePoint
+						+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 						+ " Please check that the computer/server is connected to the Domain network "
 						+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 						+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -427,7 +471,8 @@ namespace DocGeneratorUI
 				else if(exc.HResult == -2146233033)
 					{
 					strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-						+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+						+ Properties.Settings.Default.CurrentURLSharePoint
+						+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 						+ " Please check that the computer/server is connected to the Domain network "
 						+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 						+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -440,7 +485,8 @@ namespace DocGeneratorUI
 				else
 					{
 					strExceptionMessage = "*** Exception ERROR ***: Cannot access site: " 
-						+ completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL
+						+ Properties.Settings.Default.CurrentURLSharePoint
+						+ Properties.Settings.Default.CurrentURLSharePointSitePortion
 						+ " Please check that the computer/server is connected to the Domain network "
 						+ " \n \nMessage:" + exc.Message + "\n HResult: " + exc.HResult
 						+ " \nInnerException: " + exc.InnerException + "\nStackTrace: " + exc.StackTrace;
@@ -456,80 +502,32 @@ namespace DocGeneratorUI
 				Cursor.Current = Cursors.Default;
 				}
 
-			if(this.completeDataSet.IsDataSetComplete)
-				{
-				this.statusStrip1.Text = "Dataset cached and ready.";
-				this.statusStrip1.ForeColor = System.Drawing.Color.Green;
-				}
-			else
-				{
-				this.statusStrip1.Text = "Dataset is not cached.";
-				this.statusStrip1.ForeColor = System.Drawing.Color.Maroon;
-				}
-
-			MessageBox.Show("Successfully completed the generation of Document Collection: " + maskedTextBox1.Text
+			MessageBox.Show("Successfully completed the generation of Document Collection: " + this.textBoxDocumentCollection.Text
 				+ " \nClick it again to generate the same Document Collection or enter another number...",
 				"Generation successfully completed.", MessageBoxButtons.OK, MessageBoxIcon.Information);
 			}
 
-		/// <summary>
-		///  This timer is fired every 60 seconds, to check if something changed in the dataset and to 
-		///  refresh it if any data changed...
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void timerCheckDataset_Tick(object sender, EventArgs e)
-			{
-			Console.WriteLine("TTTT - TimerEvent: timerCheckDataSet");
-			Thread.CurrentThread.Name = "PopulateDataset";
-			DataCache datacashDataSet = new DataCache();
-			//- Define and launch a separate thread that will begin to opulate the dataset.
-			Thread threadPopulateDataset = new Thread(() => datacashDataSet.Populate_DataSet(ref completeDataSet));
-			threadPopulateDataset.Name = "PopulateDataset";
-			threadPopulateDataset.Start();
-			}
-
-		private void timerCheckDataSetStatus_Tick(object sender, EventArgs e)
-			{
-			if(this.completeDataSet == null)
-				{
-				this.toolStripStatusLabel.Text = "DataSet Cache not loaded. ";
-				this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Red;
-				Application.DoEvents();
-				}
-			else
-				{
-				if(this.completeDataSet.IsDataSetComplete == false)
-					{
-					this.toolStripStatusLabel.Text = "DataSet Cache incomplete.. ";
-					this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Orange;
-					Application.DoEvents();
-					}
-				else
-					{
-					this.toolStripStatusLabel.Text = "Dataset Cashe Loaded.";
-					this.toolStripStatusLabel.ForeColor = System.Drawing.Color.Green;
-					Application.DoEvents();
-					}
-				}
-			}
 
 		private void buttonSendEmail_Click(object sender, EventArgs e)
 			{
-			if(this.comboBoxPlatform.SelectedItem == null
-				|| this.comboBoxPlatform.ToString().StartsWith("Select"))
+			if (this.radioButtonDEV.Checked
+			|| this.radioButtonPROD.Checked
+			|| this.radioButtonQA.Checked)
+				{ }
+			else
 				{
 				MessageBox.Show(
 					text: "Please specify a Platform before proceeding.",
 					caption: "No Platform specified",
 					buttons: MessageBoxButtons.OK,
 					icon: MessageBoxIcon.Error);
-				this.comboBoxPlatform.Focus();
+				this.groupBoxPlatform.Focus();
 				return;
 				}
 
+
 			// Validate the e-mail input
-			if(textBoxEmail.Text == null || textBoxEmail.Text == "")
+			if (textBoxEmail.Text == null || textBoxEmail.Text == "")
 				{
 				MessageBox.Show("Please enter an email address before clicking the Send Email button",
 						"No Email adddress entered.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -580,8 +578,7 @@ namespace DocGeneratorUI
 			if(objUserSuccessEmail.ComposeHTMLemail(enumEmailType.UserSuccessfulConfirmation))
 				{
 				bool bSuccessfulSentEmail = objUserSuccessEmail.SendEmail(
-					parDataSet: ref completeDataSet,
-					parRecipient: this.textBoxEmail.Text,
+					parReceipient: this.textBoxEmail.Text,
 					parSubject: "SDDP: End User Document Generation Confirmation Message (Sample)",
 					parSendBcc: false);
 
@@ -609,20 +606,23 @@ namespace DocGeneratorUI
 
 		private void buttonSendTechnicalEmail_Click(object sender, EventArgs e)
 			{
-			if(this.comboBoxPlatform.SelectedItem == null
-				|| this.comboBoxPlatform.ToString().StartsWith("Select"))
+			if (this.radioButtonDEV.Checked
+			|| this.radioButtonPROD.Checked
+			|| this.radioButtonQA.Checked)
+				{ }
+			else
 				{
 				MessageBox.Show(
 					text: "Please specify a Platform before proceeding.",
 					caption: "No Platform specified",
 					buttons: MessageBoxButtons.OK,
 					icon: MessageBoxIcon.Error);
-				this.comboBoxPlatform.Focus();
+				this.groupBoxPlatform.Focus();
 				return;
 				}
 
 			// Validate the e-mail input
-			if(textBoxEmail.Text == null || textBoxEmail.Text == "")
+			if (textBoxEmail.Text == null || textBoxEmail.Text == "")
 				{
 				MessageBox.Show("Please enter an email address before clicking the Send Email button",
 						"No Email adddress entered.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -674,8 +674,7 @@ namespace DocGeneratorUI
 			if(objTechnicalEmail.ComposeHTMLemail(enumEmailType.TechnicalSupport))
 				{
 				bool bSuccessfulSentEmail = objTechnicalEmail.SendEmail(
-					parDataSet: ref completeDataSet,
-					parRecipient: this.textBoxEmail.Text,
+					parReceipient: this.textBoxEmail.Text,
 					parSubject: "SDDP: Technical Support email (Sample)",
 					parSendBcc: false);
 
@@ -702,20 +701,23 @@ namespace DocGeneratorUI
 
 		private void buttonSendUserErrorEmail_Click(object sender, EventArgs e)
 			{
-			if(this.comboBoxPlatform.SelectedItem == null
-				|| this.comboBoxPlatform.ToString().StartsWith("Select"))
+			if (this.radioButtonDEV.Checked
+			|| this.radioButtonPROD.Checked
+			|| this.radioButtonQA.Checked)
+				{ }
+			else
 				{
 				MessageBox.Show(
 					text: "Please specify a Platform before proceeding.",
 					caption: "No Platform specified",
 					buttons: MessageBoxButtons.OK,
 					icon: MessageBoxIcon.Error);
-				this.comboBoxPlatform.Focus();
+				this.groupBoxPlatform.Focus();
 				return;
 				}
 
 			// Validate the e-mail input
-			if(textBoxEmail.Text == null || textBoxEmail.Text == "")
+			if (textBoxEmail.Text == null || textBoxEmail.Text == "")
 				{
 				MessageBox.Show("Please enter an email address before clicking the Send Email button",
 						"No Email adddress entered.", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -748,8 +750,7 @@ namespace DocGeneratorUI
 			if(objUserSuccessEmail.ComposeHTMLemail(enumEmailType.UserErrorConfirmation))
 				{
 				bool bSuccessfulSentEmail = objUserSuccessEmail.SendEmail(
-					parDataSet: ref completeDataSet,
-					parRecipient: this.textBoxEmail.Text,
+					parReceipient: this.textBoxEmail.Text,
 					parSubject: "SDDP: End User Document Generation Confirmation Error Message (Sample)",
 					parSendBcc: false);
 
@@ -772,40 +773,6 @@ namespace DocGeneratorUI
 				MessageBox.Show("The application could not compile the HTML e-mail, please report it to the SDDP System Administator.",
 					"The HTML e-mail compile FAILED.", MessageBoxButtons.OK, MessageBoxIcon.Stop);
 				}
-			}
-
-		private void comboBoxPlatform_SelectedIndexChanged(object sender, EventArgs e)
-			{
-			if(this.comboBoxPlatform.SelectedItem.ToString() == "Development Environment")
-				{//- Development Environment
-				completeDataSet.SharePointSiteURL = Properties.Resources.SharePointURL_Dev;
-				completeDataSet.SharePointSiteSubURL = Properties.Resources.SharePointSiteURL_Dev;
-				completeDataSet.IsDataSetComplete = false;
-				}
-			else if(this.comboBoxPlatform.SelectedItem.ToString() == "Quality Assurance Environment")
-				{//- QA Environment
-				completeDataSet.SharePointSiteURL = Properties.Resources.SharePointURL_QA;
-				completeDataSet.SharePointSiteSubURL = Properties.Resources.SharePointSiteURL_QA;
-				completeDataSet.IsDataSetComplete = false;
-				}
-			else
-				{//- Production Environment
-				completeDataSet.SharePointSiteURL = Properties.Resources.SharePointURL_Prod;
-				completeDataSet.SharePointSiteSubURL = Properties.Resources.SharePointSiteURL_Prod;
-				completeDataSet.IsDataSetComplete = false;
-				}
-
-			//- Initiate the SharePoint Datacontext...
-			this.completeDataSet.SDDPdatacontext = new DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext(
-					new Uri(completeDataSet.SharePointSiteURL + completeDataSet.SharePointSiteSubURL + Properties.Resources.SharePointRESTuri));
-
-			this.completeDataSet.SDDPdatacontext.Credentials = new NetworkCredential(
-				userName: Properties.Resources.DocGenerator_AccountName,
-				password: Properties.Resources.DocGenerator_Account_Password,
-				domain: Properties.Resources.DocGenerator_AccountDomain);
-
-			this.completeDataSet.SDDPdatacontext.MergeOption = MergeOption.NoTracking;
-
 			}
 
 		private void buttonTestHTML_Click(Object sender, EventArgs e)
@@ -863,7 +830,7 @@ namespace DocGeneratorUI
 							}
 						else
 							{
-							cleanText = CleanText(node.InnerText, clientName);
+							cleanText = HTMLdecoder.CleanText(node.InnerText, clientName);
 							if(cleanText != String.Empty)
 								Console.Write(" <{0}>|{1}|", node.Name, cleanText);
 							}
@@ -878,7 +845,7 @@ namespace DocGeneratorUI
 							}
 						else
 							{
-							cleanText = CleanText(node.InnerText, clientName);
+							cleanText = HTMLdecoder.CleanText(node.InnerText, clientName);
 							if(cleanText != String.Empty)
 								{
 								headingLevel = 0;
@@ -919,7 +886,7 @@ namespace DocGeneratorUI
 					case "p":
 						{
 						//-Get the number of bullet - and number - levels in the xPath
-						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						bulletNumberLevels = HTMLdecoder.GetBulletNumberLevels(node.XPath);
 						bulletLevel = bulletNumberLevels.Item1;
 						numberLevel = bulletNumberLevels.Item2;
 
@@ -996,7 +963,7 @@ namespace DocGeneratorUI
 					case "li":
 						{
 						//-Get the number of bullet- and number- levles in the xPath
-						bulletNumberLevels = GetBulletNumberLevels(node.XPath);
+						bulletNumberLevels = HTMLdecoder.GetBulletNumberLevels(node.XPath);
 						bulletLevel = bulletNumberLevels.Item1;
 						numberLevel = bulletNumberLevels.Item2;
 						
@@ -1329,99 +1296,6 @@ namespace DocGeneratorUI
 	
 			}
 
-		private static string CleanText (string parText, string parClientName)
-			{
-			//!The sequence in which these statements appear is important
-
-			//-keep this code for debugging purposes if strange/unwanted characters appear.
-			/*for(int i = 0; i < parText.Length; i++)
-				{
-				Console.Write("|" + ((int)parText[i]).ToString());
-				}
-			*/
-
-			string cleanText = parText;
-			cleanText = cleanText.Replace(((char)8203).ToString(),"");
-			cleanText = cleanText.Replace("&#160;", " "); //-remove *Hard space* characters
-			cleanText = cleanText.Replace("     ", " ");		//-cleanup any *5* spaces
-			cleanText = cleanText.Replace("   ", " ");		//-cleanup any *triple* spaces
-			cleanText = cleanText.Replace("  ", " ");         //-cleanup any *double* spaces
-			//cleanText = cleanText.Replace("\r ", "");		//- remove carraige *return* characters
-			cleanText = cleanText.Replace("\r", "");		//- remove carraige *return* characters
-			//cleanText = cleanText.Replace("\n ", "");		//-remove *New Line* characters
-			cleanText = cleanText.Replace("\n", "");          //-remove *New Line* characters
-			cleanText = cleanText.Replace("\t", "");          //-remove *Tab* characters
-			if(cleanText == " " || cleanText == "  " || cleanText == "   ")
-				cleanText = "";                              //-cleanup the string if it contains only a space.
-
-			//-Replace ClientName #tag with actual value
-			cleanText = cleanText.Replace("#ClientName#", parClientName);
-			cleanText = cleanText.Replace("#clientname#", parClientName);
-			cleanText = cleanText.Replace("#CLIENTNAME#", parClientName);
-
-			return cleanText;
-			}
-
-		private static Tuple<int, int> GetBulletNumberLevels (string parXpath)
-			{
-			int bulletLevels = 0;
-			int numberLevels = 0;	
-			int positionInString = 0;
-
-			//+Check the number of **Headings** </h> tags
-			//-Check if the xPath contains any bullets
-			positionInString = 0;
-
-			//+Check the number of **Unorganised List** </ul> tags
-			//-Check if the xPath contains any bullets
-			positionInString = 0;
-			if(parXpath.Contains("/ul"))
-				{ //- if it contains bullets, count the number of bullets
-				for(int i = 0; i < parXpath.Length - 1;)
-					{
-					//-get the ocurrences of bullets
-					positionInString = parXpath.IndexOf("/ul", i);
-					if(positionInString >= 0)
-						{
-						bulletLevels += 1;
-						i = positionInString + 3;
-						}
-					else if(positionInString < 0)
-						break;
-					}
-				}
-			else //-If it doesn't contain any bullets, set **bulletLevels** to 0
-				{
-				bulletLevels = 0;
-				}
-
-			//+Check the number of **Organised List** </ol> tags
-			//-Check if the xPath contains any **Organised Lists** (Numbered tags).
-			positionInString = 0;
-			if(parXpath.Contains("/ol"))
-				{ //- if it contains any, count the number of occurrences
-				for(int i = 0; i < parXpath.Length - 1;)
-					{
-					//-get the ocurrences of tags
-					positionInString = parXpath.IndexOf("/ol", i);
-					if(positionInString >= 0)
-						{
-						numberLevels += 1;
-						i = positionInString + 3;
-						}
-					else if(positionInString < 0)
-						break;
-
-					}
-				}
-			else //-If it doesn't contain any numbers, set **numberLevels** to 0
-				{
-				numberLevels = 0;
-				}
-
-			//-Return the counted occurrences
-			return new Tuple<int, int>(bulletLevels, numberLevels);
-			}
 
 
 		private void buttonGenerateTestDoc_Click(Object sender, EventArgs e)
@@ -1476,7 +1350,7 @@ namespace DocGeneratorUI
 					parDocumentOrWorkbook: enumDocumentOrWorkbook.Document,
 					parTemplateURL: this.Template,
 					parDocumentType: this.DocumentType,
-					parDataSet: ref this.completeDataSet))
+					parSDDPdataContext: sddpDataContext))
 					{
 					Console.WriteLine("\t\t objOXMLdocument:\n" +
 					"\t\t\t+ LocalDocumentPath: {0}\n" +
@@ -1570,9 +1444,8 @@ namespace DocGeneratorUI
 					{
 					//Insert and embed the hyperlink image in the document and keep the Image's Relationship ID in a variable for repeated use
 					hyperlinkImageRelationshipID = oxmlDocument.Insert_HyperlinkImage(parMainDocumentPart: ref objMainDocumentPart,
-						parDataSet: ref this.completeDataSet);
+					parSDDPdatacontext: sddpDataContext);
 					}
-
 
 				//Check is Content Layering was requested and add a Ledgend for the colour coding of content
 				if(this.ColorCodingLayer1 || this.ColorCodingLayer2)
@@ -1646,20 +1519,21 @@ namespace DocGeneratorUI
 					//+Load the HTML data from a file in the TestData directory
 					string myPath = @"E:\Development\Projects\DocGeneratorGUI\DocGeneratorUI\TestData\";
 					//string htmlFilename = @myPath + "HTMLtestPage_ComplexTable.html";
-					string htmlFilename = @myPath + "HTMLtestPage_Everything.html";
+					//string htmlFilename = @myPath + "HTMLtestPage_Everything.html";
+					//string htmlFilename = @myPath + "HTMLtestPage_ParagraphNumbering.html";
+					string htmlFilename = @myPath + "HTMLtestPage_ProblemContent.html";
 					//string htmlFilename = @myPath + "HTMLtestPage_ProblemContent_All.html";
+
 					htmlString = System.IO.File.ReadAllText(@htmlFilename);
 
 					if(htmlString != null)
 						{
 						try
 							{
-							
-							htmlString = HTMLdecoder.CleanHTML(htmlString, parClientName);
-							
+														
 							objHTMLdecoder.DecodeHTML(
 								parMainDocumentPart: ref objMainDocumentPart,
-								parDocumentLevel: 2,
+								parDocumentLevel: 1,
 								parTableCaptionCounter: ref intTableCaptionCounter,
 								parImageCaptionCounter: ref intImageCaptionCounter,
 								parNumberingCounter: ref numberingCounter,
@@ -1669,7 +1543,7 @@ namespace DocGeneratorUI
 								parPageWidthDxa: this.PageWith,
 								parHyperlinkID: ref intHyperlinkCounter,
 								parSharePointSiteURL: @"https:\\teams.dimensiondata.com\sites\servicecatalogue\",
-								parHTML2Decode: htmlString);
+								parHTML2Decode: HTMLdecoder.CleanHTML(htmlString, parClientName));
 							}
 						catch(InvalidContentFormatException exc)
 							{
@@ -1725,16 +1599,18 @@ namespace DocGeneratorUI
 					{
 					errorCount += 1;
 					Console.WriteLine("------------- # {0} -------------", errorCount);
-					Console.WriteLine("Error ID...........: {0}", validationError.Id);
-					Console.WriteLine("Description........: {0}", validationError.Description);
-					Console.WriteLine("Error Type.........: {0}", validationError.ErrorType);
-					Console.WriteLine("Error Part.........: {0}", validationError.Part.Uri);
-					Console.WriteLine("Error Related Part.: {0}", validationError.RelatedPart);
-					Console.WriteLine("Error Path.........: {0}", validationError.Path.XPath);
-					Console.WriteLine("Error Path PartUri.: {0}", validationError.Path.PartUri);
-					Console.WriteLine("Error Node.........: {0}", validationError.Node);
-					Console.WriteLine("Error Related Node.: {0}", validationError.RelatedNode);
-					Console.WriteLine("Node Local Name....: {0}", validationError.Node.LocalName);
+					Console.WriteLine("Error ID................: {0}", validationError.Id);
+					Console.WriteLine("Description.............: {0}", validationError.Description);
+					Console.WriteLine("Error Type..............: {0}", validationError.ErrorType);
+					Console.WriteLine("Error Part..............: {0}", validationError.Part.Uri);
+					Console.WriteLine("Root Element............: {0}", validationError.Part.RootElement);
+					Console.WriteLine("Error Path..............: {0}", validationError.Path.XPath);
+					Console.WriteLine("Error Path PartUri......: {0}", validationError.Path.PartUri);
+					Console.WriteLine("Error Node..............: {0}", validationError.Node);
+					Console.WriteLine("Error Related Node......: {0}", validationError.RelatedNode);
+					Console.WriteLine("Node Local Name.........: {0}", validationError.Node.LocalName);
+					Console.WriteLine("Node Prefix.............: {0}", validationError.Node.Prefix);
+					Console.WriteLine("Node XML Qualifier Name.: {0}", validationError.Node.XmlQualifiedName);
 					}
 
 				Console.WriteLine("Document generation completed, saving and closing the document.");
@@ -1878,5 +1754,71 @@ namespace DocGeneratorUI
 				int.TryParse(WorkString, out intValue);
 				}
 			}
+
+		private void radioButtonPROD_CheckedChanged(object sender, EventArgs e)
+			{
+			if(this.radioButtonPROD.Checked)
+				{
+				Properties.Settings.Default.LastSelectedPlatform = "Production";
+				Properties.Settings.Default.Save();
+				Properties.Settings.Default.CurrentDatabaseHost = Dns.GetHostName();
+				Properties.Settings.Default.CurrentPlatform = DocGeneratorCore.enumPlatform.Production.ToString();
+				Properties.Settings.Default.CurrentDatabaseLocation = Properties.Settings.Default.DatabaseLocationPROD;
+				Properties.Settings.Default.CurrentSDDPwebReference = Properties.Settings.Default.SDDPwebReferencePROD;
+				Properties.Settings.Default.CurrentURLSharePoint = Properties.Settings.Default.URLSharePointPROD;
+				Properties.Settings.Default.CurrentURLSharePointSitePortion = Properties.Settings.Default.URISharePointSitePortionPROD;
+				SetDataContext();
+				
+				}
+			}
+
+		private void radioButtonQA_CheckedChanged(object sender, EventArgs e)
+			{
+			if (this.radioButtonQA.Checked)
+				{
+				Properties.Settings.Default.LastSelectedPlatform = "QA";
+				Properties.Settings.Default.Save();
+				Properties.Settings.Default.CurrentDatabaseHost = Dns.GetHostName();
+				Properties.Settings.Default.CurrentPlatform = DocGeneratorCore.enumPlatform.QualityAssurance.ToString();
+				Properties.Settings.Default.CurrentDatabaseLocation = Properties.Settings.Default.DatabaseLocationQA;
+				Properties.Settings.Default.CurrentSDDPwebReference = Properties.Settings.Default.SDDPwebReferenceQA;
+				Properties.Settings.Default.CurrentURLSharePoint = Properties.Settings.Default.URLSharePointQA;
+				Properties.Settings.Default.CurrentURLSharePointSitePortion = Properties.Settings.Default.URISharePointSitePortionQA;
+				SetDataContext();
+				}
+			}
+
+		private void radioButtonDEV_CheckedChanged(object sender, EventArgs e)
+			{
+			if (this.radioButtonDEV.Checked)
+				{
+				Properties.Settings.Default.LastSelectedPlatform = "Development";
+				Properties.Settings.Default.Save();
+				Properties.Settings.Default.CurrentPlatform = DocGeneratorCore.enumPlatform.Development.ToString();
+				Properties.Settings.Default.CurrentDatabaseLocation = Properties.Settings.Default.DatabaseLocationDEV;
+				Properties.Settings.Default.CurrentSDDPwebReference = Properties.Settings.Default.SDDPwebReferenceDEV;
+				Properties.Settings.Default.CurrentURLSharePoint = Properties.Settings.Default.URLSharePointDEV;
+				Properties.Settings.Default.CurrentURLSharePointSitePortion = Properties.Settings.Default.URISharePointSitePortionDEV;
+				SetDataContext();
+				}
+			}
+
+		private void SetDataContext()
+			{
+			//- Initiate the SharePoint Datacontext...
+			sddpDataContext = new DocGeneratorCore.SDDPServiceReference.DesignAndDeliveryPortfolioDataContext(new
+					Uri(Properties.Settings.Default.CurrentURLSharePoint
+							+ Properties.Settings.Default.CurrentURLSharePointSitePortion
+							+ Properties.Settings.Default.SharePointRESTuri));
+
+			sddpDataContext.Credentials = new NetworkCredential(
+				userName: Properties.Resources.DocGenerator_AccountName,
+				password: Properties.Resources.DocGenerator_Account_Password,
+				domain: Properties.Resources.DocGenerator_AccountDomain);
+
+			sddpDataContext.MergeOption = MergeOption.NoTracking;
+
+			}
+		#endregion
 		}
 	}

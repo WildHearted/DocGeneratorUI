@@ -1,7 +1,75 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="DocGeneratorUI.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="SDDPwebReferencePROD" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://teams.dimensiondata.com/_vti_bin/copy.asmx</Value>
+    </Setting>
+    <Setting Name="DatabaseLocationPROD" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\Database\Production</Value>
+    </Setting>
+    <Setting Name="DatabaseLocationQA" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\Database\QualityAssurance</Value>
+    </Setting>
+    <Setting Name="DatabaseLocationLicense" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">\Database\License</Value>
+    </Setting>
+    <Setting Name="LastSelectedPlatform" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentDatabaseHost" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentDatabasePopulated" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CurrentDatabaseLastRefreshedOn" Type="System.DateTime" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentDatabaseLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentSDDPwebReference" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentURLSharePoint" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentURLSharePointSitePortion" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="DatabaseLocationDEV" Type="System.String" Scope="User">
+      <Value Profile="(Default)">\Database\Development</Value>
+    </Setting>
+    <Setting Name="SDDPwebReferenceDEV" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://teams.uat.dimensiondata.com/_vti_bin/copy.asmx</Value>
+    </Setting>
+    <Setting Name="SDDPwebReferenceQA" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://teams.dimensiondata.com/_vti_bin/copy.asmx</Value>
+    </Setting>
+    <Setting Name="URLSharePointDEV" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://teams.uat.dimensiondata.com</Value>
+    </Setting>
+    <Setting Name="URLSharePointPROD" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://teams.dimensiondata.com</Value>
+    </Setting>
+    <Setting Name="URLSharePointQA" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://teams.dimensiondata.com</Value>
+    </Setting>
+    <Setting Name="CurrentPlatform" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="URISharePointSitePortionPROD" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/sites/ServiceCatalogue</Value>
+    </Setting>
+    <Setting Name="URISharePointSitePortionQA" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/sites/uat-servicecatalogue</Value>
+    </Setting>
+    <Setting Name="URISharePointSitePortionDEV" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/sites/ServiceCatalogue</Value>
+    </Setting>
+    <Setting Name="SharePointRESTuri" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">/_vti_bin/listdata.svc</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

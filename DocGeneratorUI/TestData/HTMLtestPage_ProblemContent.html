@@ -1,15 +1,1144 @@
-﻿<div class="ExternalClassB9E123D33C0B4791A8E36F68F1370724">
-	<h1>Introduction to <span style="text-decoration&#58;underline;">Content Authoring</span></h1>
-	<p>Most of the time, it seems straight forward to capture text, images and tables into documents like in MS Word, but with the Service Design and Development Portfolio (SDDP)System,&#160;things works a little different. The SDDP is an online system that is build/based/hosted as a SharePoint solution. Capturing content in an online system is a little different to writing/authoring MS Word documents, although the principles are the same.</p>
-	<p>In the SDDP system, some content is captured as plain text fields (words without any formatting) and other content is captured as Enhanced Rich Text (ERT) content. Enhances Rich Text content are in essence words (text) but it includes formatting, tables and images/pictures and other forms of media as well. </p>
-	<p>Depending on selections via the user interface (UI), the SharePoint content is processed by a server service application (the DocGenerator),&#160;and automatically author&#160;various MS Word and MS Excel documents.</p>
-	<h2>Plain Text</h2>
-	<p>SDDP store some&#160;content as Plain Text fields, which is&#160;pure text that doesn't contain any formatting or other types of artefacts. Therefore, there are very seldom any complications with Plain Text content.</p>
-	<h2>Enhanced Rich Text</h2>
-	<p>Enhanced Rich Text (ERT) fields are stored as HTML. As you may know, HTML (Hypertext Mark-up Language) content can consist of text,&#160;formatting information and other artefacts like images, tables etc. The formatting&#160;indicates how the text and other artefacts are formatted and presented to the user. Most internet web sites are HTML which the browser you use, translates and displays as the web page you see on a monitor. The format “instructions” in HTML consist of a defined set of HTML tags. For example a &quot;p&quot; in sharp brackets (&lt;&gt; with a p between the brackets. We cannot put the p in the brackets because HTML will interpret it and insert a paragraph instead of displaying the example.)&#160;The tag&#160;H1 in sharp brackets&#160;means a&#160; separate Heading 1 paragraph.</p>
-	<p>Each ERT field contains the text and the various HTML tags that indicate <strong>how</strong> the text is formatted.</p>
-	<p>The DocGenerator&#160;reads, the HTML content, interpret it and then extrapolate it to construct the relevant documents and/or workbooks. The DocGenerator reads the HTML contained in an ERT field,&#160;then deciphers the HTML to determine the format of the text and each artefacts contained in the content. If the ERT content&#160;is <em>valid </em>and it contains sufficient format information for the DocGenerator to include it in the document, it translates the <strong>HTML </strong>into an <span style="text-decoration&#58;underline;">Open XML </span>format, which is the basis of all Microsoft Office and Adobe Acrobat documents.&#160;</p>
-	<p>When the DocGenerator cannot determine how author intended the text and artefacts (tables or images) to be formatted, based on the HTML, it will indicate that the specific “generated” document contains content that it cannot interpret to produce a properly formatted document.</p>
-	<p>Therefore, this purpose of this document is to provide you with a guideline, directions and tips on how to author valid and properly formatted content that the DocGenerator will be able to successfully read and translate,&#160;when it produce a document or workbook.</p>
-	<h2>Tables</h2>
+﻿<h1>Introduction</h1>
+<h2>Purpose</h2>
+<p>This internal service definition (ISD) document provides information required to define Dimension Data's Managed Services for Enterprise Networks.It documents the service products scope including; supported vendor, service features, service elements and deliverables, service level targets, and exclusions. It details the supporting service delivery model including people, processes, and systems.This ISD references the Services go to market, commercial strategy, and approach. This ISD does not necessarily cover all possible detail, but references other collateral with domain-specific information.</p>
+<p>The ISD as been developed by the Group Networking Managed Services Portfolio Director,the Enterprise Services Networking and Communications Portfolio Director, Group Service Design and Development, functional work streams, and the Dimension Data regions. This service description replaces the existing MSEN internal service description.</p>
+<h2>Audience</h2>
+<p>This internal service definition document is for internal usage only.</p>
+<h2>Terms, acronyms and definitions</h2>
+<p>This document complies with Dimension Data Group Services standard terms as listed in the Dimension Data Services Glossary. Refer to Dimension Datas Services Glossary on Wired for all terms, acronyms, and definitions.</p>
+<p>
+	<a href="/sites/ServiceCatalogue/Lists/Glossary%20and%20Acronyms/AllItems.aspx" target="_blank">Dimension Data Service Glossary</a>.
+</p>
+<p>Listed below are new terms, acronyms, and definitions required for defining the MSEN portfolio and those that will assist the reader in understanding this document.</p>
+<table class="ms-rteTable-default" cellspacing="0" summary="Glossary and Acronyms" style="width:80%;">
+	<tbody>
+		<tr class="ms-rteTableHeaderRow-default">
+			<th class="ms-rteTableHeaderEvenCol-default" rowspan="1" colspan="1" style="width:70%;height:35px;">
+				<p>Term</p>
+			</th>
+			<th class="ms-rteTableHeaderOddCol-default" rowspan="1" colspan="1" style="width:30%;height:35px;">
+				<p style="text-align:center;">Acronym</p>
+			</th>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Group Service Introduction Process</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">GSIP</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Managed Network Enterprise Networks</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">MSEN</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Internal service definition</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">ISD</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Local area networks</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">LAN</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Total cost of ownership</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">TCO</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Year over year</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">YoY</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Technology Services Industry Association</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">TSIA</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;height:47px;">
+				<p style="text-align:left;">Central Delivery Organisation</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;height:47px;">
+				<p style="text-align:center;">CDO</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Global Service Centre</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">GSC</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Enterprise Management Associates</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">EMA</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Network operation centre</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">NOC</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Service Asset and Configuration Management</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">SACM</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Configuration Management Database</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">CMS</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Configuration Items</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">CIs</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Virtual private network</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">VPN</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Global Services Operating Architecture</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">GSOA</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Requests for change</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">RFC</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Change Advisory Board</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">CAB</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Early Life Support</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">ELS</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Move add, changes, or deletions</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">MACDs</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Continual Service Improvement</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">CSI</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Service Improvement Plan</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">SIP</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">IT service continuity management</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">ITSCM</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Business as Usual</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">BAU</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Business Continuity Plans</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">BCPs</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Business Impact Analysis</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">BIA</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Client Delivery Executive</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">CDE</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Service Delivery Executive</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">SDE</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Client Service Manager</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">CSM</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Letter of Authorization</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">LoA</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Service Knowledge Management System</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">SKMS</p>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:70%;">
+				<p style="text-align:left;">Quality of Service</p>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:30%;">
+				<p style="text-align:center;">QoS</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<h1>Service summary</h1>
+<p>The MSEN portfolio will support the 24x7x365 proactive monitoring and management of a client's end-to-end network infrastructure.  The service requires a high-degree of operations system automation to monitor a client's network infrastructure combined with client intimacy and thought leadership provided by Dimension Data engineering experts and Transformation Architects.  This service supports our client's networking technologies, which includes the monitoring and troubleshooting of local area networks (LANs), and wide-area network technologies and wide area network services.  The latter are typically the weakest link in the reliability and availability of application services and network connectivity to the client's end users.</p>
+<p class="ExternalClassD4B05D9AA3FC40B8A39A2B7A446E669F">
+	<span lang="EN-US">The services that make up the </span>
+	<span lang="EN-US">Managed Network Services</span>
+	<span lang="EN-US"> portfolio are:</span>
+</p>
+
+<h2>Service details</h2>
+<div>
+	<table class="ms-rteTable-default" cellspacing="0" summary="Service Details" style="width:100%;">
+		<tbody>
+			<tr class="ms-rteTableHeaderRow-default">
+				<th class="ms-rteTableHeaderEvenCol-default" rowspan="1" colspan="1" style="width:35%;">
+					<p>Service name</p>
+				</th>
+				<th class="ms-rteTableHeaderOddCol-default" rowspan="1" colspan="1" style="width:65%;">
+					<p>Manage Services for Enterprise Networks</p>
+				</th>
+			</tr>
+			<tr class="ms-rteTableOddRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Service version number</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Version 2.0</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableEvenRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Global Product Manager</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>William Strain & Rich Schofield</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableOddRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Business Unit</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Networking</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableEvenRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Service Unit</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Enterprise Services</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableOddRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Americas Regional Owner</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Steven DeMaayer</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableEvenRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Asia Pacific Regional Owner</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Manu Mohan</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableOddRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Australia Regional Owner</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Stephen Lee, Angela Champion and Greg Sultana</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableEvenRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Europe Regional Owner</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Simon Littlejohn and Mark Holmes</p>
+				</td>
+			</tr>
+			<tr class="ms-rteTableOddRow-default">
+				<td class="ms-rteTableEvenCol-default" style="width:35%;">
+					<p>Middle East and Africa Regional Owner</p>
+				</td>
+				<td class="ms-rteTableOddCol-default" style="width:65%;">
+					<p>Mark  McKerr and Christian Barr</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </div>
+<h2>Background and context</h2>
+<p>The Network and Communications Outsourcing market is evolving and expanding rapidly.  It is currently a $10B USD market that is growing at 9% year over year (YoY), according to IDC.  The market growth is being driven by enterprise CIOs who have decided to outsource the day-to-day management and support of their network and communications services to a trusted third party.  This eliminates their need to invest (and continue to invest) in management tools and processes, hiring and retaining networking and communications professionals, and the constant demand to update and reconfigure their technology in response to new business requirements.  In addition, there is a growing trend for enterprises to buy new technology in an OPEX model via a managed private or hybrid private / public cloud - thus avoiding the need to use precious, hard to obtain capital on new networking and communications hardware and systems. </p>
+<p>As such, the network and communications outsourcing market is evolving to include managed private and hybrid cloud solutions as a key part of their service portfolio.  This is truly revolutionising the market and forcing equipment manufacturers to fundamentally alter their strategies.  The TSIA (Technology Services Industry Association) reports that 80% of equipment manufacturers had their revenue decline year over year in 2014.  </p>
+<p>The support challenges are especially true in the communications and networking space, where many enterprises have older, more problematic multi-vendor infrastructures to manage.  CIOs and their leadership teams are struggling to operate these environments from a total cost of ownership and performance standpoint.  In addition, with capital tight at most companies, the appeal of buying a service via a cloud OPEX service model when transforming and / or upgrading their IT infrastructure has significant appeal.  This appeal includes a reduction in total cost of ownership, mitigation of risk, and access to the skills to integrate and support new, emerging technologies that integrate networking, communications, and collaboration technologies and solutions into an enterprise-grade service solution.</p>
+<h2>Service offering</h2>
+<p>Our MSEN will offer our clients a portfolio of enterprise-grade managed network service offerings.  Each will be offered with unit-based pricing, for the networking outsourcing and managed service market that will enable Dimension Data to take over the day-to-day production operations for all, or a portion, of a client's environment  either 'as is' or as part of a new technology transformation.  Our service offerings will support multivendor technologies  both current and legacy systems, which will be defined in the individual technology service descriptions.  We will constantly update and evolve our technology support to stay current with market leaders and incorporate strategic partner technologies and solutions into our portfolio offer.   </p>
+<p>Our MSEN will provide full ITIL support, inclusive of performance, availability, and problem management for the network infrastructure. We will back these services with outcome-based SLAs to include financial remediation. Any financial remediation shall be based on approved criteria and requirements.</p>
+<p>The services will be delivered via a three-tier global delivery model, with a target of 60% to 70% of the FTE requirements for a client engagement being supported by a low-cost delivery centre. The service delivery will also include dedicated or designated 'client intimate' L3 lead engineers who drive production operations support, including ownership of proactive performance, problem, and availability management.  Our MSEN must deliver proactive output from these key service delivery areas, where tasks are generated by the ITIL-based service systems rather than being reactive to a client-generated process or raised issue.  As such, our services delivery team needs to be supported by an advanced systems management platform, with the objective of using industry leading autonomics to automate as much of the service delivery, especially incident management, as possible.</p>
+<p>Finally, an integral part of our service delivery and value to the client is a senior transformation architect, who is an expert in technology, has deep experience with enterprise service delivery, and understands the complexities of deploying new services without causing disruption in a client's business.   They will be responsible for driving the transformation plan and the execution of taking the client from current state to the contracted state, working with the delivery L3 engineer.</p>
+<h2>Service features</h2>
+<p>The key service features that will be delivered by the MSEN portfolio are:</p>
+<div>
+	<ul>
+		<li>
+			<p>Proactive 24x7x365  monitoring, incident, and problem management, where the service proactively generates 90 to 95% of incident tickets</p>
+		</li>
+		<li>
+			<p>Proactive performance and capacity management for client engagements</p>
+		</li>
+		<li>
+			<p>Efficient and effective release management process work flows</p>
+		</li>
+		<li>
+			<p>Effective change management processes, including client interaction</p>
+		</li>
+		<li>
+			<p>Take over clients as-is network</p>
+		</li>
+		<li>
+			<p>Proactive SLAs that are services and / or outcomes based</p>
+		</li>
+		<li>
+			<p>Support of multi-vendor networking solutions from leading technology companies, including, but not limited to, Cisco, HP, Juniper, Riverbed, and Aruba (Refer to Vendor Scope)</p>
+		</li>
+		<li>
+			<p>A service management lifecycle that covers strategy, design, transition, operation, account governance, and continuous improvement of services</p>
+		</li>
+		<li>
+			<p>A three-tier operations delivery model - onsite, in region, and low-cost CDO, with an objective of 2/3 or more of delivery done in low-cost CD</p>
+		</li>
+		<li>
+			<p>Dedicated regional L3 Engineers who are an integrated part of service delivery; and</p>
+		</li>
+		<li>
+			<p>Service delivery that includes a Senior Transformational Architect who understands the details of the current technology in the client's environment and how it is operationally supported. The Architect will also plan the detail and drive the transformation of a clients environment of where they are to their future network based on the client's business and technical requirements.</p>
+		</li>
+	</ul>
+</div>
+<h2 class="ExternalClassFF043F4A68634ED0A42C4EB0D5A12F04">Key client benefits</h2>
+<p>Dimension Data's MSEN portfolio will provide the following benefits to the client:</p>
+<div>
+	<ul>
+		<li>
+			<p>Lower total cost of ownership (TCO) by leveraging our scale, processes, platform automation, and three-tier global delivery to manage a client's networking environment, including their wide area network service providers</p>
+		</li>
+		<li>
+			<p>Integrated approach to the management of the client's LAN / WAN and data centre networking into one securely and reliably managed enterprise network service that has a unified service delivery governance model, an integrated three-tier delivery model, and supported by a single enterprise services operations platform and set of processes</p>
+		</li>
+		<li>
+			<p>Industry-leading service management of the client's current legacy network infrastructure while transforming it to the next generation network, leveraging our global delivery model and Dimension Data's technology expertise</p>
+		</li>
+		<li>
+			<p>Predictable costs through a unit-based, utility pricing model</p>
+		</li>
+		<li>
+			<p>Improved operational performance by leveraging our technical expertise, intellectual property, and ITIL processes</p>
+		</li>
+		<li>
+			<p>Mitigated risk of the transfer of operational control by having an integrated approach from sales to service transition to day-to-day operations</p>
+		</li>
+		<li>
+			<p>Top-notch service experience that includes:</p>
+		</li>
+		<ul>
+			<li>
+				<p>leveraging a Level 3 Engineering team who have detailed, intimate knowledge of a client's infrastructure</p>
+			</li>
+			<li>
+				<p>on-going service improvement plans</p>
+			</li>
+			<li>
+				<p>a client-intimate governance model from client executive sponsor to the client's technology leads driving business and delivery alignment</p>
+			</li>
+			<li>
+				<p>transparency and value add through detailed reporting on costs / financial performance, service performance, and current and future capacity requirements</p>
+			</li>
+			<li>
+				<p>proactive, outcome-based Service Level Agreements that are backed by financial credits</p>
+			</li>
+		</ul>
+	</ul>
+</div>
+<h2>Key Dimension Data benefits</h2>
+<p>Develop and deliver a differentiated managed network service that enables Dimension Data to achieve its business objectives in the network outsourcing market by having highly satisfied clients.  </p>
+<h1>Go to market</h1>
+<p>While this section outlines what will be available in the various service packages it is expected that the new approach to positioning the service portfolio will focus on driving the full MSEN and selling down from Dimension Datas MSEN service package to the Premium service packages, as and when appropriate. Other than service codes, there is no impact on development from these defined packages. These packages will be subject to change based on agreement with the other Business Units in order to ensure a consistent go-to-market approach.</p>
+<h2>Service packages</h2>
+<p>The packaging approach naming will be consistent between and among business units and service units. The result is outlined below. </p>
+
+<p>This scope of this packaging plan will address the 'Managed' and 'Premium' service. The 'Support' category addresses maintenance and break/fix type services and is out of scope of this packaging plan. Note also that Premium package is further broken down to Essentials and Advanced.</p>
+<div>
+	<ul>
+		<li>
+			<p>Managed</p>
+		</li>
+		<li>
+			<p>Premium (Advanced and Essentials)</p>
+		</li>
+	</ul>
+</div>
+<p>As excerpted from the service description, these packages are described as follows. </p>
+<p>The heart of MSEN and the portfolio, is a set of 16 service packages that contain a combination of 25 ITIL aligned service elements.</p>
+<h3>Managed</h3>
+<div>
+	<ul>
+		<li>
+			<p>When the off-load of the day-to-day management and end-to-end operational control of their network is the clients goal, a full outsource of the environment which includes the entire set of service features is the best option.</p>
+		</li>
+	</ul>
+	<h3>Premium</h3>
+	<ul>
+		<li>
+			<p>
+				<strong>Advanced</strong> - for clients who do not want to off-load the day-to-day management of their network technology, but need more support than a maintenance contract would give them to complement their in-house teams, the Advanced package is appropriate.
+			</p>
+		</li>
+		<li>
+			<p>
+				<strong>Essentials</strong> -a foundational package for clients who cannot, or do not wish to, implement and manage an in-house tool set and need the scale of an external provider to monitor and perform incident management of the devices in their infrastructure on a 24x7x365 basis.
+			</p>
+		</li>
+	</ul>
+</div>
+<h2>Service package matrix</h2>
+<p>With MSEN, the development paradigm has changed from a 'bottom up' approach to a 'top down' approach. The importance of this is multi-fold.</p>
+<div>
+	<ul>
+		<li>
+			<p>It ensures a complete set of service features are developed such that end-to-end operational control can be accepted and supported by Dimension Data.</p>
+		</li>
+		<li>
+			<p>It provides components for lower service packages that can be delivered in an identical manner in a lego block' type approach</p>
+		</li>
+		<li>
+			<p>It simplifies and controls costs of development ensuring that the same service features and associated service elements are developed only once</p>
+		</li>
+	</ul>
+</div>
+<p>The full set of service elements that will be available in MSEN are listed in the table below with a notation as to which deliverables are included in which package.</p>
+
+<h2>Associated services</h2>
+<p>
+	<span lang="EN-US">Hybrid WAN and Carrier Management services are available as add-ons to the base packages.</span>
+</p>
+<h2>Service prerequisites</h2>
+<ul>
+	<li>
+		<p>Populated monitoring plan</p>
+	</li>
+	<li>
+		<p>Defined CI criticality or Severity captured in the monitoring plan</p>
+	</li>
+	<li>
+		<p>Remote CI Access  client security policy is required to enable this</p>
+	</li>
+	<li>
+		<p>Client network architecture and network topology</p>
+	</li>
+	<li>
+		<p>Preventative maintenance schedule</p>
+	</li>
+	<li>
+		<p>Third party agreements</p>
+	</li>
+</ul>
+<ul>
+	<li>
+		<p>Standards and Policies</p>
+	</li>
+</ul>
+<h2>External positioning</h2>
+<p>Based on Dimension Datas current capabilities and market factors, Dimension Data will target a client based on the profile and opportunity listed below.</p>
+<ul>
+	<li>
+		<p>A fortune 500 to 5000 client.We are not at the maturity to target a fortune 500 client. This would be very opportunistic, and have to be very focused.</p>
+	</li>
+	<li>
+		<p>Have a legacy network infrastructure that has not been refreshed for 5 to 10 years, including the wide-area network services. </p>
+	</li>
+	<li>
+		<p>Do not have the IT budget to do the network refresh. Even if they do, they lack the ability to update their management systems to support the next generation of network services to support emerging, cloud-based applications. These clients are looking to invest very little upfront on new technology.</p>
+	</li>
+	<li>
+		<p>Under pressure from the business to deliver more with less budget.Want to turn operational control over to a strategic partner that will align their service support to their expected business outcomes.</p>
+	</li>
+	<li>
+		<p>Are unable to attract and retain the technical talent to support their network infrastructure from an engineering, operations, and performance management perspective. The client is looking to shift the complexity of managing and supporting their network as a turn-key end-to-end service to a trusted,strategic partner, allowing them to focus on their core business.</p>
+	</li>
+</ul>
+<p>Our MSEN 2.0 service offering would be attractive to all market verticals. That is, MSEN 2.0 has broad industry appeal and is not unique to any industry vertical.Having stated this,any industry vertical, such as manufacturing and retail, that is under extreme pressure to reduce or contain costs and struggle finding budget to upgrade their network infrastructure would find our offer and strategy very appealing.</p>
+<p>Finally, our MSEN 2.0 service offering can be sold and add value to Dimension Data's  unified communication and collaboration service offerings. More specifically, there is a direct dependency of delivering communication and collaboration on the network and managing these together can drive enhanced value and lower cost of service support. </p>
+<h2>Internal positioning</h2>
+<p>What are the benefits to Dimension Data of providing the Service? How does the Service align with Dimension Datas strategy? Why will the regions buy-in to the development and deployment of this Service?</p>
+<h1>Commercial model and entitlements</h1>
+<h2>Commercial model</h2>
+<h3>Premium package</h3>
+<p>On the Premium level (Essentials and Advanced), the service will be priced using a rate card approach. The rate card entries for this MSEN has already been developed and are available and in use in region. The additional capabilities identified in this ISD are meant to improve the value of the existing service to the client and will not represent cost plus to the client. However, it is expected that any additional operational costs be captured in the costing model. Relative to client set up fees, as is already the case with the base MSEN service, both up front and amortised options are available.However, it is rare that clients will agree to accept any up-front fees.</p>
+<h2>Service codes and entitlements</h2>
+<p>The Service Code Workbook contains all the entitlements and descriptions for the Service. Refer to the Service Code Workbook available in the service catalogue site on Wired.</p>
+<h1>Delivery model</h1>
+<p>To maximise cost efficiencies and improve delivery, a 3-tier delivery model is required. A 3-tiered model organises labour into three separate cost and capability segments and is designed to provide low cost remote resources where appropriate and higher cost local resources when needed to satisfy the scope or the demands of the client.</p>
+<ul>
+	<li>
+		<p>Our Central Delivery Organisation (CDO) is located in Bangalore and provides the first tier of support. The objective is to have 60% to 70% of the FTE staffing provided by the CDO.</p>
+	</li>
+	<li>
+		<p>The second tier of support is provided by our regional Global Service Centres (GSC) located in geographic proximity to the client, typically within the host Dimension Data operating region. If the client has a decentralised support model, there may be more than one GSC engaged to deliver the service. This tier of support is best suited for work that requires closer proximity to the client (e.g. Time zone sensitivity specialised technical expertise, language/customs, statutory or regulatory requirements). It is critical that the systems, processes, tools, and client deliverables for the service be identical across all GSCs. This is required to ensure service consistency for our emerging, multi-national Enterprise Services clients, who will expect consistent global service delivery. Moreover, this will also enable all regions to engage and maximise the use of the CDO against a common service delivery model.</p>
+	</li>
+	<li>
+		<p>The third tier of support consists of local or dedicated resources, who are typically located at the client site or at nearby Dimension Data offices. This tier of support is best suited for work that requires a touch or is complex in nature and requires close cooperation or intimacy with the client operations.</p>
+	</li>
+</ul>
+<p>This model can be represented as a pyramid whereby the first tier of support (the CDO) serves as the front line (which could involve client interaction)that passes work that it cannot complete to the second tier of support - the GSC. If the GSC cannot complete the work, it is passed to the third tier of support  local resources  who are responsible for completion of the work and closure of the support event. The 3-tier delivery model is critical to achieving transaction optimisation as work is initially presented to the lowest cost delivery location and moves on to higher cost delivery locations as the complexity or impact/urgency escalates. It is expected that there will be on-going service development work aimed at continuously finding new ways to migrate work from local to GSC to CDO over time. This process needs to be viewed as not only from an overall service perspective, but also from a client-by-client perspective as client immaturity at the outset of an engagement may inhibit the movement of work.</p>
+<p>This model provides a key competitive differentiator compared to the Indian outsourcers, who have historically operated in only a two-tiered model, on site resources combined with remote Indian resources. While other competitors are introducing a third tier with regional delivery centres, they are more of an add-on than a change to their core service delivery model.</p>
+<table class="ms-rteTable-default" cellspacing="0" summary="Delivery Model" style="width:90%;">
+	<tbody>
+		<tr class="ms-rteTableHeaderRow-default">
+			<th class="ms-rteTableHeaderEvenCol-default" rowspan="1" colspan="1" style="width:55%;">
+				<strong>Service Element </strong>
+			</th>
+			<th class="ms-rteTableHeaderOddCol-default" rowspan="1" colspan="1" style="width:15%;text-align:center;">
+				<strong>CDO</strong>
+			</th>
+			<th class="ms-rteTableHeaderEvenCol-default" rowspan="1" colspan="1" style="width:15%;text-align:center;">
+				<strong>GSC</strong>
+			</th>
+			<th class="ms-rteTableHeaderOddCol-default" rowspan="1" colspan="1" style="width:15%;text-align:center;">
+				<strong>Local</strong>
+			</th>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Event management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Incident management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Availability management </td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Capacity management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Service asset and configuration management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Problem management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Change management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Release and deployment management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Request fulfilment</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Service level management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Access management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Demand management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Continual service improvement</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">IT service continuity management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Business relationship management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Design coordination</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Security management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Architecture management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Compliance management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Technical management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Supplier management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Transition planning and support</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;"></td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<td class="ms-rteTableEvenCol-default" style="width:55%;">Knowledge management</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:15%;text-align:center;">Yes</td>
+			<td class="ms-rteTableOddCol-default" style="width:15%;text-align:center;">Yes</td>
+		</tr>
+	</tbody>
+</table>
+<h2>Delivery model architecture</h2>
+<h2>Delivery model RACI</h2>
+<p>Refer to the Delivery Model RACI Matrix. </p>
+<h2>System architecture</h2>
+<p>The service will use the GSOAv3 platform for service delivery and its associated system management components. It is expected the platform will need to be enhanced to support the specific service features and elements that are described in this ISD. These will be captured and documented by the service development team in the following sub sections.</p>
+
+<h2>Managed Network Service Description</h2>
+<p>Dimension Data has designed its MSEN portfolio to address our enterprise services clients. The MSEN service is built using leading monitoring and management technologies, and are delivered remotely from Dimension Datas world-class Global Service Centres (GSCs), which are located around the world. </p>
+<h2>Purpose of this service description</h2>
+<p>This service description provides an overview of the service elements that are common to all services in the MSEN portfolio. These service elements are combined in various ways to produce the various features as per the packaging plan discussed previously. This document should be read as the base document to supplements the technology-specific ISDs (e.g. Hybrid WAN and Carrier Management).</p>
+<h2>Service Scope</h2>
+<p>The MSEN portfolio supports the technology features and service functionality of all in-scope technology vendors. MSEN will take full operational and management control of the technology and technology service features being managed of the proper functioning of supported vendors, their products, and the product technology and service features.</p>
+<p>For security appliances, routing and/or switch enabled security services, VoIP services, or any applications running on on-board server instances, the above applies only to the hardware, software, and application(s) to the extent that it is a data forwarding device (packets are either traversing or not traversing the product). Note: the maintenance of a devices security policy and configuration is out of the scope of this service. Other Dimension Data services are available to support these functions.</p>
+<h2>Technology scope</h2>
+<p>Dimension Datas MSEN will assume full day-to-day management control of all network infrastructure technologies and services that are between network end-points. The following technologies and services are in-scope:</p>
+<ul>
+	<li>
+		<p>Network routing and switching technologies</p>
+	</li>
+	<li>
+		<p>Wireless access points and wireless LAN switches / controller</p>
+	</li>
+	<li>
+		<p>Basic monitoring and management support for security appliances that are embedded in network equipment as specialized hardware modules or virtual software appliances</p>
+	</li>
+	<li>
+		<p>Virtual private network (VPN) concentrators</p>
+	</li>
+	<li>
+		<p>Performance optimization appliances</p>
+	</li>
+	<li>
+		<p>Load-balancing equipment</p>
+	</li>
+	<li>
+		<p>DNS, DHCP and IP address management appliances</p>
+	</li>
+	<li>
+		<p>WAN carrier network services via Letter of Authorization</p>
+	</li>
+</ul>
+<p>These will be captured and documented by the service development team in the following sub sections.</p>
+<h2>Vendor scope</h2>
+<p>Dimension Data has selected a set of tier 1 vendors as part of its multi-vendor strategy. Vendors were chosen based on the frequency of, and strategic presence in, our clients networks. The vendor scope of MSEN will be consistent with the tier vendor list and the multi-vendor strategy, and will increase as the vendor list is updated over time. The Network Integration vendor list currently includes:</p>
+<ul>
+	<li>
+		<p>Cisco</p>
+	</li>
+	<li>
+		<p>Juniper</p>
+	</li>
+	<li>
+		<p>Bluecoat</p>
+	</li>
+	<li>
+		<p>Riverbed</p>
+	</li>
+	<li>
+		<p>F5</p>
+	</li>
+	<li>
+		<p>Infoblox</p>
+	</li>
+	<li>
+		<p>Aruba</p>
+	</li>
+	<li>
+		<p>HP</p>
+	</li>
+	<li>
+		<p>Meraki</p>
+	</li>
+	<li>
+		<p>Viptela</p>
+	</li>
+</ul>
+<p>A full list of Supported Device list is located on the Dimension Data repository.</p>
+<p>Note, Equipment listed above is not inclusive of all vendor equipment models but is a framework of the supported equipment. It is expected that equipment still within its functional lifecycle would be supported and that future equipment model equivalents would also be supported. In addition, vendor equipment may be used across multiple product lines. For example, the Cisco Catalyst 65xx switches may be used for both LAN and WAN.</p>
+<h1>Service Level Commitments</h1>
+<p>The following service level commitments are applicable to all service products in the Managed Services Enterprise Networks 2.0 portfolio.</p>
+<h2>Incident Management Service Level Agreement</h2>
+<h3>Incident Creation Notification Time</h3>
+<p>Dimension Data will notify the client within the following timeframes. The start time will be when our monitoring system initially detects a change in state in the clients networking environment. </p>
+<table class="ms-rteTable-default" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr class="ms-rteTableHeaderRow-default">
+			<th class="ms-rteTableHeaderFirstCol-default" rowspan="1" colspan="4" style="width:25%;">
+				<strong>Proactive Notification</strong>
+			</th>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">
+				<strong>Severity Level</strong>
+			</th>
+			<td class="ms-rteTableOddCol-default" style="width:45%;">
+				<strong>Measurement</strong>
+			</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">
+				<strong>Target</strong>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">
+				<strong>Performance Target</strong>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;"></th>
+			<td class="ms-rteTableOddCol-default" style="width:45%;">Time to Notify Client</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">Total Clock Time</td>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">Measured Across all incidents in calendar month</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">1</th>
+			<td class="ms-rteTableOddCol-default" rowspan="3" style="width:45%;">Time from system receipt of event to notifying client of Incident creation.   </td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">15 minutes</td>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">95.00%</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;height:35px;">2</th>
+			<td class="ms-rteTableOddCol-default" style="width:20%;height:35px;">15 minutes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;height:35px;">95.00%</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">3</th>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">15 minutes</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">95.00%</td>
+		</tr>
+		<tr class="ms-rteTableFooterRow-default">
+			<th class="ms-rteTableFooterFirstCol-default" rowspan="1" colspan="4" style="width:20%;">The SLA achievement is measured by calendar month, and will be calculated across all incidents for each Incident Severity Level.  Financial credits may apply, if negotiated by the client, for failure to meet the proactive notification target for P1 and P2 incidents.</th>
+		</tr>
+	</tbody>
+</table>
+<h3>Incident Response Notification Time</h3>
+	<p>Dimension Data will notify the client within the following timeframes. The start time will be from the time the Incident has been created in ITSM.</p>
+		<table class="ms-rteTable-default" cellspacing="0" style="width:100%;">
+			<tbody>
+				<tr class="ms-rteTableHeaderRow-default">
+					<th class="ms-rteTableHeaderFirstCol-default" rowspan="1" colspan="4" style="width:15%;">Response Notification</th>
+				</tr>
+				<tr class="ms-rteTableOddRow-default">
+					<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">
+						<p>
+							<strong>Severity Level</strong>
+						</p>
+					</th>
+					<td class="ms-rteTableOddCol-default" style="width:45%;">
+						<p>
+							<strong>Measurement</strong>
+						</p>
+					</td>
+					<td class="ms-rteTableEvenCol-default" style="width:20%;">
+						<p>
+							<strong>Target</strong>
+						</p>
+					</td>
+					<td class="ms-rteTableOddCol-default" style="width:20%;">
+						<p>
+							<strong>Performance Target</strong>
+						</p>
+					</td>
+				</tr>
+				<tr class="ms-rteTableEvenRow-default">
+					<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;height:56px;">
+						<p>
+					</th>
+					<td class="ms-rteTableOddCol-default" style="width:45%;height:56px;">
+						<p>Time to Notify Client</p>
+					</td>
+					<td class="ms-rteTableEvenCol-default" style="width:20%;height:56px;">
+						<p>Total Clock Time</p>
+					</td>
+					<td class="ms-rteTableOddCol-default" style="width:20%;height:56px;">
+						<p>Measured Across all incidents in a calendar month</p>
+					</td>
+				</tr>
+				<tr class="ms-rteTableOddRow-default">
+					<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">1</th>
+					<td class="ms-rteTableOddCol-default" rowspan="3" style="width:45%;">Time from system receipt of event to notifying client of Incident creation.   </td>
+					<td class="ms-rteTableEvenCol-default" style="width:20%;">15 minutes</td>
+					<td class="ms-rteTableOddCol-default" style="width:20%;">95.00%</td>
+				</tr>
+				<tr class="ms-rteTableEvenRow-default">
+					<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">2</th>
+					<td class="ms-rteTableOddCol-default" style="width:20%;">15 minutes</td>
+					<td class="ms-rteTableEvenCol-default" style="width:20%;">95.00%</td>
+				</tr>
+				<tr class="ms-rteTableOddRow-default">
+					<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">3</th>
+					<td class="ms-rteTableOddCol-default" style="width:20%;">15 minutes</td>
+					<td class="ms-rteTableEvenCol-default" style="width:20%;">95.00%</td>
+				</tr>
+			</tbody>
+		</table>
+	<h3>Incident Resolution Time</h3>
+<p>
+	<span lang="EN-GB">Dimension Data will resolve incidents for the client within the following timeframes.The start time will be from the time the Incident has been created in ITSM.</span>
+</p>
+<table class="ms-rteTable-default" cellspacing="0" style="width:100%;">
+	<tbody>
+		<tr class="ms-rteTableHeaderRow-default">
+			<th class="ms-rteTableHeaderFirstCol-default" rowspan="1" colspan="4" style="width:25%;">Incident Resolution (Excluding 3rd Parties)</th>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">
+				<strong>Incident Severity Level</strong>
+			</th>
+			<td class="ms-rteTableOddCol-default" style="width:45%;">
+				<strong>Measurement</strong>
+			</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">
+				<strong>Target</strong>
+			</td>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">
+				<strong>Performance Target</strong>
+			</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;"></th>
+			<td class="ms-rteTableOddCol-default" style="width:45%;">Time to Notify Client</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">Total Clock Time</td>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">Measured Across all incidents in calendar month</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">1</th>
+			<td class="ms-rteTableOddCol-default" rowspan="3" style="width:45%;height:105px;">Measured from when incident ticket opened</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">4 hours</td>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">95.00%</td>
+		</tr>
+		<tr class="ms-rteTableEvenRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">2</th>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">8 hours</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">95.00%</td>
+		</tr>
+		<tr class="ms-rteTableOddRow-default">
+			<th class="ms-rteTableFirstCol-default" rowspan="1" colspan="1" style="width:15%;">3</th>
+			<td class="ms-rteTableOddCol-default" style="width:20%;">24 hours</td>
+			<td class="ms-rteTableEvenCol-default" style="width:20%;">95.00%</td>
+		</tr>
+		<tr class="ms-rteTableFooterRow-default">
+			<th class="ms-rteTableFooterFirstCol-default" rowspan="1" colspan="4" style="width:20%;">
+				<span lang="EN-US">All incidents that involves a Third party that is outside the Dimension Data contractual control are excluded. However, Dimension Data will track the overall performance of a Third party against their SLAs to a client and notify the client of any breach.</span>
+			</th>
+		</tr>
+	</tbody>
+</table>
+<h2>Wide Area Network Reachability SLA</h2>
+<p>Wide Area Data Network Reachability is measured on a calendar month basis and is calculated based on the average of the availability of all sites managed by Dimension Data. </p>
+<p>The availability for each site in a reporting period is calculated as follows:</p>
+<p>
+	<strong>WAN Reachability</strong> = (total hours  hours of downtime + hours of pre-planned scheduled outages + hours of excused outages) / total hours.
+</p>
+<p>To monitor the reachability of devices, 4-minute polling intervals are used. Two consecutive unreachable polls (all ICMP requests lost) will generate a down condition. Site reachability is determined by polling a single IP address.</p>
+<p>
+	<br>The SLA metric will be mutually agreed to by both Dimension Data and client and base lined over the first three months of engagement whether it is achievable.
+</p>
+<p>Excluded from calculations:</p>
+<ul>
+	<li>
+		<p>Voice (PBX) circuit outages</p>
+	</li>
+	<li>
+		<p>Outage duration when site access is not available (for example, site closed) </p>
+	</li>
+	<li>
+		<p>Application availability</p>
+	</li>
+	<li>
+		<p>Scheduled downtime due to preventive maintenance, upgrades, or pre-planned outages mutually agreed by the client and Dimension data</p>
+	</li>
+	<li>Downtime caused by:</li>
+	<ul>
+		<li dir="ltr" style="text-align:left;">
+			<p>Action or inaction of the client</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Unavailability of out-of-band access at the site</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Virus, worm, distributed denial of service, or any other malicious activity</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Force majeure events</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Data circuits not being service managed by Dimension Data</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Power failure for equipment not protected by UPS (Uninterruptible Power Supply)</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>UPS (Uninterruptible Power Supply) equipment failure due to malfunction or extended utility outage (battery expires)</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Site power failures</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Time for hardware maintenance vendor to respond, as specified in client maintenance agreement</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Time for carrier service provider to restore service, as specified in client's carrier agreement</p>
+		</li>
+		<li dir="ltr" style="text-align:left;">
+			<p>Client site contact not being available </p>
+		</li>
+	</ul>
+</ul>
+<h2>Site Specific Reachability SLA</h2>
+<p>Data Network High Availability Site SLA is applicable to those sites where redundant network paths and associated redundant wide-area network carrier services and routers have been provisioned. </p>
+<p>
+	Site Availability is calculated as follows:
+	<br>
+	<strong>Site Availability </strong>= (total hours  hours of downtime + hours of pre-planned scheduled outages + hours of excused outages) / total hours.
+</p>
+<p>For each site that requires High Availability support, the sites equipment configuration and WAN service transport design must meet Dimension Datas engineering and support guidelines to qualify for the SLA. Site Availability is measured as the time that a site is available to transmit and receive data from other Dimension Data managed sites.</p>
+<p>
+	<strong>Excluded from calculations:</strong>
+</p>
+<ul>
+	<li>
+		<p>Outage duration when site access is not available (for example, site closed) </p>
+	</li>
+	<li>
+		<p>Application availability</p>
+	</li>
+	<li>Scheduled downtime due to preventive maintenance, upgrades, or pre-planned outages mutually agreed by the client and Dimension data</li>
+	<li>Downtime caused by:</li>
+	<ul>
+		<li>
+			<p>Action or inaction of the client</p>
+		</li>
+		<li>
+			<p>Unavailability of out-of-band access at the site </p>
+		</li>
+		<li>
+			<p>Virus, worm, distributed denial of service, or any other malicious activity</p>
+		</li>
+		<li>
+			<p>Force majeure events</p>
+		</li>
+		<li>
+			<p>Data circuits not being service managed by Dimension Data</p>
+		</li>
+		<li>
+			<p>Power failure for equipment not protected by UPS (Uninterruptible Power Supply)</p>
+		</li>
+		<li>
+			<p>UPS (Uninterruptible Power Supply) equipment failure due to malfunction or extended utility outage (battery expires)</p>
+		</li>
+		<li>
+			<p>Site Power failures</p>
+		</li>
+		<li>
+			<p>Client site contact not being available</p>
+		</li>
+	</ul>
+</ul>
+<h2>Network Performance Management SLAs</h2>
+<p>SLAs are applicable for network delay, jitter, and packet loss on each client's WAN that is managed by Dimension Data. These will be defined for each client-engagement based on their specific network infrastructure and application performance needs.</p>
+<h2>Change Management SLA</h2>
+<p>
+	Dimension Data will commit to completing a billable Move, Add, Change (MAC) request in the timeframe committed in the Dimension Data MACD table or by a mutually agreed upon date. If Dimension Data fails to complete the MACD on time, the client will not be charged for the billable MACD.
+	<br>The Change Management SLA will not apply to project delivered by Dimension Datas professional organisation.
+</p>
+<h1>Client Take-on</h1>
+<p>The client take-on process is one of the first interactions the client has with Dimension Data in the delivery of the service it is therefore critical that the process runs smoothly and Dimension Data creates a good first impression with the client.</p>
+<p>Client take-on covers the period from the acceptance of the quote/proposal until the client is supported by the Delivery Organisation.</p>
+
+<h1>Test if a Div will autogenerate</h1>
+<div>This text is in a DIV tag without any othe tags to process. Normally it used to produce a content error, but now it should just produce a normal paragraph.</div>
+<h2>Key client benefits</h2>
+<p>Dimension Data&#39;s MSEN portfolio will provide the following benefits to the client:</p>
+<div>
+   <ol>
+      <li>Lower total cost of ownership (TCO) by leveraging our scale, processes, platform automation, and three-tier global delivery to manage a client&#39;s networking environment, including their wide area network service providers</li>
+      <li>Integrated approach to the management of the client&#39;s LAN / WAN and data centre networking into one securely and reliably managed enterprise network service that has a unified service delivery governance model, an integrated three-tier delivery model, and supported by a single enterprise services operations platform and set of processes</li>
+      <li>Industry-leading service management of the client&#39;s current legacy network infrastructure while transforming it to the next generation network, leveraging our global delivery model and Dimension Data&#39;s technology expertise</li>
+      <li>Predictable costs through a unit-based, utility pricing model</li>
+      <li>Improved operational performance by leveraging our technical expertise, intellectual property, and ITIL processes</li>
+      <li>Mitigated risk of the transfer of operational control by having an integrated approach from sales to service transition to day-to-day operations</li>
+      <li>Top-notch service experience that includes:</li>
+      <ol>
+         <li>leveraging a Level 3 Engineering team who have detailed, intimate knowledge of a client&#39;s infrastructure</li>
+         <li>on-going service improvement plans</li>
+         <li>a client-intimate governance model from client executive sponsor to the client&#39;s technology leads driving business and delivery alignment</li>
+         <li>transparency and value add through detailed reporting on costs / financial performance, service performance, and current and future capacity requirements</li>
+         <li>proactive, outcome-based Service Level Agreements that are backed by financial credits</li>
+      </ol>
+   </ol>
+</div>
+<h2>Key Dimension Data benefits</h2>

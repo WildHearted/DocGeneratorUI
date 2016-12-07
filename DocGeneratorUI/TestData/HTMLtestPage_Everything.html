@@ -27,7 +27,7 @@
 <h3>Heading +3</h3>
 <p>Another instance where the hastag ClientName is replaced with the actual client name: [#ClientName#].</p>
 <h4>DD Heading +4</h4>
-<p>Yes, even a fourth extra level can be added to the content, and it will be correctly numbered.</p>
+<p>If a fourth or greater level of cascading bullets or numbers are added to the content, a content error will be produced.</p>
 
    <h1>Heading +1: Cascading Numbered List</h1>
    <p>This section validates the cascading numbered bullets.</p>
@@ -67,20 +67,50 @@
          <p>This is the 4th for Level 1</p>
       </li>
    </ol>
+
+<h2>Heading +2: Another set of Cascading Numbered List</h2>
+   <p>To enure the cascaded numbers restart from 1.</p>
+   <ol>
+      <li>
+         <p>This is the 1st number for Level 1</p>
+      </li>
+      <li>
+         <p>This is the 2nd number for Level 1</p>
+      </li>
+      <li>
+         <p>This is the 3rd number for Level 1</p> 
+      </li> 
+      <ol>
+         <li>
+            <p>This is the 1st number for Level 2</p>
+         </li>
+         <li>
+            <p>This is the 2nd number for Level 2</p>
+         </li>
+         <ol>
+            <li>
+               <p>This is the 1st number for Level 3</p>
+            </li>
+            <li>
+               <p>This is the 2nd for Level 3</p>
+            </li>
+         </ol>
+         <li>
+            <p>This is the 3rd for Level 2</p>
+         </li>
+         <li>
+            <p>This is the 4th for Level 2</p>
+         </li>
+      </ol>
+      <li>
+         <p>This is the 4th for Level 1</p>
+      </li>
+   </ol>
    <p>This conclude the numbered list testing</p>
 
-<p class="ExternalClass8E2C3072385D48FAA6EE8C1CC9AC3AD8">
-	Please do not use this <em>Service Product</em> for normal business purposes.
-</p>
-<p class="ExternalClass8E2C3072385D48FAA6EE8C1CC9AC3AD8">
-	This
-	<sup>
-		<font size="2">content </font>
-	</sup>should appear in 
-	<span>ISD Description</span> positions under&#160;a <strong>Service&#160;Product </strong>when reflected in a generated document.
-</p>
-<p class="ExternalClass8E2C3072385D48FAA6EE8C1CC9AC3AD8">
-	Its&#160;purpose is to&#160;use it to <em>test and experiment</em>, with the solution.&#160;It can also be used to&#160;demonstrate the solution to audiences.
+<p>Please do not use this <em>Service Product</em> for normal business purposes.</p>
+<p>This <sup>content</sup> should appear in an ISD Description positions under a <strong>Service Product</strong> when reflected in a generated document.</p>
+<p>Its purpose is to use it to <em>test and experiment</em>, with the solution.&#160;It can also be used to&#160;demonstrate the solution to audiences.
 </p>
 <p class="ExternalClass8E2C3072385D48FAA6EE8C1CC9AC3AD8">
 	Instead of adding&#160;<em>test</em>, <em>demo</em> or <em>experimentation</em>&#160;content to <strong>valid business data</strong>, rather add that <sup><font size="2">content</font></sup>&#160;and&#160;associate it with this <strong>Service Family</strong> than <sub>invalidating</sub> business data.
@@ -255,7 +285,7 @@
          <tr class="ms-rteTableEvenCol-default">
             <td class="ms-rteTableEvenCol-default" rowspan="1" style="width: 20%;">​R7C3</td>
             <td class="ms-rteTableOddCol-default" rowspan="1" colspan="1" style="width: 20%;">​R7C4</td>
-            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 25%;">R7C5​</td>
+            <td class="ms-rteTableEvenCol-default" rowspan="1" colspan="1" style="width: 25%;"></td>
          </tr>
       </tbody>
    </table>
